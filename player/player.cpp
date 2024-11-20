@@ -81,7 +81,7 @@ int getCommandID(const std::string& command) {
 
 // Main function
 int main() {
-    std::string ip = "127.0.0.1";  // Server's IP
+    std::string ip = "localhost";  // Server's IP
     std::string port = "58000";     // Server's Port
 
     Player player;

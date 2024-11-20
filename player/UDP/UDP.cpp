@@ -16,6 +16,15 @@ socklen_t udp_addrlen;
 struct addrinfo udp_hints, *udp_res;
 struct sockaddr_in udp_addr;
 
+
+void print_sockaddr_in(const struct sockaddr_in& addr) {
+    char ip[INET_ADDRSTRLEN]; // Buffer to hold the IP address string
+    inet_ntop(AF_INET, &(addr.sin_addr), ip, INET_ADDRSTRLEN);
+
+    std::cout << "IP Address: " << ip << std::endl;
+    std::cout << "Port: " << ntohs(addr.sin_port) << std::endl;
+}
+
 int send_UDP(const std::string& msg, std::string& response, const std::string& ip, const std::string& port) {
     char* udp_buffer = (char*) malloc(5003 * sizeof(char));
     int fd = socket(AF_INET, SOCK_DGRAM, 0);
@@ -43,6 +52,10 @@ int send_UDP(const std::string& msg, std::string& response, const std::string& i
     udp_hints.ai_family = AF_INET;
     udp_hints.ai_socktype = SOCK_DGRAM;
 
+
+    std::cout << "ip: " << ip << std::endl;
+    std::cout << "port: " << port << std::endl;
+
     udp_errcode = getaddrinfo(ip.c_str(), port.c_str(), &udp_hints, &udp_res);
 
     if (udp_errcode != 0) {
@@ -57,7 +70,12 @@ int send_UDP(const std::string& msg, std::string& response, const std::string& i
     }
 
     udp_addrlen = sizeof(udp_addr);
+
+    
     udp_n = recvfrom(fd, udp_buffer, 5003, 0, (struct sockaddr*)&udp_addr, &udp_addrlen);
+
+
+    std::cout << "udp_n: " << udp_n << std::endl;
 
     if (udp_n == -1) {
         std::cerr << "Error receiving message from server" << std::endl;
@@ -65,6 +83,8 @@ int send_UDP(const std::string& msg, std::string& response, const std::string& i
     }
 
     response = std::string(udp_buffer, udp_n);
+
+  
 
     freeaddrinfo(udp_res);
     close(fd);
