@@ -4,14 +4,14 @@
 #include <vector>
 #include <stdexcept>
 #include <unordered_map>
+#include "UDP/start/start.hpp"
+#include "UDP/try/try.hpp"
+#include "UDP/quit/quit.hpp"
+#include "UDP/debug/debug.hpp"
+#include "UDP/exit/exit.hpp"
+#include "player.hpp"
 
 
-struct Player {
-    std::string plid;
-    int maxPlaytime;
-    int numTrials = 0;
-    static const int MAX_NUM_TRIALS = 10;
-};
 
 Player parseStartGame(const std::string& input) {
     std::istringstream iss(input);
@@ -38,7 +38,6 @@ Player parseStartGame(const std::string& input) {
     return player;
 }
 
-
 void parseTryGuess(const std::string& input, Player& player, std::vector<std::string>& guesses) {
     std::istringstream iss(input);
     std::string command;
@@ -63,7 +62,6 @@ void parseTryGuess(const std::string& input, Player& player, std::vector<std::st
     player.numTrials++;
 }
 
-
 int getCommandID(const std::string& command) {
     static std::unordered_map<std::string, int> commandMap = {
         {"start", 1},
@@ -83,6 +81,9 @@ int getCommandID(const std::string& command) {
 
 // Main function
 int main() {
+    std::string ip = "127.0.0.1";  // Server's IP
+    std::string port = "58000";     // Server's Port
+
     Player player;
     bool running = true;
 
@@ -91,7 +92,6 @@ int main() {
         std::string input;
         std::getline(std::cin, input);
 
-        
         std::istringstream iss(input);
         std::string command;
         iss >> command;
@@ -105,6 +105,7 @@ int main() {
                     std::cout << "Game started successfully!" << std::endl;
                     std::cout << "PLID: " << player.plid << std::endl;
                     std::cout << "Max Playtime: " << player.maxPlaytime << " seconds" << std::endl;
+                    execute_start(player.plid, player.maxPlaytime, ip, port);
                 } catch (const std::invalid_argument& e) {
                     std::cerr << "Error: " << e.what() << std::endl;
                 }
@@ -120,6 +121,7 @@ int main() {
                         std::cout << g << " ";
                     }
                     std::cout << std::endl;
+                    execute_try(player.plid, guesses, ip, port);
                 } catch (const std::invalid_argument& e) {
                     std::cerr << "Error: " << e.what() << std::endl;
                 }
@@ -135,6 +137,7 @@ int main() {
             }
             case 5: { // "quit" or "exit"
                 std::cout << "Exiting the game. Goodbye!" << std::endl;
+                execute_quit(ip, port);
                 running = false;
                 break;
             }
@@ -143,6 +146,7 @@ int main() {
                 std::cout << "PLID: " << player.plid << std::endl;
                 std::cout << "Max Playtime: " << player.maxPlaytime << std::endl;
                 std::cout << "Trials: " << player.numTrials << std::endl;
+                execute_debug(ip, port);
                 break;
             }
             default: { // Unknown command

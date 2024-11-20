@@ -1,0 +1,12 @@
+#include <iostream>
+#include "../UDP.hpp"
+
+void execute_quit(const std::string& ip, const std::string& port) {
+    std::string msg = "quit";
+    std::string response;
+    if (send_UDP(msg, response, ip, port) == 1) {
+        std::cout << "Server Response: " << response << std::endl;
+    } else {
+        std::cerr << "Failed to send 'quit' command." << std::endl;
+    }
+}
