@@ -8,6 +8,7 @@
 #include <sys/types.h>
 #include <netinet/in.h>
 #include <netdb.h>
+#include "UDP.hpp"
 
 int udp_errcode;
 ssize_t udp_n;
