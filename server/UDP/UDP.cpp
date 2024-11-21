@@ -7,7 +7,10 @@
 #include <sys/types.h>
 #include <netinet/in.h>
 #include <netdb.h>
+#include <sstream>
 #include "UDP.hpp"
+#include "../start/start.hpp"
+
 
 #define PORT "58000"
 #define BUFFER_SIZE 5003
@@ -35,25 +38,23 @@ int startUDP() {
     socklen_t client_len;
     char buffer[BUFFER_SIZE];
 
-    // Create socket
+
     fd = socket(AF_INET, SOCK_DGRAM, 0);
     if (fd == -1) {
         perror("Error creating socket");
         return -1;
     }
 
-    // Prepare hints for getaddrinfo
     memset(&hints, 0, sizeof(hints));
-    hints.ai_family = AF_INET;       // IPv4
-    hints.ai_socktype = SOCK_DGRAM; // UDP
-    hints.ai_flags = AI_PASSIVE;    // For wildcard address
+    hints.ai_family = AF_INET;    
+    hints.ai_socktype = SOCK_DGRAM;
+    hints.ai_flags = AI_PASSIVE;   
 
     if (getaddrinfo(NULL, PORT, &hints, &res) != 0) {
         perror("Error in getaddrinfo");
         return -1;
     }
 
-    // Bind the socket to the port
     if (bind(fd, res->ai_addr, res->ai_addrlen) == -1) {
         perror("Error binding socket");
         freeaddrinfo(res);
@@ -63,21 +64,80 @@ int startUDP() {
 
     std::cout << "UDP Server is running on port " << PORT << "..." << std::endl;
 
-    // Server loop
+    
     while (true) {
         client_len = sizeof(client_addr);
         ssize_t n = recvfrom(fd, buffer, BUFFER_SIZE, 0, (struct sockaddr *)&client_addr, &client_len);
 
         if (n == -1) {
             perror("Error receiving data from client");
-            continue; // Skip this iteration on error
+            continue; 
         }
 
         std::cout << "Received " << n << " bytes: " << std::string(buffer, n) << std::endl;
-        handle_client(fd, client_addr, client_len, buffer, n);
+        handleUserMessage(fd, client_addr, client_len, buffer, n);
     }
 
-    // Close socket
     close(fd);
     return 0;
 }
+
+
+
+int getCommandID(const std::string& command) {
+    static std::unordered_map<std::string, int> commandMap = {
+        {"SNG", 1},
+        {"TRY", 2},
+        {"QUT", 3},
+        {"DBG", 4}, 
+
+    };
+
+    auto it = commandMap.find(command);
+    return (it != commandMap.end()) ? it->second : -1; // Return -1 for unknown commands
+}
+
+void handleUserMessage(int fd, struct sockaddr_in &client_addr, socklen_t client_len, char *buffer, ssize_t n) {
+    std::string command(buffer, n); 
+    std::istringstream commandStream(command); 
+     std::string plid;
+    std::string commandType;
+    commandStream >> commandType >> plid;
+
+    int commandID = getCommandID(commandType);
+
+
+    switch (commandID) {
+        case 1: { // "start"
+            int maxPlaytime;
+
+            if (commandStream >> maxPlaytime) {
+                std::cout << "Starting new game for Player ID: " << plid 
+                          << ", Max Playtime: " << maxPlaytime << std::endl;
+                startNewGame(plid, maxPlaytime);
+            } else {
+                std::cerr << "Error: Missing or invalid maxPlaytime for 'start' command." << std::endl;
+            }
+            break;
+        }
+        case 2: { // "try"
+            std::cout << "Received 'try' command." << std::endl;
+            break;
+        }
+        case 3: { // "quit"
+            std::cout << "Received 'quit' command." << std::endl;
+            break;
+        }
+        case 4: { // "debug"
+            std::cout << "Received 'debug' command." << std::endl;
+            break;
+        }
+        default: {
+            std::cerr << "Unknown command: " << command << std::endl;
+            break;
+        }
+    }
+
+
+}
+
