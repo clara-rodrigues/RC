@@ -102,9 +102,22 @@ void handleUserMessage(int fd, struct sockaddr_in &client_addr, socklen_t client
     std::istringstream commandStream(command); 
      std::string plid;
     std::string commandType;
+
     commandStream >> commandType >> plid;
 
+    if(plid.size() != 6){
+        sendto(fd, "RSG ERR", 7, 0, (struct sockaddr *)&client_addr, client_len);
+        return;
+    }
+    for (char c : plid) {
+        if (!std::isdigit(c)) {
+            sendto(fd, "RSG ERR", 7, 0, (struct sockaddr *)&client_addr, client_len);
+            return;
+        }
+    }
+
     int commandID = getCommandID(commandType);
+
 
 
     switch (commandID) {
@@ -112,9 +125,21 @@ void handleUserMessage(int fd, struct sockaddr_in &client_addr, socklen_t client
             int maxPlaytime;
 
             if (commandStream >> maxPlaytime) {
+                if(maxPlaytime<0 || maxPlaytime>600){
+                    sendto(fd, "RSG ERR", 7, 0, (struct sockaddr *)&client_addr, client_len);
+                    break;
+                }
+
                 std::cout << "Starting new game for Player ID: " << plid 
                           << ", Max Playtime: " << maxPlaytime << std::endl;
-                startNewGame(plid, maxPlaytime);
+                int responseOK = startNewGame(plid, maxPlaytime);
+                if(responseOK){
+                    sendto(fd, "RSG OK", 6, 0, (struct sockaddr *)&client_addr, client_len);
+                }else{
+                    sendto(fd, "RSG NOK", 7, 0, (struct sockaddr *)&client_addr, client_len);
+                }
+
+
             } else {
                 std::cerr << "Error: Missing or invalid maxPlaytime for 'start' command." << std::endl;
             }

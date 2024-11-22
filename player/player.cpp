@@ -21,10 +21,17 @@ Player parseStartGame(const std::string& input) {
     if (!(iss >> command) || command != "start") {
         throw std::invalid_argument("Invalid command. Expected 'start'.");
     }
+    iss >> player.plid;
 
-    if (!(iss >> player.plid) || player.plid.empty()) {
-        throw std::invalid_argument("Invalid or missing PLID.");
-    }
+    //if (!(iss >> player.plid) || player.plid.size() != 6) {
+    //    throw std::invalid_argument("Invalid or missing PLID.");
+    //}
+    //for (char c : player.plid) {
+    //    if (!std::isdigit(c)) {
+    //        throw std::invalid_argument("Invalid or missing PLID.");
+    //    }
+    //}  
+//
 
     if (!(iss >> player.maxPlaytime) || player.maxPlaytime <= 0 || player.maxPlaytime > 600) {
         throw std::invalid_argument("Invalid max_playtime. Must be between 1 and 600 seconds.");

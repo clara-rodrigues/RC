@@ -3,6 +3,8 @@
 
 #include <string>
 
-void startNewGame(const std::string& plid, int maxPlaytime);
+int startNewGame(const std::string& plid, int maxPlaytime);
+
+std::vector<std::string> generateSecretKey();
 
 #endif
