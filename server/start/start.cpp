@@ -3,21 +3,27 @@
 #include "../GS.hpp"
 #include "start.hpp"
 
-int startNewGame(const std::string& plid, int maxPlaytime) {
+int startNewGame(int plid, int maxPlaytime) {
 
-    for (const auto& player : players) {
-        if (player.plid == plid & player.isPlaying) {
+    for (auto& player : players) {
+        if ((player.plid == plid) & player.isPlaying) {
             std::cout << "Game already in progress." << std::endl;
             return 0;
         }
-        else if (player.plid == plid & !player.isPlaying) {
+        else if ((player.plid == plid )& !player.isPlaying) {
             
+            player.isPlaying = true;
             Game newGame;
             newGame.plid = plid;
             newGame.maxPlaytime = maxPlaytime;
+            int newIndex = games.size() - 1;
+            player.gameId = newIndex;
+            std::cout << "Game ID in player: " << player.gameId << std::endl;
+
             games.push_back(newGame);
             std::cout << "New Game for player: " << plid
                       << " with max playtime: " << maxPlaytime << std::endl;
+
             return 1;
         }
     }
@@ -28,7 +34,6 @@ int startNewGame(const std::string& plid, int maxPlaytime) {
     Player newPlayer;
     newPlayer.plid = plid;
     newPlayer.isPlaying = true;
-    players.push_back(newPlayer);
 
     std::vector<std::string> secret_key = generateSecretKey();
 
@@ -38,6 +43,13 @@ int startNewGame(const std::string& plid, int maxPlaytime) {
     newGame.plid = plid;
     newGame.maxPlaytime = maxPlaytime;
     games.push_back(newGame);
+
+    int newIndex = games.size() - 1;
+    newPlayer.gameId = newIndex;
+    std::cout << "Game ID in player: " << newPlayer.gameId << std::endl;
+
+    players.push_back(newPlayer);
+
 
     std::cout << "New game started for player: " << plid
               << " with max playtime: " << maxPlaytime

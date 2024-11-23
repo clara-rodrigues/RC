@@ -10,6 +10,7 @@
 #include "UDP/debug/debug.hpp"
 #include "UDP/exit/exit.hpp"
 #include "player.hpp"
+#include "UDP/try/try.hpp"
 
 
 
@@ -18,24 +19,20 @@ Player parseStartGame(const std::string& input) {
     std::string command;
     Player player;
 
-    if (!(iss >> command) || command != "start") {
-        throw std::invalid_argument("Invalid command. Expected 'start'.");
-    }
-    iss >> player.plid;
+    iss >> command;
 
-    //if (!(iss >> player.plid) || player.plid.size() != 6) {
-    //    throw std::invalid_argument("Invalid or missing PLID.");
-    //}
-    //for (char c : player.plid) {
-    //    if (!std::isdigit(c)) {
-    //        throw std::invalid_argument("Invalid or missing PLID.");
-    //    }
-    //}  
-//
+    if (!(iss >> player.plid) || player.plid.size() != 6) {
+        throw std::invalid_argument("Invalid or missing PLID.");}
+
+    for (char c : player.plid) {
+        if (!std::isdigit(c)) {
+            throw std::invalid_argument("Invalid or missing PLID.");
+        }
+    }  
 
     if (!(iss >> player.maxPlaytime) || player.maxPlaytime <= 0 || player.maxPlaytime > 600) {
-        throw std::invalid_argument("Invalid max_playtime. Must be between 1 and 600 seconds.");
-    }
+        throw std::invalid_argument("Invalid max_playtime. Must be between 1 and 600 seconds.");}
+
 
     std::string extra;
     if (iss >> extra) {
@@ -50,23 +47,19 @@ void parseTryGuess(const std::string& input, Player& player, std::vector<std::st
     std::string command;
 
     if (!(iss >> command) || command != "try") {
-        throw std::invalid_argument("Invalid command. Expected 'try'.");
-    }
+        throw std::invalid_argument("Invalid command. Expected 'try'.");}
 
     if (player.numTrials >= Player::MAX_NUM_TRIALS) {
-        throw std::invalid_argument("Max number of trials reached.");
-    }
+        throw std::invalid_argument("Max number of trials reached.");}
 
     std::string guess;
     while (iss >> guess) {
-        guesses.push_back(guess);
-    }
+        guesses.push_back(guess);}
 
     if (guesses.size() != 4) {
         throw std::invalid_argument("Invalid number of guesses. Expected exactly 4 guesses.");
     }
 
-    player.numTrials++;
 }
 
 int getCommandID(const std::string& command) {
@@ -128,7 +121,10 @@ int main() {
                         std::cout << g << " ";
                     }
                     std::cout << std::endl;
-                    execute_try(player.plid, guesses, ip, port);
+                    int numTrials = player.numTrials;
+
+                    execute_try(player.plid, guesses, ip, port, numTrials);
+                    player.numTrials = numTrials;
                 } catch (const std::invalid_argument& e) {
                     std::cerr << "Error: " << e.what() << std::endl;
                 }

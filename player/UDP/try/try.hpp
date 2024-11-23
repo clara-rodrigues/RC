@@ -5,6 +5,6 @@
 #include <string>
 #include <vector>
 
-void execute_try(const std::string& plid, const std::vector<std::string>& guesses, const std::string& ip, const std::string& port);
+void execute_try(const std::string& plid, const std::vector<std::string>& guesses, const std::string& ip, const std::string& port, int& numTrials);
 
 #endif

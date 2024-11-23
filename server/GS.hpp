@@ -4,8 +4,9 @@
 #include <string>
 
 struct Player{
-    std::string plid;
+    int plid;
     bool isPlaying = false;
+    int gameId;
 };
 
 extern std::vector<Player> players;
@@ -14,12 +15,15 @@ extern std::vector<std::string> colors;
 
 
 
+
 struct Game{
     std::vector<std::string> secretKey;
-    std::string plid;
+    int plid;
     int maxPlaytime;
     int numTrials = 0;
     static const int MAX_NUM_TRIALS = 10;
+    std::vector<std::vector<std::string>>trials;
+
 };
 
 extern std::vector<Game> games;

@@ -10,6 +10,9 @@
 #include <sstream>
 #include "UDP.hpp"
 #include "../start/start.hpp"
+#include "../GS.hpp"
+#include "../try/try.hpp"
+
 
 
 #define PORT "58000"
@@ -97,10 +100,89 @@ int getCommandID(const std::string& command) {
     return (it != commandMap.end()) ? it->second : -1; // Return -1 for unknown commands
 }
 
+void handleStartGame( int fd, struct sockaddr_in &client_addr, socklen_t client_len, std::istringstream &commandStream, int plid){
+    int maxPlaytime;
+
+    if (commandStream >> maxPlaytime) {
+        if(maxPlaytime<0 || maxPlaytime>600){
+            sendto(fd, "RSG ERR", 7, 0, (struct sockaddr *)&client_addr, client_len);
+            return;
+        }
+
+        std::cout << "Starting new game for Player ID: " << plid 
+                    << ", Max Playtime: " << maxPlaytime << std::endl;
+        int responseOK = startNewGame(plid, maxPlaytime);
+
+        if(responseOK){
+            sendto(fd, "RSG OK", 6, 0, (struct sockaddr *)&client_addr, client_len);
+        }else{
+            sendto(fd, "RSG NOK", 7, 0, (struct sockaddr *)&client_addr, client_len);
+        }
+
+
+    } else {
+        std::cerr << "Error: Missing or invalid maxPlaytime for 'start' command." << std::endl;
+    }
+}
+
+
+void handleTry(int fd, struct sockaddr_in &client_addr, socklen_t client_len, std::istringstream &commandStream, int plid){
+    std::vector<std::string> guesses;
+    std::string guess;
+    int numTrials;
+
+    for (size_t i = 0; i < 4; i++){
+        commandStream >> guess;
+        if (std::find(colors.begin(), colors.end(), guess) == colors.end()) {
+            sendto(fd, "RTR ERR", 7, 0, (struct sockaddr *)&client_addr, client_len);
+            return;
+        }
+
+        guesses.push_back(guess);
+        
+    }
+
+    commandStream >> numTrials;
+
+    if (numTrials < 0 || numTrials > 10) {
+        sendto(fd, "RTR ERR", 7, 0, (struct sockaddr *)&client_addr, client_len);
+        return;
+    }
+
+    int gameId;
+
+    for(const auto& player : players){
+        if((player.plid == plid) && player.isPlaying){
+            gameId = player.gameId;
+
+            if (games[gameId].numTrials +1 != numTrials){
+                sendto(fd, "RTR INV", 7, 0, (struct sockaddr *)&client_addr, client_len);
+                return;
+            }
+
+        }
+    }
+
+    std::pair<int, int>  args = tryGuess(plid, guesses, gameId);
+
+    std::ostringstream oss;
+    oss << "RTR OK " << args.first << " " << args.second << " " << numTrials;
+
+    games[gameId].numTrials++;
+
+    std::string message = oss.str();
+
+    sendto(fd, message.c_str(), 12, 0, (struct sockaddr *)&client_addr, client_len);
+
+   
+}
+
+
+
 void handleUserMessage(int fd, struct sockaddr_in &client_addr, socklen_t client_len, char *buffer, ssize_t n) {
     std::string command(buffer, n); 
     std::istringstream commandStream(command); 
-     std::string plid;
+    std::string plid;
     std::string commandType;
 
     commandStream >> commandType >> plid;
@@ -119,34 +201,18 @@ void handleUserMessage(int fd, struct sockaddr_in &client_addr, socklen_t client
     int commandID = getCommandID(commandType);
 
 
+    int digitPLID = std::stoi(plid);
+
+
+     std::cout << "HELLOOOO9 " ;
 
     switch (commandID) {
         case 1: { // "start"
-            int maxPlaytime;
-
-            if (commandStream >> maxPlaytime) {
-                if(maxPlaytime<0 || maxPlaytime>600){
-                    sendto(fd, "RSG ERR", 7, 0, (struct sockaddr *)&client_addr, client_len);
-                    break;
-                }
-
-                std::cout << "Starting new game for Player ID: " << plid 
-                          << ", Max Playtime: " << maxPlaytime << std::endl;
-                int responseOK = startNewGame(plid, maxPlaytime);
-                if(responseOK){
-                    sendto(fd, "RSG OK", 6, 0, (struct sockaddr *)&client_addr, client_len);
-                }else{
-                    sendto(fd, "RSG NOK", 7, 0, (struct sockaddr *)&client_addr, client_len);
-                }
-
-
-            } else {
-                std::cerr << "Error: Missing or invalid maxPlaytime for 'start' command." << std::endl;
-            }
+            handleStartGame(fd, client_addr, client_len, commandStream, digitPLID);
             break;
         }
         case 2: { // "try"
-            std::cout << "Received 'try' command." << std::endl;
+            handleTry(fd, client_addr, client_len, commandStream, digitPLID);
             break;
         }
         case 3: { // "quit"
