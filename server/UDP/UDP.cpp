@@ -126,6 +126,15 @@ void handleStartGame( int fd, struct sockaddr_in &client_addr, socklen_t client_
 }
 
 
+int existDup(std::vector<Trial> trials, std::vector<std::string> guesses){
+    for(const auto& trial : trials){
+        if(trial.guesses == guesses){
+            return 1;
+        }
+    }
+    return 0;
+}
+
 void handleTry(int fd, struct sockaddr_in &client_addr, socklen_t client_len, std::istringstream &commandStream, int plid){
     std::vector<std::string> guesses;
     std::string guess;
@@ -152,21 +161,31 @@ void handleTry(int fd, struct sockaddr_in &client_addr, socklen_t client_len, st
     int gameId;
 
     for(const auto& player : players){
-        if((player.plid == plid) && player.isPlaying){
-            gameId = player.gameId;
+        if((player.plid == plid)){
+            if(player.isPlaying){
+                gameId = player.gameId;
 
-            if (games[gameId].numTrials +1 != numTrials){
-                sendto(fd, "RTR INV", 7, 0, (struct sockaddr *)&client_addr, client_len);
+                if (games[gameId].numTrials +1 != numTrials){
+                    sendto(fd, "RTR INV", 7, 0, (struct sockaddr *)&client_addr, client_len);
+                    return;
+                }
+            }else{
+                sendto(fd, "RTR NOK", 7, 0, (struct sockaddr *)&client_addr, client_len);
                 return;
             }
 
         }
     }
 
+    if (existDup(games[gameId].trials, guesses)){
+        sendto(fd, "RTR DUP", 7, 0, (struct sockaddr *)&client_addr, client_len);
+        return;
+    }
+
     std::pair<int, int>  args = tryGuess(plid, guesses, gameId);
 
     std::ostringstream oss;
-    oss << "RTR OK " << args.first << " " << args.second << " " << numTrials;
+    oss << "RTR OK " << numTrials << " " << args.first << " " << args.second ;
 
     games[gameId].numTrials++;
 
@@ -203,8 +222,6 @@ void handleUserMessage(int fd, struct sockaddr_in &client_addr, socklen_t client
 
     int digitPLID = std::stoi(plid);
 
-
-     std::cout << "HELLOOOO9 " ;
 
     switch (commandID) {
         case 1: { // "start"

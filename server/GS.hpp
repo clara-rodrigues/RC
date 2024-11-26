@@ -14,7 +14,11 @@ extern std::vector<Player> players;
 extern std::vector<std::string> colors;
 
 
-
+struct Trial{
+    std::vector<std::string> guesses;
+    int numBlack;
+    int numWhite;
+};
 
 struct Game{
     std::vector<std::string> secretKey;
@@ -22,11 +26,11 @@ struct Game{
     int maxPlaytime;
     int numTrials = 0;
     static const int MAX_NUM_TRIALS = 10;
-    std::vector<std::vector<std::string>>trials;
-
+    std::vector<Trial> trials;
 };
 
 extern std::vector<Game> games;
+
 
 
 
