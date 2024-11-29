@@ -2,6 +2,7 @@
 #define GS_HPP
 
 #include <string>
+#include <vector>
 
 struct Player{
     int plid;

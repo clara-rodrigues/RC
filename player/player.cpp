@@ -13,6 +13,8 @@
 #include "UDP/try/try.hpp"
 
 
+extern bool running; // Declaration of the running variable
+bool running = true; // Initialize the running variable
 
 Player parseStartGame(const std::string& input) {
     std::istringstream iss(input);
