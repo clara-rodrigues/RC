@@ -12,6 +12,8 @@ struct Player {
     static const int MAX_NUM_TRIALS = 10;
 };
 
+extern bool running;
+
 Player parseStartGame(const std::string& input);
 
 void parseTryGuess(const std::string& input, Player& player, std::vector<std::string>& guesses);

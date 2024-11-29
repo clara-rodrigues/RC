@@ -49,7 +49,7 @@ void parseTryGuess(const std::string& input, Player& player, std::vector<std::st
     if (!(iss >> command) || command != "try") {
         throw std::invalid_argument("Invalid command. Expected 'try'.");}
 
-    if (player.numTrials >= Player::MAX_NUM_TRIALS) {
+    if (player.numTrials > Player::MAX_NUM_TRIALS) {
         throw std::invalid_argument("Max number of trials reached.");}
 
     std::string guess;
@@ -71,8 +71,8 @@ int getCommandID(const std::string& command) {
         {"scoreboard", 4},
         {"sb", 4}, 
         {"quit", 5},
-        {"exit", 5}, 
-        {"debug", 6}
+        {"exit", 6}, 
+        {"debug", 7}
     };
 
     auto it = commandMap.find(command);
@@ -85,8 +85,8 @@ int main() {
     std::string port = "58000";     // Server's Port
 
     Player player;
-    bool running = true;
 
+    running = true;
     while (running) {
         std::cout << "Enter command: ";
         std::string input;
@@ -102,7 +102,6 @@ int main() {
             case 1: { // "start"
                 try {
                     player = parseStartGame(input);
-                    std::cout << "Game started successfully!" << std::endl;
                     std::cout << "PLID: " << player.plid << std::endl;
                     std::cout << "Max Playtime: " << player.maxPlaytime << " seconds" << std::endl;
                     execute_start(player.plid, player.maxPlaytime, ip, port);
@@ -140,11 +139,17 @@ int main() {
             }
             case 5: { // "quit" or "exit"
                 std::cout << "Exiting the game. Goodbye!" << std::endl;
-                execute_quit(ip, port);
-                running = false;
+                execute_quit(player.plid,ip, port);
+         
                 break;
             }
-            case 6: { // "debug"
+            case 6: { // "exit"
+                std::cout << "Exiting the game. Goodbye!" << std::endl;
+                execute_exit(player.plid, ip, port);
+         
+                break;
+            }
+            case 7: { // "debug"
                 std::cout << "Debug Information:" << std::endl;
                 std::cout << "PLID: " << player.plid << std::endl;
                 std::cout << "Max Playtime: " << player.maxPlaytime << std::endl;

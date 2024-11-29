@@ -8,6 +8,7 @@
 
 void execute_try(const std::string& plid, const std::vector<std::string>& guesses, const std::string& ip, const std::string& port, int& numTrials) {
     std::string msg = "TRY " + plid ;
+    
     for (const auto& guess : guesses) {
         msg += " " + guess;
     }
@@ -26,8 +27,8 @@ void execute_try(const std::string& plid, const std::vector<std::string>& guesse
 
         if (responseStatus == "OK") {
            numTrials++;
+        }
     } else {
-        std::cerr << "Failed to send 'try' command." << std::endl;
-    }
+        std::cerr << "Failed to send 'try' command1." << std::endl;
     }
 }

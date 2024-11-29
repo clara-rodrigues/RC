@@ -2,6 +2,7 @@
 #include <iostream>
 #include "../GS.hpp"
 #include "start.hpp"
+#include <time.h>
 
 int startNewGame(int plid, int maxPlaytime) {
 
@@ -42,6 +43,7 @@ int startNewGame(int plid, int maxPlaytime) {
     newGame.secretKey = secret_key;
     newGame.plid = plid;
     newGame.maxPlaytime = maxPlaytime;
+    newGame.startTime = time(0);
     games.push_back(newGame);
 
     int newIndex = games.size() - 1;

@@ -25,8 +25,9 @@ struct Game{
     int plid;
     int maxPlaytime;
     int numTrials = 0;
-    static const int MAX_NUM_TRIALS = 10;
+    static const int MAX_NUM_TRIALS = 3;
     std::vector<Trial> trials;
+    time_t startTime;
 };
 
 extern std::vector<Game> games;

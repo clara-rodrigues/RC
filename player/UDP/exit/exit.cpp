@@ -1,14 +1,10 @@
 // exit.cpp
 #include <iostream>
 #include "../UDP.hpp"
+#include "../quit/quit.hpp"
+#include "../../player.hpp"
 
-void execute_exit(const std::string& ip, const std::string& port) {
-    std::string msg = "exit";  // Mensagem do comando 'exit'
-    std::string response;
-    
-    if (send_UDP(msg, response, ip, port) == 1) {
-        std::cout << "Server Response: " << response << std::endl;
-    } else {
-        std::cerr << "Failed to send 'exit' command." << std::endl;
-    }
+void execute_exit(std::string plid,const std::string& ip, const std::string& port) {
+   execute_quit(plid, ip, port);
+   running = false;
 }
