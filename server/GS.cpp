@@ -2,16 +2,163 @@
 #include <cstring>
 #include <cstdlib>
 #include "UDP/UDP.hpp"
+#include "TCP/TCP.hpp"
 #include "GS.hpp"
-
+#include <sys/select.h>
+#include <unistd.h>
+#include <algorithm>  
+#include <sys/socket.h>
+#include <netinet/in.h>
 
 std::vector<Player> players;
 std::vector<std::string> colors = {"R", "G", "B", "Y", "O", "P"};
 std::vector<Game> games;
 
+Player* findPlayerById(int plid) {
+    for (auto& player : players) { 
+        if (player.plid == plid) { 
+            return &player; 
+        }
+    }
+    return nullptr;
+}
+
+bool Player::hasFinishedGames() const {
+    for (const Game& game : games) {
+        if (game.plid == plid && !game.trials.empty() && !isPlaying) {
+            return true;
+        }
+    }
+    return false;
+}
 
 
-int main(){
-    startUDP();
+std::string Player::getActiveGameSummary() const {
+    const Game& activeGame = games[gameId]; 
+    std::string filename = "active_game_" + std::to_string(plid) + ".txt";
 
+    std::ofstream file(filename);
+    if (file.is_open()) {
+        for (const Trial& trial : activeGame.trials) {
+            for (const std::string& guess : trial.guesses) {
+                file << guess << " ";
+            }
+            file << trial.numBlack << " " << trial.numWhite << "\n";
+        }
+
+        time_t currentTime = time(0);
+        int remainingTime = activeGame.maxPlaytime - (currentTime - activeGame.startTime);
+        file << "Time remaining: " << remainingTime << " seconds\n";
+
+        file.close();
+    }
+    return filename;
+}
+
+std::string Player::getLastFinishedGameSummary() const {
+    std::string filename = "finished_game_" + std::to_string(plid) + ".txt";
+
+    std::ofstream file(filename);
+    if (file.is_open()) {
+        for (const Game& game : games) {
+            if (game.plid == plid && !game.trials.empty() && !isPlaying) {
+                for (const Trial& trial : game.trials) {
+                    for (const std::string& guess : trial.guesses) {
+                        file << guess << " ";
+                    }
+                    file << trial.numBlack << " " << trial.numWhite << "\n";
+                }
+                file.close();
+                break;
+            }
+        }
+    }
+    return filename;
+}
+
+
+void serverLoop(int udp_fd, int tcp_fd) {
+    fd_set inputs, testfds;
+    struct timeval timeout;
+    int out_fds;
+    struct sockaddr_in client_addr;
+    socklen_t client_len = sizeof(client_addr);
+    char buffer[BUFFER_SIZE];
+
+    FD_ZERO(&inputs);  // Limpa os descritores
+    FD_SET(0, &inputs);  // A entrada padrão (teclado)
+    FD_SET(udp_fd, &inputs);  // O socket UDP
+    FD_SET(tcp_fd, &inputs);  // O socket TCP
+
+    while (1) {
+        testfds = inputs;  // Recarrega a máscara de entrada
+        timeout.tv_sec = 10;  // Timeout de 10 segundos
+        timeout.tv_usec = 0;
+
+        out_fds = select(FD_SETSIZE, &testfds, NULL, NULL, &timeout);
+
+        if (out_fds == -1) {
+            perror("select error");
+            exit(1);
+        }
+
+        if (out_fds == 0) {
+            printf("Timeout: Nenhuma atividade detectada.\n");
+            continue;
+        }
+
+        // Se houver dados no teclado
+        if (FD_ISSET(0, &testfds)) {
+            fgets(buffer, sizeof(buffer), stdin);
+            printf("Input recebido no teclado: %s\n", buffer);
+        }
+
+        // Se houver dados no socket UDP
+        if (FD_ISSET(udp_fd, &testfds)) {
+            int ret = recvfrom(udp_fd, buffer, sizeof(buffer), 0, (struct sockaddr *)&client_addr, &client_len);
+            if (ret >= 0) {
+                buffer[ret] = '\0';  
+                printf("Mensagem recebida no socket UDP: %s\n", buffer);
+                handleUserMessage(udp_fd, client_addr, client_len, buffer, ret);
+            }
+        }
+
+        // Se houver dados no socket TCP
+        if (FD_ISSET(tcp_fd, &testfds)) {
+            int client_fd = accept(tcp_fd, (struct sockaddr *)&client_addr, &client_len);
+            if (client_fd == -1) {
+                perror("Erro ao aceitar conexão TCP");
+                continue;
+            }
+
+            printf("Nova conexão TCP aceita.\n");
+
+            pid_t pid = fork();
+            if (pid == -1) {
+                perror("Erro ao criar processo filho");
+                close(client_fd);
+                continue;
+            }
+
+            if (pid == 0) {  // Processo filho
+                close(tcp_fd);  // O filho não precisa do socket de escuta
+                handlePlayerRequest(client_fd);
+                close(client_fd);
+                exit(0);
+            } else {  // Processo pai
+                close(client_fd);  // O pai não precisa manter a conexão com o cliente
+            }
+        }
+    }
+}
+
+
+int main() {
+    int tcp_fd,udp_fd;
+    std::cout << "Iniciando servidor UDP..." << std::endl;
+    udp_fd = startUDP();
+    std::cout << "Iniciando servidor TCP..." << std::endl;
+    tcp_fd = startTCPServer();  
+    
+    serverLoop(udp_fd,tcp_fd);
 }

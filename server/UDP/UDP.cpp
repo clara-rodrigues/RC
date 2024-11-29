@@ -36,54 +36,37 @@ void handle_client(int fd, struct sockaddr_in &client_addr, socklen_t client_len
 }
 
 int startUDP() {
-    int fd;
     struct addrinfo hints{}, *res;
     struct sockaddr_in client_addr{};
     socklen_t client_len;
     char buffer[BUFFER_SIZE];
+    int udp_fd;
 
-
-    fd = socket(AF_INET, SOCK_DGRAM, 0);
-    if (fd == -1) {
-        perror("Error creating socket");
-        return -1;
+    udp_fd = socket(AF_INET, SOCK_DGRAM, 0);
+    if (udp_fd == -1) {
+        perror("Erro ao criar socket UDP");
+        exit(1);
     }
 
     memset(&hints, 0, sizeof(hints));
-    hints.ai_family = AF_INET;    
+    hints.ai_family = AF_INET;
     hints.ai_socktype = SOCK_DGRAM;
-    hints.ai_flags = AI_PASSIVE;   
+    hints.ai_flags = AI_PASSIVE;
 
     if (getaddrinfo(NULL, PORT, &hints, &res) != 0) {
-        perror("Error in getaddrinfo");
-        return -1;
+        perror("Erro em getaddrinfo UDP");
+        exit(1);
     }
 
-    if (bind(fd, res->ai_addr, res->ai_addrlen) == -1) {
-        perror("Error binding socket");
+    if (bind(udp_fd, res->ai_addr, res->ai_addrlen) == -1) {
+        perror("Erro ao vincular socket UDP");
         freeaddrinfo(res);
-        return -1;
+        exit(1);
     }
+
     freeaddrinfo(res);
-
-    std::cout << "UDP Server is running on port " << PORT << "..." << std::endl;
-
-    
-    while (true) {
-        client_len = sizeof(client_addr);
-        ssize_t n = recvfrom(fd, buffer, BUFFER_SIZE, 0, (struct sockaddr *)&client_addr, &client_len);
-
-        if (n == -1) {
-            perror("Error receiving data from client");
-            continue; 
-        }
-
-        std::cout << "Received " << n << " bytes: " << std::string(buffer, n) << std::endl;
-        handleUserMessage(fd, client_addr, client_len, buffer, n);
-    }
-
-    close(fd);
-    return 0;
+    std::cout << "Servidor UDP iniciado na porta " << PORT << std::endl;
+    return udp_fd;
 }
 
 

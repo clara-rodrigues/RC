@@ -11,7 +11,7 @@
 #include "UDP/exit/exit.hpp"
 #include "player.hpp"
 #include "UDP/try/try.hpp"
-
+#include "TCP/showTrials/showTrials.hpp"
 
 extern bool running; // Declaration of the running variable
 bool running = true; // Initialize the running variable
@@ -85,7 +85,7 @@ int getCommandID(const std::string& command) {
 int main() {
     std::string ip = "localhost";  // Server's IP
     std::string port = "58000";     // Server's Port
-
+    std::string port_tcp = "58000";
     Player player;
 
     running = true;
@@ -133,6 +133,7 @@ int main() {
             }
             case 3: { // "show_trials" or "st"
                 std::cout << "Number of trials made: " << player.numTrials << std::endl;
+                show_trials(ip, port, player.plid);  
                 break;
             }
             case 4: { // "scoreboard" or "sb"
