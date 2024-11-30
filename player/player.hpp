@@ -10,6 +10,7 @@ struct Player {
     int maxPlaytime;
     int numTrials = 1;
     static const int MAX_NUM_TRIALS = 10;
+    bool isPlaying = false;
 };
 
 extern bool running;

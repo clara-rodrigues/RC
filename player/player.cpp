@@ -106,7 +106,7 @@ int main() {
                     player = parseStartGame(input);
                     std::cout << "PLID: " << player.plid << std::endl;
                     std::cout << "Max Playtime: " << player.maxPlaytime << " seconds" << std::endl;
-                    execute_start(player.plid, player.maxPlaytime, ip, port);
+                    execute_start(player, ip, port);
                 } catch (const std::invalid_argument& e) {
                     std::cerr << "Error: " << e.what() << std::endl;
                 }
@@ -141,14 +141,19 @@ int main() {
                 break;
             }
             case 5: { // "quit" or "exit"
+                if(player.isPlaying){
+                    execute_quit(player,ip, port);
+                }
                 std::cout << "Exiting the game. Goodbye!" << std::endl;
-                execute_quit(player.plid,ip, port);
          
                 break;
             }
             case 6: { // "exit"
+                if (player.isPlaying){
+                    execute_exit(player, ip, port);
+                }
                 std::cout << "Exiting the game. Goodbye!" << std::endl;
-                execute_exit(player.plid, ip, port);
+                running = false;
          
                 break;
             }

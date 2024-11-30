@@ -2,9 +2,9 @@
 #include <iostream>
 #include "../UDP.hpp"
 #include "../quit/quit.hpp"
-#include "../../player.hpp"
+#include "exit.hpp"
 
-void execute_exit(std::string plid,const std::string& ip, const std::string& port) {
-   execute_quit(plid, ip, port);
+void execute_exit(Player &player,const std::string& ip, const std::string& port) {
+   execute_quit(player, ip, port);
    running = false;
 }

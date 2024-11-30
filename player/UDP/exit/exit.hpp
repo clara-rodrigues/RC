@@ -2,7 +2,8 @@
 #define EXIT_HPP
 
 #include <string>
+#include "../../player.hpp"
 
-void execute_exit(std::string plid,const std::string& ip, const std::string& port);
+void execute_exit(Player &player,const std::string& ip, const std::string& port);
 
 #endif
