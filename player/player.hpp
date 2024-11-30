@@ -14,6 +14,7 @@ struct Player {
 };
 
 extern bool running;
+extern std::vector<std::string> colors;
 
 Player parseStartGame(const std::string& input);
 

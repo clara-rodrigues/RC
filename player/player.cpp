@@ -15,6 +15,54 @@
 
 extern bool running; // Declaration of the running variable
 bool running = true; // Initialize the running variable
+std::vector<std::string> colors = {"R", "G", "B", "Y", "O", "P"};
+
+std::string validPLID(std::istream& input){
+    std::string plid;
+
+    if (!(input >> plid) || plid.size() != 6) {
+        throw std::invalid_argument("Invalid or missing PLID.");}
+
+    for (char c : plid) {
+        if (!std::isdigit(c)) {
+            throw std::invalid_argument("Invalid or missing PLID.");
+        }
+    }
+    return plid;
+}
+
+
+int validMaxPlayTime(std::istream& input){
+    int maxPlaytime;
+
+    if (!(input >> maxPlaytime) || maxPlaytime <= 0 || maxPlaytime > 600) {
+        throw std::invalid_argument("Invalid max_playtime. Must be between 1 and 600 seconds.");
+    }
+    return maxPlaytime;
+}
+
+std::vector<std::string> validGuess(std::istream& input){
+    std::string guess;
+    std::vector<std::string> guesses;
+
+
+    for (size_t i = 0; i < 4; i++){
+        input >> guess;
+        if (std::find(colors.begin(), colors.end(), guess) == colors.end()) {
+             throw std::invalid_argument("Invalid guess. One or more guesses are not valid.");
+        }
+        guesses.push_back(guess);
+    }
+    return guesses;
+}
+
+void checkExtraInput(std::istream& input){
+    std::string extra;
+    if (input >> extra) {
+        throw std::invalid_argument("Extra input detected.");
+    }
+}
+
 
 Player parseStartGame(const std::string& input) {
     std::istringstream iss(input);
@@ -23,46 +71,59 @@ Player parseStartGame(const std::string& input) {
 
     iss >> command;
 
-    if (!(iss >> player.plid) || player.plid.size() != 6) {
-        throw std::invalid_argument("Invalid or missing PLID.");}
-
-    for (char c : player.plid) {
-        if (!std::isdigit(c)) {
-            throw std::invalid_argument("Invalid or missing PLID.");
-        }
-    }  
-
-    if (!(iss >> player.maxPlaytime) || player.maxPlaytime <= 0 || player.maxPlaytime > 600) {
-        throw std::invalid_argument("Invalid max_playtime. Must be between 1 and 600 seconds.");}
-
-
-    std::string extra;
-    if (iss >> extra) {
-        throw std::invalid_argument("Extra input detected. Expected format: 'start PLID max_playtime'.");
+    try{
+        player.plid = validPLID(iss);
+        player.maxPlaytime = validMaxPlayTime(iss);
+        checkExtraInput(iss);
+    }catch (const std::invalid_argument& e){
+       throw std::invalid_argument(e);
     }
 
     return player;
 }
 
+
 void parseTryGuess(const std::string& input, Player& player, std::vector<std::string>& guesses) {
     std::istringstream iss(input);
     std::string command;
 
-    if (!(iss >> command) || command != "try") {
-        throw std::invalid_argument("Invalid command. Expected 'try'.");}
+    iss >> command;
 
     if (player.numTrials > Player::MAX_NUM_TRIALS) {
         throw std::invalid_argument("Max number of trials reached.");}
 
-    std::string guess;
-    while (iss >> guess) {
-        guesses.push_back(guess);}
+    try{
+        guesses = validGuess(iss);
+        checkExtraInput(iss);
+    }catch (const std::invalid_argument& e){
+       throw std::invalid_argument(e);
+    }
+}
 
-    if (guesses.size() != 4) {
-        throw std::invalid_argument("Invalid number of guesses. Expected exactly 4 guesses.");
+
+void parseDebug(const std::string& input, Player& player, std::vector<std::string>& guesses){
+    std::istringstream iss(input);
+    std::string command;
+    std::string plid;
+
+    iss >> command;
+    try{
+        player.plid = validPLID(iss);
+        player.maxPlaytime = validMaxPlayTime(iss);
+        guesses = validGuess(iss);
+        checkExtraInput(iss);
+    }catch (const std::invalid_argument& e){
+       throw std::invalid_argument(e);
     }
 
+    std::cout << "Player Id: " << player.plid <<std::endl;
+    std::cout << "Max Play time: " << player.maxPlaytime <<std::endl;
+    std::cout << " Valid Guess: " << guesses[0] << guesses[1] << guesses[2] << guesses[3] <<std::endl;
+
 }
+
+
+
 
 int getCommandID(const std::string& command) {
     static std::unordered_map<std::string, int> commandMap = {
@@ -158,11 +219,13 @@ int main() {
                 break;
             }
             case 7: { // "debug"
-                std::cout << "Debug Information:" << std::endl;
-                std::cout << "PLID: " << player.plid << std::endl;
-                std::cout << "Max Playtime: " << player.maxPlaytime << std::endl;
-                std::cout << "Trials: " << player.numTrials << std::endl;
-                execute_debug(ip, port);
+                std::vector<std::string> guesses;
+                try{
+                    parseDebug(input,player,guesses);
+                }catch (const std::invalid_argument& e){
+                    std::cerr << "Error: " << e.what() << std::endl;
+                }
+                execute_debug(player, ip, port, guesses);
                 break;
             }
             default: { // Unknown command

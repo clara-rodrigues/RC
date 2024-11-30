@@ -13,6 +13,7 @@
 #include "../GS.hpp"
 #include "../try/try.hpp"
 #include <unordered_map>
+#include "../debug/debug.hpp"
 
 
 
@@ -84,29 +85,85 @@ int getCommandID(const std::string& command) {
     return (it != commandMap.end()) ? it->second : -1; // Return -1 for unknown commands
 }
 
-void handleStartGame( int fd, struct sockaddr_in &client_addr, socklen_t client_len, std::istringstream &commandStream, int plid){
+int validPLID(std::istream& input){
+    std::string plid;
+    int digitPLID;
+
+    if (!(input >> plid) || plid.size() != 6) {
+        throw std::invalid_argument("Invalid or missing PLID.");}
+
+    for (char c : plid) {
+        if (!std::isdigit(c)) {
+            throw std::invalid_argument("Invalid or missing PLID.");
+        }
+    }
+    digitPLID = std::stoi(plid);
+
+    return digitPLID;
+}
+
+
+int validMaxPlayTime(std::istream& input){
     int maxPlaytime;
 
-    if (commandStream >> maxPlaytime) {
-        if(maxPlaytime<0 || maxPlaytime>600){
-            sendto(fd, "RSG ERR", 7, 0, (struct sockaddr *)&client_addr, client_len);
-            return;
-        }
-
-        std::cout << "Starting new game for Player ID: " << plid 
-                    << ", Max Playtime: " << maxPlaytime << std::endl;
-        int responseOK = startNewGame(plid, maxPlaytime);
-
-        if(responseOK){
-            sendto(fd, "RSG OK", 6, 0, (struct sockaddr *)&client_addr, client_len);
-        }else{
-            sendto(fd, "RSG NOK", 7, 0, (struct sockaddr *)&client_addr, client_len);
-        }
-
-
-    } else {
-        std::cerr << "Error: Missing or invalid maxPlaytime for 'start' command." << std::endl;
+    if (!(input >> maxPlaytime) || maxPlaytime <= 0 || maxPlaytime > 600) {
+        throw std::invalid_argument("Invalid max_playtime. Must be between 1 and 600 seconds.");
     }
+    return maxPlaytime;
+}
+
+std::vector<std::string> validGuess(std::istream& input){
+    std::string guess;
+    std::vector<std::string> guesses;
+
+
+    for (size_t i = 0; i < 4; i++){
+        input >> guess;
+        if (std::find(colors.begin(), colors.end(), guess) == colors.end()) {
+             throw std::invalid_argument("Invalid guess. One or more guesses are not valid.");
+        }
+        guesses.push_back(guess);
+    }
+    return guesses;
+}
+
+
+void checkExtraInput(std::istream& input){
+    std::string extra;
+    if (input >> extra) {
+        throw std::invalid_argument("Extra input detected.");
+    }
+}
+
+
+
+
+
+void handleStartGame( int fd, struct sockaddr_in &client_addr, socklen_t client_len, std::istringstream &commandStream){
+    int responseOK;
+    int plid;
+    int maxPlaytime;
+
+    try{
+        plid = validPLID(commandStream);
+        maxPlaytime = validMaxPlayTime(commandStream);
+        checkExtraInput(commandStream);
+    }catch(const std::invalid_argument& e){
+        std::cout << e.what() << std::endl;
+        sendto(fd, "RSG ERR", 7, 0, (struct sockaddr *)&client_addr, client_len);
+        return;
+    }
+
+    std::cout << "Starting new game for Player ID: " << plid 
+                << ", Max Playtime: " << maxPlaytime << std::endl;
+    responseOK = startNewGame(plid, maxPlaytime);
+
+    if(responseOK){
+        sendto(fd, "RSG OK", 6, 0, (struct sockaddr *)&client_addr, client_len);
+    }else{
+        sendto(fd, "RSG NOK", 7, 0, (struct sockaddr *)&client_addr, client_len);
+    }
+
 }
 
 
@@ -119,11 +176,22 @@ int existDup(std::vector<Trial> trials, std::vector<std::string> guesses){
     return 0;
 }
 
-void handleTry(int fd, struct sockaddr_in &client_addr, socklen_t client_len, std::istringstream &commandStream, int plid){
+void handleTry(int fd, struct sockaddr_in &client_addr, socklen_t client_len, std::istringstream &commandStream){
     std::vector<std::string> guesses;
-    std::string guess;
     int numTrials;
     int gameId;
+    int plid;
+
+    try{
+        plid = validPLID(commandStream);
+        guesses = validGuess(commandStream);
+        checkExtraInput(commandStream);
+
+    }catch(const std::invalid_argument& e){
+        std::cout << e.what() << std::endl;
+        sendto(fd, "RTR ERR", 7, 0, (struct sockaddr *)&client_addr, client_len);
+        return;
+    }
     
 
     Player* currentPlayer = nullptr; 
@@ -136,24 +204,7 @@ void handleTry(int fd, struct sockaddr_in &client_addr, socklen_t client_len, st
         }
     }
 
-
-    for (size_t i = 0; i < 4; i++){
-        commandStream >> guess;
-        if (std::find(colors.begin(), colors.end(), guess) == colors.end()) {
-            sendto(fd, "RTR ERR", 7, 0, (struct sockaddr *)&client_addr, client_len);
-            return;
-        }
-
-        guesses.push_back(guess);
-        
-    }
-
-
     commandStream >> numTrials;
-    if (numTrials < 0 || numTrials > 10) {
-        sendto(fd, "RTR ERR", 7, 0, (struct sockaddr *)&client_addr, client_len);
-        return;
-    }
 
     // check if player is playing
     if(currentPlayer->isPlaying){
@@ -212,8 +263,18 @@ void handleTry(int fd, struct sockaddr_in &client_addr, socklen_t client_len, st
    
 }
 
-void handleQuit(int fd, struct sockaddr_in &client_addr, socklen_t client_len, std::istringstream &commandStream, int plid){
+void handleQuit(int fd, struct sockaddr_in &client_addr, socklen_t client_len, std::istringstream &commandStream){
     Player* currentPlayer = nullptr; 
+    int plid;
+
+    try{
+        plid = validPLID(commandStream);
+        checkExtraInput(commandStream);
+    }catch(const std::invalid_argument& e){
+        std::cout << e.what() << std::endl;
+        sendto(fd, "RQT ERR", 7, 0, (struct sockaddr *)&client_addr, client_len);
+        return;
+    }
 
     // find current player in players list
     for (auto& player : players) {  
@@ -239,46 +300,64 @@ void handleQuit(int fd, struct sockaddr_in &client_addr, socklen_t client_len, s
 }
 
 
+void handleDebug(int fd, struct sockaddr_in &client_addr, socklen_t client_len, std::istringstream &commandStream){
+    int maxPlaytime;
+    std::vector<std::string> guesses;
+    std::string guess;
+    int responseOk;
+    int plid;
+    
+    try{
+        plid = validPLID(commandStream);
+        maxPlaytime = validMaxPlayTime(commandStream);
+        guesses = validGuess(commandStream);
+        checkExtraInput(commandStream);
+
+    }catch(const std::invalid_argument& e){
+        std::cout << e.what() << std::endl;
+        sendto(fd, "RDG ERR", 7, 0, (struct sockaddr *)&client_addr, client_len);
+        return;
+    }
+    
+    responseOk = debug(plid, maxPlaytime, guesses);
+
+    if(responseOk){
+        sendto(fd, "RDG OK", 6, 0, (struct sockaddr *)&client_addr, client_len);
+    }else{
+        sendto(fd, "RDG NOK", 7, 0, (struct sockaddr *)&client_addr, client_len);
+    }
+}
+
+
 void handleUserMessage(int fd, struct sockaddr_in &client_addr, socklen_t client_len, char *buffer, ssize_t n) {
     std::string command(buffer, n); 
     std::istringstream commandStream(command); 
     std::string plid;
     std::string commandType;
 
-    commandStream >> commandType >> plid;
+    commandStream >> commandType;
 
-    if(plid.size() != 6){
-        sendto(fd, "RSG ERR", 7, 0, (struct sockaddr *)&client_addr, client_len);
-        return;
-    }
-    for (char c : plid) {
-        if (!std::isdigit(c)) {
-            sendto(fd, "RSG ERR", 7, 0, (struct sockaddr *)&client_addr, client_len);
-            return;
-        }
-    }
 
     int commandID = getCommandID(commandType);
 
 
-    int digitPLID = std::stoi(plid);
-
 
     switch (commandID) {
         case 1: { // "start"
-            handleStartGame(fd, client_addr, client_len, commandStream, digitPLID);
+            handleStartGame(fd, client_addr, client_len, commandStream);
             break;
         }
         case 2: { // "try"
-            handleTry(fd, client_addr, client_len, commandStream, digitPLID);
+            handleTry(fd, client_addr, client_len, commandStream);
             break;
         }
         case 3: { // "quit"
-            handleQuit(fd, client_addr, client_len, commandStream, digitPLID);
+            handleQuit(fd, client_addr, client_len, commandStream);
             std::cout << "Received 'quit' command." << std::endl;
             break;
         }
         case 4: { // "debug"
+            handleDebug(fd, client_addr, client_len, commandStream);
             std::cout << "Received 'debug' command." << std::endl;
             
             break;
