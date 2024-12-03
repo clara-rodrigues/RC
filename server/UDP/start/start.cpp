@@ -1,8 +1,38 @@
 #include <string>
 #include <iostream>
-#include "../GS.hpp"
+
 #include "start.hpp"
 #include <time.h>
+#include <sstream>
+
+
+void handleStartGame( int fd, struct sockaddr_in &client_addr, socklen_t client_len, std::istringstream &commandStream){
+    int responseOK;
+    int plid;
+    int maxPlaytime;
+
+    try{
+        plid = validPLID(commandStream);
+        maxPlaytime = validMaxPlayTime(commandStream);
+        checkExtraInput(commandStream);
+    }catch(const std::invalid_argument& e){
+        std::cout << e.what() << std::endl;
+        sendto(fd, "RSG ERR", 7, 0, (struct sockaddr *)&client_addr, client_len);
+        return;
+    }
+
+    std::cout << "Starting new game for Player ID: " << plid 
+                << ", Max Playtime: " << maxPlaytime << std::endl;
+    responseOK = startNewGame(plid, maxPlaytime);
+
+    if(responseOK){
+        sendto(fd, "RSG OK", 6, 0, (struct sockaddr *)&client_addr, client_len);
+    }else{
+        sendto(fd, "RSG NOK", 7, 0, (struct sockaddr *)&client_addr, client_len);
+    }
+
+}
+
 
 int startNewGame(int plid, int maxPlaytime) {
 

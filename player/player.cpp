@@ -17,6 +17,8 @@ extern bool running; // Declaration of the running variable
 bool running = true; // Initialize the running variable
 std::vector<std::string> colors = {"R", "G", "B", "Y", "O", "P"};
 
+
+
 std::string validPLID(std::istream& input){
     std::string plid;
 
