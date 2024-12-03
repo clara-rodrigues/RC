@@ -185,7 +185,6 @@ void handleTry(int fd, struct sockaddr_in &client_addr, socklen_t client_len, st
     try{
         plid = validPLID(commandStream);
         guesses = validGuess(commandStream);
-        checkExtraInput(commandStream);
 
     }catch(const std::invalid_argument& e){
         std::cout << e.what() << std::endl;
@@ -327,7 +326,6 @@ void handleDebug(int fd, struct sockaddr_in &client_addr, socklen_t client_len, 
         sendto(fd, "RDG NOK", 7, 0, (struct sockaddr *)&client_addr, client_len);
     }
 }
-
 
 void handleUserMessage(int fd, struct sockaddr_in &client_addr, socklen_t client_len, char *buffer, ssize_t n) {
     std::string command(buffer, n); 
