@@ -1,17 +1,6 @@
-#include <iostream>
-#include <sstream>
-#include <string>
-#include <vector>
-#include <stdexcept>
-#include <unordered_map>
-#include "UDP/start/start.hpp"
-#include "UDP/try/try.hpp"
-#include "UDP/quit/quit.hpp"
-#include "UDP/debug/debug.hpp"
-#include "UDP/exit/exit.hpp"
+
 #include "player.hpp"
-#include "UDP/try/try.hpp"
-#include "TCP/showTrials/showTrials.hpp"
+
 
 extern bool running; // Declaration of the running variable
 bool running = true; // Initialize the running variable
@@ -201,6 +190,7 @@ int main() {
             }
             case 4: { // "scoreboard" or "sb"
                 std::cout << "Scoreboard feature not implemented yet." << std::endl;
+                score_board(ip, port);
                 break;
             }
             case 5: { // "quit" or "exit"
