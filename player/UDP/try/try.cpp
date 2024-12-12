@@ -6,8 +6,17 @@
 
 #include "../UDP.hpp"
 
-void execute_try(const std::string& plid, const std::vector<std::string>& guesses, const std::string& ip, const std::string& port, int& numTrials) {
+
+
+
+
+
+
+void execute_try(Player &player, const std::vector<std::string>& guesses, const std::string& ip, const std::string& port, int& numTrials) {
+    
+    std::string plid = player.plid;
     std::string msg = "TRY " + plid ;
+    int gameTrials = 0;
     
     for (const auto& guess : guesses) {
         msg += " " + guess;
@@ -23,11 +32,19 @@ void execute_try(const std::string& plid, const std::vector<std::string>& guesse
 
         std::istringstream iss(response);
         std::string responseStatus;
-        iss >> response>> responseStatus;
+        iss >> response>> responseStatus >> gameTrials;
 
         if (responseStatus == "OK") {
-           numTrials++;
+            if(gameTrials == 4){
+                closeGame(player);
+                std::cout << "WINNNN!" << std::endl;
+            }else{
+                numTrials++;    
+            }
+        }else if (responseStatus == "ENT" || responseStatus == "ETM") {
+            closeGame(player);
         }
+
     } else {
         std::cerr << "Failed to send 'try' command1." << std::endl;
     }

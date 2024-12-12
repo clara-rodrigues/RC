@@ -4,6 +4,7 @@
 #include "start.hpp"
 #include <time.h>
 #include <sstream>
+#include <fstream>
 
 
 void handleStartGame( int fd, struct sockaddr_in &client_addr, socklen_t client_len, std::istringstream &commandStream){
@@ -34,7 +35,40 @@ void handleStartGame( int fd, struct sockaddr_in &client_addr, socklen_t client_
 }
 
 
+void createPlayerFile(int plid,int gameId){
+    std::string folder = "server/GAMES";
+    std::string filename = folder + "/GAME_" + std::to_string(plid) + ".txt";
+    struct tm * timeinfo;
+
+
+    if (!std::filesystem::exists(folder)) {
+        std::filesystem::create_directories(folder);
+    }
+
+    std::cout << "Creating player file: " << filename << std::endl;
+
+
+    timeinfo = gmtime(&games[gameId].startTime);
+
+    std::ofstream file(filename);
+    if (file.is_open()) {
+        file <<  plid << " "<< games[gameId].state << " " ;
+        for (const auto& key : games[gameId].secretKey) {
+            file << key ;
+        }
+        file << " "<< games[gameId].maxPlaytime << " ";
+        file <<  timeinfo->tm_year +1900<< "-" << timeinfo->tm_mon+1 << "-"<< timeinfo->tm_mday << " " <<timeinfo->tm_hour << ":" << timeinfo->tm_min<< ":" << timeinfo->tm_sec   << std::endl;
+    
+        file.close();
+    } else {
+        std::cerr << "Error: Could not open file for writing!" << std::endl;
+    }
+
+}
+
+
 int startNewGame(int plid, int maxPlaytime) {
+    std::vector<std::string> secret_key = generateSecretKey();
 
     for (auto& player : players) {
         if ((player.plid == plid) & player.isPlaying) {
@@ -47,11 +81,18 @@ int startNewGame(int plid, int maxPlaytime) {
             Game newGame;
             newGame.plid = plid;
             newGame.maxPlaytime = maxPlaytime;
+            newGame.state = "P";
+            newGame.startTime = time(0);
+            newGame.score = 0;
+            newGame.numTrials = 0;
+            newGame.secretKey = secret_key;
+            
+            games.push_back(newGame);
             int newIndex = games.size() - 1;
             player.gameId = newIndex;
             std::cout << "Game ID in player: " << player.gameId << std::endl;
 
-            games.push_back(newGame);
+            
             std::cout << "New Game for player: " << plid
                       << " with max playtime: " << maxPlaytime << std::endl;
 
@@ -60,13 +101,12 @@ int startNewGame(int plid, int maxPlaytime) {
     }
 
 
-
     // Add the new player
     Player newPlayer;
     newPlayer.plid = plid;
     newPlayer.isPlaying = true;
 
-    std::vector<std::string> secret_key = generateSecretKey();
+    
 
     // Add the new game
     Game newGame;
@@ -74,6 +114,7 @@ int startNewGame(int plid, int maxPlaytime) {
     newGame.plid = plid;
     newGame.maxPlaytime = maxPlaytime;
     newGame.startTime = time(0);
+    newGame.state = "P";
     games.push_back(newGame);
 
     int newIndex = games.size() - 1;
@@ -83,6 +124,7 @@ int startNewGame(int plid, int maxPlaytime) {
     players.push_back(newPlayer);
 
 
+    //PRINT
     std::cout << "New game started for player: " << plid
               << " with max playtime: " << maxPlaytime
               << " Secret Key: ";
@@ -90,6 +132,13 @@ int startNewGame(int plid, int maxPlaytime) {
         std::cout << key << " ";
     }
     std::cout << std::endl;
+    //
+
+
+    createPlayerFile(plid,newIndex);
+
+
+
     return 1;
 }
 

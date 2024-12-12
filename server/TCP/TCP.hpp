@@ -24,14 +24,18 @@
 #include <fstream>
 #include <ctime>
 #include "../GS.hpp"
+#include "show_trials/show_trials.hpp"
+#include "scoreBoard/scoreBoard.hpp"
 
 #define TCP_PORT "58000"
 #define BUFFER_SIZE 1024
 
 void handlePlayerRequest(int client_fd);
-void handleShowTrials(int client_fd, const std::string &plid);
+void handleShowTrials(int client_fd, std::istringstream &commandStream);
 void sendFile(int client_fd, const std::string &filename);
+void handleScoreBoard(int client_fd, std::istringstream &commandStream);
 
 int startTCPServer();
+int getCommandID_TCP(const std::string& command);
 
 #endif 

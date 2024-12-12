@@ -35,9 +35,25 @@ struct Game {
     static const int MAX_NUM_TRIALS = 3;
     std::vector<Trial> trials;
     time_t startTime;
+    int score = 0;
+    std::string state;
+
 };
 
 extern std::vector<Game> games;
 Player* findPlayerById(int plid);
 void serverLoop(int udp_fd, int tcp_fd);
+
+int validPLID(std::istream& input);
+int validMaxPlayTime(std::istream& input);
+std::vector<std::string> validGuess(std::istream& input);
+void checkExtraInput(std::istream& input);
+int checkNumTrials(std::istream& input);
+
+
+
+
 #endif
+
+
+

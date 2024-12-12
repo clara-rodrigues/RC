@@ -13,6 +13,17 @@
 
 #define TCP_PORT "58000"
 
+int getCommandID_TCP(const std::string& command) {
+    static std::unordered_map<std::string, int> commandMap = {
+        {"STR", 1},
+        {"SSB", 2},
+
+    };
+    auto it = commandMap.find(command);
+    return (it != commandMap.end()) ? it->second : -1; // Return -1 for unknown commands
+}
+
+
 
 void handlePlayerRequest(int client_fd) {
     char buffer[BUFFER_SIZE];
@@ -25,29 +36,52 @@ void handlePlayerRequest(int client_fd) {
     buffer[n] = '\0';  
     std::string command(buffer, n);
 
-    std::string commandType, plid;
+    std::string commandType;
     
     std::istringstream commandStream(command);
-    commandStream >> commandType >> plid;
-    
-    std::cerr << "[DEBUG] handlePlayerRequest: Comando identificado: '" << commandType 
-              << "', PLID identificado: '" << plid << "'" << std::endl;
 
-    if (plid.size() != 6 || !std::all_of(plid.begin(), plid.end(), ::isdigit)) {
-        std::cerr << "[ERROR] PLID inválido: '" << plid << "'" << std::endl;
-        const std::string error_response = "RST NOK\n";
-        send(client_fd, error_response.c_str(), error_response.size(), 0);
-        close(client_fd);
-        return;
+    commandStream >> commandType;
+    int commandID = getCommandID_TCP(commandType);
+
+    switch (commandID) {
+        case 1: { // "show trials"
+            handleShowTrials(client_fd, commandStream);
+            break;
+        }
+        case 2: { // "scoreboard"
+            handleScoreBoard(client_fd, commandStream);
+            break;
+        }
+         default: {
+            std::cerr << "Unknown command: " << command << std::endl;
+            break;
+        }
     }
 
-    if (commandType == "STR") {
-        handleShowTrials(client_fd, plid);
-    } else {
-        std::cerr << "[ERROR] Comando inválido: '" << commandType << "'" << std::endl;
-        const std::string invalid_response = "RST NOK\n";
-        send(client_fd, invalid_response.c_str(), invalid_response.size(), 0);
-    }
+
+
+    //commandStream >> commandType >> plid;
+    //
+    //std::cerr << "[DEBUG] handlePlayerRequest: Comando identificado: '" << commandType 
+    //          << "', PLID identificado: '" << plid << "'" << std::endl;
+//
+    //if (plid.size() != 6 || !std::all_of(plid.begin(), plid.end(), ::isdigit)) {
+    //    std::cerr << "[ERROR] PLID inválido: '" << plid << "'" << std::endl;
+    //    const std::string error_response = "RST NOK\n";
+    //    send(client_fd, error_response.c_str(), error_response.size(), 0);
+    //    close(client_fd);
+    //    return;
+    //}
+//
+    //if (commandType == "STR") {
+    //    handleShowTrials(client_fd, plid);
+    //}else if (commandType == "SB") {
+    //    handleScoreBoard(client_fd);
+    //} else {
+    //    std::cerr << "[ERROR] Comando inválido: '" << commandType << "'" << std::endl;
+    //    const std::string invalid_response = "RST NOK\n";
+    //    send(client_fd, invalid_response.c_str(), invalid_response.size(), 0);
+    //}
 
     close(client_fd);
 }

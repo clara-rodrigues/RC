@@ -1,23 +1,20 @@
-#ifndef CLIENT_HPP
-#define CLIENT_HPP
+#ifndef PLAYER_HPP
+#define PLAYER_HPP
+
+
+
 
 #include <string>
 #include <vector>
 #include <unordered_map>
-#include "UDP/try/try.hpp"
-#include "TCP/showTrials/showTrials.hpp"
-#include "TCP/scoreBoard/scoreBoard.hpp"
+
 #include <iostream>
 #include <sstream>
 #include <string>
 #include <vector>
 #include <stdexcept>
 #include <unordered_map>
-#include "UDP/start/start.hpp"
-#include "UDP/try/try.hpp"
-#include "UDP/quit/quit.hpp"
-#include "UDP/debug/debug.hpp"
-#include "UDP/exit/exit.hpp"
+
 
 struct Player {
     std::string plid;
@@ -29,6 +26,8 @@ struct Player {
 
 extern bool running;
 extern std::vector<std::string> colors;
+
+void closeGame(Player &player);
 
 Player parseStartGame(const std::string& input);
 

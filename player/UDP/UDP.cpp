@@ -17,6 +17,9 @@ struct addrinfo udp_hints, *udp_res;
 struct sockaddr_in udp_addr;
 
 
+
+
+
 void print_sockaddr_in(const struct sockaddr_in& addr) {
     char ip[INET_ADDRSTRLEN]; // Buffer to hold the IP address string
     inet_ntop(AF_INET, &(addr.sin_addr), ip, INET_ADDRSTRLEN);

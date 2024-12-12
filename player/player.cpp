@@ -1,5 +1,14 @@
 
 #include "player.hpp"
+#include "UDP/try/try.hpp"
+#include "UDP/start/start.hpp"
+#include "UDP/try/try.hpp"
+#include "UDP/quit/quit.hpp"
+#include "UDP/debug/debug.hpp"
+#include "UDP/exit/exit.hpp"
+#include "TCP/showTrials/showTrials.hpp"
+#include "TCP/scoreBoard/scoreBoard.hpp"
+
 
 
 extern bool running; // Declaration of the running variable
@@ -113,6 +122,10 @@ void parseDebug(const std::string& input, Player& player, std::vector<std::strin
 
 }
 
+void closeGame(Player &player){
+    player.isPlaying = false;
+    player.numTrials = 1;
+}
 
 
 
@@ -176,7 +189,7 @@ int main() {
                     std::cout << std::endl;
                     int numTrials = player.numTrials;
 
-                    execute_try(player.plid, guesses, ip, port, numTrials);
+                    execute_try(player, guesses, ip, port, numTrials);
                     player.numTrials = numTrials;
                 } catch (const std::invalid_argument& e) {
                     std::cerr << "Error: " << e.what() << std::endl;

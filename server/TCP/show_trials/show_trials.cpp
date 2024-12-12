@@ -3,7 +3,7 @@
 #include <sys/socket.h> // Add this line to include the appropriate header file
 
 #include "../../GS.hpp"
-#include <sstream>
+
 #include "../TCP.hpp"
 
 
@@ -34,9 +34,20 @@ void sendFile(int client_fd, const std::string &filename) {
     file.close();
 }
 
-void handleShowTrials(int client_fd, const std::string &plid) {
+void handleShowTrials(int client_fd, std::istringstream &commandStream) {
+    int plid;
+    try{
+        plid = validPLID(commandStream);
+        checkExtraInput(commandStream);
+    }catch (const std::invalid_argument& e){
+        std::cerr << "[ERROR] " << e.what() << std::endl;
+        const std::string error_response = "RST NOK\n";
+        send(client_fd, error_response.c_str(), error_response.size(), 0);
+        return;
+    }
 
-    Player *player = findPlayerById(std::stoi(plid));
+
+    Player *player = findPlayerById(plid);
     if (!player) {
         std::cerr << "[ERROR] Jogador com PLID " << plid << " não encontrado." << std::endl;
         const std::string error_response = "RST NOK\n";

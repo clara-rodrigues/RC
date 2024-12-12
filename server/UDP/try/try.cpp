@@ -36,6 +36,8 @@ void handleTry(int fd, struct sockaddr_in &client_addr, socklen_t client_len, st
         sendto(fd, "RTR ERR", 7, 0, (struct sockaddr *)&client_addr, client_len);
         return;
     }
+
+    std::cout << "WHATTTTT "  << std::endl; 
     
 
     Player* currentPlayer = nullptr; 
@@ -47,7 +49,8 @@ void handleTry(int fd, struct sockaddr_in &client_addr, socklen_t client_len, st
             break;
         }
     }
-
+    
+    std::cout << "ELAAAAAA "  << std::endl; 
 
     // check if player is playing
     if(currentPlayer->isPlaying){
@@ -63,6 +66,9 @@ void handleTry(int fd, struct sockaddr_in &client_addr, socklen_t client_len, st
         return;
     }
 
+
+    std::cout << "SSUSUSSS "  << std::endl; 
+
     //check if time has been exceeded
     time_t currentTime = time(0);
     if (currentTime - games[gameId].startTime > games[gameId].maxPlaytime){
@@ -76,13 +82,18 @@ void handleTry(int fd, struct sockaddr_in &client_addr, socklen_t client_len, st
         return ;
     }
 
+    std::cout << "WELLLLL "  << std::endl; 
 
     if (existDup(games[gameId].trials, guesses)){
         sendto(fd, "RTR DUP", 7, 0, (struct sockaddr *)&client_addr, client_len);
         return;
     }
+    std::cout << "PIRIRIRIRIIR "  << std::endl; 
+
 
     std::pair<int, int>  args = tryGuess(plid, guesses, gameId);
+
+    std::cout << "SEILASEILA "  << std::endl;
 
     if(args.first != 4 & numTrials >= games[gameId].MAX_NUM_TRIALS){
         std::ostringstream oss;
@@ -94,6 +105,8 @@ void handleTry(int fd, struct sockaddr_in &client_addr, socklen_t client_len, st
         sendto(fd, message.c_str(), 15, 0, (struct sockaddr *)&client_addr, client_len);
         return ;
     }
+
+    std::cout << "POISS "  << std::endl; 
 
     std::ostringstream oss;
     oss << "RTR OK " << numTrials << " " << args.first << " " << args.second ;
@@ -112,6 +125,10 @@ std::pair<int, int> tryGuess(int plid, std::vector<std::string> guesses, int gam
     int numBlack = 0;
     int numWhite = 0;
     std::vector<int> trialState(4, 0);
+
+    std::cout << "PLID: " << plid << std::endl;
+    std::cout << "Game ID: " << gameId << std::endl;
+    std::cout << "Secret Key: " << games[gameId].secretKey[0] << games[gameId].secretKey[1] << games[gameId].secretKey[2] << games[gameId].secretKey[3] << std::endl;
     
     
     for (size_t i = 0; i < 4; i++) {

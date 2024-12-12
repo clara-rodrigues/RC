@@ -69,7 +69,7 @@ int startUDP() {
 
 
 
-int getCommandID(const std::string& command) {
+int getCommandID_UDP(const std::string& command) {
     static std::unordered_map<std::string, int> commandMap = {
         {"SNG", 1},
         {"TRY", 2},
@@ -81,77 +81,6 @@ int getCommandID(const std::string& command) {
     auto it = commandMap.find(command);
     return (it != commandMap.end()) ? it->second : -1; // Return -1 for unknown commands
 }
-
-int validPLID(std::istream& input){
-    std::string plid;
-    int digitPLID;
-
-    if (!(input >> plid) || plid.size() != 6) {
-        throw std::invalid_argument("Invalid or missing PLID.");}
-
-    for (char c : plid) {
-        if (!std::isdigit(c)) {
-            throw std::invalid_argument("Invalid or missing PLID.");
-        }
-    }
-    digitPLID = std::stoi(plid);
-
-    return digitPLID;
-}
-
-
-int validMaxPlayTime(std::istream& input){
-    int maxPlaytime;
-
-    if (!(input >> maxPlaytime) || maxPlaytime <= 0 || maxPlaytime > 600) {
-        throw std::invalid_argument("Invalid max_playtime. Must be between 1 and 600 seconds.");
-    }
-    return maxPlaytime;
-}
-
-std::vector<std::string> validGuess(std::istream& input){
-    std::string guess;
-    std::vector<std::string> guesses;
-
-
-    for (size_t i = 0; i < 4; i++){
-        input >> guess;
-        if (std::find(colors.begin(), colors.end(), guess) == colors.end()) {
-             throw std::invalid_argument("Invalid guess. One or more guesses are not valid.");
-        }
-        guesses.push_back(guess);
-    }
-    return guesses;
-}
-
-
-void checkExtraInput(std::istream& input){
-    std::string extra;
-    if (input >> extra) {
-        throw std::invalid_argument("Extra input detected.");
-    }
-}
-
-int checkNumTrials(std::istream& input){
-    int trials;
-    if (!(input >> trials) ) {
-        throw std::invalid_argument("Invalid trial number.");
-    }
-
-    return trials;
-
-}
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -165,7 +94,7 @@ void handleUserMessage(int fd, struct sockaddr_in &client_addr, socklen_t client
     commandStream >> commandType;
 
 
-    int commandID = getCommandID(commandType);
+    int commandID = getCommandID_UDP(commandType);
 
 
 

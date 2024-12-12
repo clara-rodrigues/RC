@@ -4,6 +4,8 @@
 #include <string>
 #include "../../GS.hpp"
 #include "../UDP.hpp"
+#include <time.h>
+#include <filesystem> 
 
 int startNewGame(int plid, int maxPlaytime);
 

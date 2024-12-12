@@ -3,7 +3,8 @@
 
 #include <iostream>
 #include <string>
+#include <sstream>
 
-
+void handleShowTrials(int client_fd, std::istringstream &commandStream);
 
 #endif
