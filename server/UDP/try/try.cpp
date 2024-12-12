@@ -81,7 +81,7 @@ void handleTry(int fd, struct sockaddr_in &client_addr, socklen_t client_len, st
     if (currentTime - games[gameId].startTime > games[gameId].maxPlaytime){
         std::ostringstream oss;
         std::vector<std::string> secretKey = games[gameId].secretKey;
-
+        games[gameId].finalSate = 'T';
         currentPlayer->isPlaying = false;
         oss << "RTR ETM " << secretKey[0] << " " << secretKey[1] << " " << secretKey[2] << " " << secretKey[3];
         std::string message = oss.str();
@@ -99,7 +99,7 @@ void handleTry(int fd, struct sockaddr_in &client_addr, socklen_t client_len, st
     std::pair<int, int>  args = tryGuess(plid, guesses, gameId);
 
     writeTrial(plid, guesses, args,currentTime, games[gameId].startTime);
-    
+
     if(args.first != 4 & numTrials >= games[gameId].MAX_NUM_TRIALS){
         std::ostringstream oss;
         std::vector<std::string> secretKey = games[gameId].secretKey;
@@ -107,6 +107,7 @@ void handleTry(int fd, struct sockaddr_in &client_addr, socklen_t client_len, st
         currentPlayer->isPlaying = false;
         oss << "RTR ENT " << secretKey[0] << " " << secretKey[1] << " " << secretKey[2] << " " << secretKey[3];
         std::string message = oss.str();
+        games[gameId].finalSate = 'F';
         sendto(fd, message.c_str(), 15, 0, (struct sockaddr *)&client_addr, client_len);
         closeGame(*currentPlayer, games[gameId]);
         return ;
@@ -119,7 +120,11 @@ void handleTry(int fd, struct sockaddr_in &client_addr, socklen_t client_len, st
         oss << "RTR OK " << numTrials << " " << args.first << " " << args.second ;
         std::string message = oss.str();
         sendto(fd, message.c_str(), 12, 0, (struct sockaddr *)&client_addr, client_len);
+        games[gameId].score = calcScore(games[gameId]);
+        games[gameId].finalSate = 'W';
         closeGame(*currentPlayer, games[gameId]);
+
+
         return ;
     }
 

@@ -41,6 +41,8 @@ void createPlayerDir(int plid, Game &game) {
                       std::to_string(timeinfo->tm_hour) + 
                       std::to_string(timeinfo->tm_min) + 
                       std::to_string(timeinfo->tm_sec) + 
+                      "_" +
+                      game.finalSate + 
                       ".txt";
 
         std::cout << "Renaming " << oldFile << " to " << newFileName << std::endl;
@@ -69,7 +71,6 @@ void createPlayerDir(int plid, Game &game) {
 
 void closeGame(Player& player, Game& game) {
     player.isPlaying = false;
-    game.score = calcScore(game);
     createPlayerDir(player.plid, game);
 }
 

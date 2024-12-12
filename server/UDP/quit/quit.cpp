@@ -21,18 +21,13 @@ void handleQuit(int fd, struct sockaddr_in &client_addr, socklen_t client_len, s
         return;
     }
 
-    // find current player in players list
-    for (auto& player : players) {  
-        if (player.plid == plid) {
-            currentPlayer = &player;  
-            break;
-        }
-    }
+    currentPlayer = findPlayerById(plid);
 
     if(currentPlayer->isPlaying){
         int gameId = currentPlayer->gameId;
         std::vector<std::string> secretKey = games[gameId].secretKey;
         currentPlayer->isPlaying = false;
+        games[gameId].finalSate = 'Q';
         closeGame(*currentPlayer, games[gameId]);
         std::ostringstream oss;
         oss << "RQT OK " << secretKey[0] << " " << secretKey[1] << " " << secretKey[2] << " " << secretKey[3];
