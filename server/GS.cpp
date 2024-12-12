@@ -19,40 +19,51 @@ std::vector<Game> games;
 namespace fs = std::filesystem;
 
 void createPlayerDir(int plid, Game &game) {
-    struct tm * timeinfo;
-    const std::string oldFile = "server/GAMES/GAME_"+ std::to_string(plid) + ".txt";
+    struct tm *timeinfo;
+    const std::string oldFile = "server/GAMES/GAME_" + std::to_string(plid) + ".txt";
     const std::string folder = "server/GAMES/" + std::to_string(plid);
 
-    // Create directory if it doesn't exist
-    if (!std::filesystem::exists(folder)) {
-        std::filesystem::create_directories(folder);
+    // Create the folder if it doesn't exist
+    if (!fs::exists(folder)) {
+        fs::create_directories(folder);
     }
+
     std::string newFileName;
-    // Move old file to the new directory with a new name
-    if (std::filesystem::exists(oldFile)) {
+
+    // If the old file exists, rename it
+    if (fs::exists(oldFile)) {
         timeinfo = gmtime(&game.startTime);
-            newFileName = folder + "/" + 
-            std::to_string(timeinfo->tm_year + 1900) + 
-            std::to_string(timeinfo->tm_mon + 1) + 
-            std::to_string(timeinfo->tm_mday) + 
-            "_" + 
-            std::to_string(timeinfo->tm_hour) + 
-            std::to_string(timeinfo->tm_min) + 
-            std::to_string(timeinfo->tm_sec) + 
-            ".txt";
+        newFileName = folder + "/" + 
+                      std::to_string(timeinfo->tm_year + 1900) + 
+                      std::to_string(timeinfo->tm_mon + 1) + 
+                      std::to_string(timeinfo->tm_mday) + 
+                      "_" + 
+                      std::to_string(timeinfo->tm_hour) + 
+                      std::to_string(timeinfo->tm_min) + 
+                      std::to_string(timeinfo->tm_sec) + 
+                      ".txt";
 
-            std::cout << "Renomeando " << oldFile << " para " << newFileName << std::endl;
-        
-        std::filesystem::rename(oldFile, newFileName);
-    }
-    std::ofstream file(newFileName);
-    if (file.is_open()) {
-       file <<  timeinfo->tm_year +1900<< "-" << timeinfo->tm_mon+1 << "-"<< timeinfo->tm_mday << " " <<timeinfo->tm_hour << ":" << timeinfo->tm_min<< ":" << timeinfo->tm_sec   << std::endl;
+        std::cout << "Renaming " << oldFile << " to " << newFileName << std::endl;
 
+        // Rename the old file to the new file
+        fs::rename(oldFile, newFileName);
     } else {
-        std::cerr << "Erro ao abrir o arquivo " << newFileName << std::endl;
+        std::cerr << "Old file does not exist: " << oldFile << std::endl;
+        return;
     }
 
+    // Open the new file in append mode to avoid truncation
+    std::ofstream file(newFileName, std::ios::app);
+    if (file.is_open()) {
+        file << timeinfo->tm_year + 1900 << "-"
+             << timeinfo->tm_mon + 1 << "-"
+             << timeinfo->tm_mday << " "
+             << timeinfo->tm_hour << ":"
+             << timeinfo->tm_min << ":"
+             << timeinfo->tm_sec << std::endl;
+    } else {
+        std::cerr << "Error opening the file " << newFileName << std::endl;
+    }
 }
 
 
@@ -66,23 +77,17 @@ void clearGamesDir() {
     const std::string directory = "server/GAMES";
 
     try {
-        // Verifica se a diretoria existe
         if (fs::exists(directory) && fs::is_directory(directory)) {
-            // Itera pelos arquivos na diretoria
             for (const auto& entry : fs::directory_iterator(directory)) {
-                if (fs::is_regular_file(entry.path())) {
-                    // Remove o arquivo
-                    fs::remove(entry.path());
-                    std::cout << "Removido: " << entry.path() << std::endl;
-                }
+                fs::remove_all(entry.path());
+                std::cout << "Removed: " << entry.path() << std::endl;
             }
-            std::cout << "Todos os arquivos em " << directory << " foram removidos.\n";
+            std::cout << "All files and folders in " << directory << " have been removed.\n";
         } else {
-            std::cerr << "A diretoria " << directory << " n\u00e3o existe ou n\u00e3o \u00e9 uma diretoria v\u00e1lida.\n";
+            std::cerr << "The directory " << directory << " does not exist or is not a valid directory.\n";
         }
     } catch (const fs::filesystem_error& e) {
-        // Trata erros relacionados ao sistema de arquivos
-        std::cerr << "Erro: " << e.what() << std::endl;
+        std::cerr << "Error: " << e.what() << std::endl;
     }
 }
 

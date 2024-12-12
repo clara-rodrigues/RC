@@ -19,6 +19,25 @@ int existDup(std::vector<Trial> trials, std::vector<std::string> guesses){
     return 0;
 }
 
+
+void writeTrial(int plid, std::vector<std::string> guesses, std::pair<int, int> args, time_t currentTime, time_t startTime) {
+    std::string folder = "server/GAMES";
+    std::string filename = folder + "/GAME_" + std::to_string(plid) + ".txt";
+    std::ofstream file(filename, std::ios::app);
+    if (file.is_open()) {
+        file << "T:";
+        for (const auto& guess : guesses) {
+            file << guess;
+        }
+        file << " ";
+        file << args.first << " " << args.second << " ";
+        file << currentTime-startTime << std::endl;
+    } else {
+        std::cerr << "Erro ao abrir o arquivo " << filename << std::endl;
+    }
+}
+
+
 void handleTry(int fd, struct sockaddr_in &client_addr, socklen_t client_len, std::istringstream &commandStream){
     std::vector<std::string> guesses;
     int numTrials;
@@ -79,6 +98,8 @@ void handleTry(int fd, struct sockaddr_in &client_addr, socklen_t client_len, st
 
     std::pair<int, int>  args = tryGuess(plid, guesses, gameId);
 
+    writeTrial(plid, guesses, args,currentTime, games[gameId].startTime);
+    
     if(args.first != 4 & numTrials >= games[gameId].MAX_NUM_TRIALS){
         std::ostringstream oss;
         std::vector<std::string> secretKey = games[gameId].secretKey;

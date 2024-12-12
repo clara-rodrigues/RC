@@ -90,6 +90,7 @@ int startNewGame(int plid, int maxPlaytime) {
             games.push_back(newGame);
             int newIndex = games.size() - 1;
             player.gameId = newIndex;
+            createPlayerFile(plid,newIndex);
             std::cout << "Game ID in player: " << player.gameId << std::endl;
 
             
