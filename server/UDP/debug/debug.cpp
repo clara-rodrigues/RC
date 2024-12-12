@@ -57,7 +57,7 @@ int debug(int plid, int maxPlaytime, std::vector<std::string> guesses){
         gameId = currentPlayer->gameId;
 
         games[gameId].secretKey = guesses;
-        games[gameId].state = "D";
+        games[gameId].gameMode = "D";
         return 1;
     }
     return 0;

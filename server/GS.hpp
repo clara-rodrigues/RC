@@ -36,7 +36,8 @@ struct Game {
     std::vector<Trial> trials;
     time_t startTime;
     int score = 0;
-    std::string state;
+    std::string gameMode;
+    std:: string finalSate;
 
 };
 
@@ -49,7 +50,10 @@ int validMaxPlayTime(std::istream& input);
 std::vector<std::string> validGuess(std::istream& input);
 void checkExtraInput(std::istream& input);
 int checkNumTrials(std::istream& input);
+int calcScore(const Game& game);
 
+void closeGame(Player& player, Game& game);
+void createPlayerDir(int plid, Game &game);
 
 
 

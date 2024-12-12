@@ -52,7 +52,7 @@ void createPlayerFile(int plid,int gameId){
 
     std::ofstream file(filename);
     if (file.is_open()) {
-        file <<  plid << " "<< games[gameId].state << " " ;
+        file <<  plid << " "<< games[gameId].gameMode << " " ;
         for (const auto& key : games[gameId].secretKey) {
             file << key ;
         }
@@ -81,7 +81,7 @@ int startNewGame(int plid, int maxPlaytime) {
             Game newGame;
             newGame.plid = plid;
             newGame.maxPlaytime = maxPlaytime;
-            newGame.state = "P";
+            newGame.gameMode = "P";
             newGame.startTime = time(0);
             newGame.score = 0;
             newGame.numTrials = 0;
@@ -114,7 +114,7 @@ int startNewGame(int plid, int maxPlaytime) {
     newGame.plid = plid;
     newGame.maxPlaytime = maxPlaytime;
     newGame.startTime = time(0);
-    newGame.state = "P";
+    newGame.gameMode = "P";
     games.push_back(newGame);
 
     int newIndex = games.size() - 1;

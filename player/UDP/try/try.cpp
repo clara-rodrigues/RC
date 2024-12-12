@@ -13,7 +13,7 @@
 
 
 void execute_try(Player &player, const std::vector<std::string>& guesses, const std::string& ip, const std::string& port, int& numTrials) {
-    
+    int numBlacks;
     std::string plid = player.plid;
     std::string msg = "TRY " + plid ;
     int gameTrials = 0;
@@ -32,10 +32,11 @@ void execute_try(Player &player, const std::vector<std::string>& guesses, const 
 
         std::istringstream iss(response);
         std::string responseStatus;
-        iss >> response>> responseStatus >> gameTrials;
+        iss >> response>> responseStatus >> gameTrials >> numBlacks;
+
 
         if (responseStatus == "OK") {
-            if(gameTrials == 4){
+            if(numBlacks == 4){
                 closeGame(player);
                 std::cout << "WINNNN!" << std::endl;
             }else{

@@ -9,10 +9,88 @@
 #include <algorithm>  
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <csignal>
+#include <fstream>
 
 std::vector<Player> players;
 std::vector<std::string> colors = {"R", "G", "B", "Y", "O", "P"};
 std::vector<Game> games;
+
+namespace fs = std::filesystem;
+
+void createPlayerDir(int plid, Game &game) {
+    struct tm * timeinfo;
+    const std::string oldFile = "server/GAMES/GAME_"+ std::to_string(plid) + ".txt";
+    const std::string folder = "server/GAMES/" + std::to_string(plid);
+
+    // Create directory if it doesn't exist
+    if (!std::filesystem::exists(folder)) {
+        std::filesystem::create_directories(folder);
+    }
+    std::string newFileName;
+    // Move old file to the new directory with a new name
+    if (std::filesystem::exists(oldFile)) {
+        timeinfo = gmtime(&game.startTime);
+            newFileName = folder + "/" + 
+            std::to_string(timeinfo->tm_year + 1900) + 
+            std::to_string(timeinfo->tm_mon + 1) + 
+            std::to_string(timeinfo->tm_mday) + 
+            "_" + 
+            std::to_string(timeinfo->tm_hour) + 
+            std::to_string(timeinfo->tm_min) + 
+            std::to_string(timeinfo->tm_sec) + 
+            ".txt";
+
+            std::cout << "Renomeando " << oldFile << " para " << newFileName << std::endl;
+        
+        std::filesystem::rename(oldFile, newFileName);
+    }
+    std::ofstream file(newFileName);
+    if (file.is_open()) {
+       file <<  timeinfo->tm_year +1900<< "-" << timeinfo->tm_mon+1 << "-"<< timeinfo->tm_mday << " " <<timeinfo->tm_hour << ":" << timeinfo->tm_min<< ":" << timeinfo->tm_sec   << std::endl;
+
+    } else {
+        std::cerr << "Erro ao abrir o arquivo " << newFileName << std::endl;
+    }
+
+}
+
+
+void closeGame(Player& player, Game& game) {
+    player.isPlaying = false;
+    game.score = calcScore(game);
+    createPlayerDir(player.plid, game);
+}
+
+void clearGamesDir() {
+    const std::string directory = "server/GAMES";
+
+    try {
+        // Verifica se a diretoria existe
+        if (fs::exists(directory) && fs::is_directory(directory)) {
+            // Itera pelos arquivos na diretoria
+            for (const auto& entry : fs::directory_iterator(directory)) {
+                if (fs::is_regular_file(entry.path())) {
+                    // Remove o arquivo
+                    fs::remove(entry.path());
+                    std::cout << "Removido: " << entry.path() << std::endl;
+                }
+            }
+            std::cout << "Todos os arquivos em " << directory << " foram removidos.\n";
+        } else {
+            std::cerr << "A diretoria " << directory << " n\u00e3o existe ou n\u00e3o \u00e9 uma diretoria v\u00e1lida.\n";
+        }
+    } catch (const fs::filesystem_error& e) {
+        // Trata erros relacionados ao sistema de arquivos
+        std::cerr << "Erro: " << e.what() << std::endl;
+    }
+}
+
+void signalHandler(int signum) {
+    std::cout << "\nSinal (" << signum << ") recebido. Limpando a diretoria GAMES...\n";
+    clearGamesDir();
+    std::exit(signum);
+}
 
 
 int validPLID(std::istream& input){
@@ -76,10 +154,6 @@ int checkNumTrials(std::istream& input){
 }
 
 
-
-
-
-
 Player* findPlayerById(int plid) {
     for (auto& player : players) { 
         if (player.plid == plid) { 
@@ -98,6 +172,16 @@ bool Player::hasFinishedGames() const {
     return false;
 }
 
+int calcScore(const Game& game) {
+    int score = 0;
+    time_t currentTime = time(0);
+    int remainingTime = game.maxPlaytime - (currentTime - game.startTime);
+    int numTrials = game.trials.size();
+    int remainingTrials = game.MAX_NUM_TRIALS - numTrials;
+    score = remainingTime + remainingTrials;
+    std::cout << "Score: " << score << std::endl;
+    return score;
+}
 
 std::string Player::getActiveGameSummary() const {
     const Game& activeGame = games[gameId]; 
@@ -221,10 +305,13 @@ void serverLoop(int udp_fd, int tcp_fd) {
 
 int main() {
     int tcp_fd,udp_fd;
+    std::signal(SIGINT, signalHandler);
     std::cout << "Iniciando servidor UDP..." << std::endl;
     udp_fd = startUDP();
     std::cout << "Iniciando servidor TCP..." << std::endl;
     tcp_fd = startTCPServer();  
     
     serverLoop(udp_fd,tcp_fd);
+    
+
 }

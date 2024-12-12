@@ -33,6 +33,7 @@ void handleQuit(int fd, struct sockaddr_in &client_addr, socklen_t client_len, s
         int gameId = currentPlayer->gameId;
         std::vector<std::string> secretKey = games[gameId].secretKey;
         currentPlayer->isPlaying = false;
+        closeGame(*currentPlayer, games[gameId]);
         std::ostringstream oss;
         oss << "RQT OK " << secretKey[0] << " " << secretKey[1] << " " << secretKey[2] << " " << secretKey[3];
         std::string message = oss.str();

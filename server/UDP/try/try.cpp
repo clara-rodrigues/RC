@@ -36,21 +36,11 @@ void handleTry(int fd, struct sockaddr_in &client_addr, socklen_t client_len, st
         sendto(fd, "RTR ERR", 7, 0, (struct sockaddr *)&client_addr, client_len);
         return;
     }
-
-    std::cout << "WHATTTTT "  << std::endl; 
     
 
     Player* currentPlayer = nullptr; 
-
-    // find current player in players list
-    for (auto& player : players) {  
-        if (player.plid == plid) {
-            currentPlayer = &player;  
-            break;
-        }
-    }
     
-    std::cout << "ELAAAAAA "  << std::endl; 
+    currentPlayer = findPlayerById(plid);
 
     // check if player is playing
     if(currentPlayer->isPlaying){
@@ -67,8 +57,6 @@ void handleTry(int fd, struct sockaddr_in &client_addr, socklen_t client_len, st
     }
 
 
-    std::cout << "SSUSUSSS "  << std::endl; 
-
     //check if time has been exceeded
     time_t currentTime = time(0);
     if (currentTime - games[gameId].startTime > games[gameId].maxPlaytime){
@@ -79,21 +67,17 @@ void handleTry(int fd, struct sockaddr_in &client_addr, socklen_t client_len, st
         oss << "RTR ETM " << secretKey[0] << " " << secretKey[1] << " " << secretKey[2] << " " << secretKey[3];
         std::string message = oss.str();
         sendto(fd, message.c_str(), 15, 0, (struct sockaddr *)&client_addr, client_len);
+        closeGame(*currentPlayer, games[gameId]);
         return ;
     }
 
-    std::cout << "WELLLLL "  << std::endl; 
 
     if (existDup(games[gameId].trials, guesses)){
         sendto(fd, "RTR DUP", 7, 0, (struct sockaddr *)&client_addr, client_len);
         return;
     }
-    std::cout << "PIRIRIRIRIIR "  << std::endl; 
-
 
     std::pair<int, int>  args = tryGuess(plid, guesses, gameId);
-
-    std::cout << "SEILASEILA "  << std::endl;
 
     if(args.first != 4 & numTrials >= games[gameId].MAX_NUM_TRIALS){
         std::ostringstream oss;
@@ -103,10 +87,20 @@ void handleTry(int fd, struct sockaddr_in &client_addr, socklen_t client_len, st
         oss << "RTR ENT " << secretKey[0] << " " << secretKey[1] << " " << secretKey[2] << " " << secretKey[3];
         std::string message = oss.str();
         sendto(fd, message.c_str(), 15, 0, (struct sockaddr *)&client_addr, client_len);
+        closeGame(*currentPlayer, games[gameId]);
         return ;
     }
 
-    std::cout << "POISS "  << std::endl; 
+    if (args.first == 4){
+        std::ostringstream oss;
+        std::vector<std::string> secretKey = games[gameId].secretKey;
+        currentPlayer->isPlaying = false;
+        oss << "RTR OK " << numTrials << " " << args.first << " " << args.second ;
+        std::string message = oss.str();
+        sendto(fd, message.c_str(), 12, 0, (struct sockaddr *)&client_addr, client_len);
+        closeGame(*currentPlayer, games[gameId]);
+        return ;
+    }
 
     std::ostringstream oss;
     oss << "RTR OK " << numTrials << " " << args.first << " " << args.second ;
