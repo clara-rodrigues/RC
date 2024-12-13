@@ -35,7 +35,7 @@ void handleShowTrials(int client_fd, std::istringstream &commandStream);
 void sendFile(int client_fd, const std::string &filename);
 void handleScoreBoard(int client_fd, std::istringstream &commandStream);
 
-int startTCPServer();
+int startTCPServer(std::string port);
 int getCommandID_TCP(const std::string& command);
 
 #endif 

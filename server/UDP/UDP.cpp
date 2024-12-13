@@ -14,7 +14,6 @@
 
 
 
-#define PORT "58000"
 #define BUFFER_SIZE 5003
 
 void handle_client(int fd, struct sockaddr_in &client_addr, socklen_t client_len, char *buffer, ssize_t n) {
@@ -22,7 +21,7 @@ void handle_client(int fd, struct sockaddr_in &client_addr, socklen_t client_len
     char client_ip[INET_ADDRSTRLEN];
     inet_ntop(AF_INET, &client_addr.sin_addr, client_ip, INET_ADDRSTRLEN);
     std::cout << "Received message from IP: " << client_ip
-              << ", Port: " << ntohs(client_addr.sin_port) << std::endl;
+              << ", port: " << ntohs(client_addr.sin_port) << std::endl;
 
     // Echo the message back to the client
     ssize_t sent_n = sendto(fd, buffer, n, 0, (struct sockaddr *)&client_addr, client_len);
@@ -33,7 +32,7 @@ void handle_client(int fd, struct sockaddr_in &client_addr, socklen_t client_len
     }
 }
 
-int startUDP() {
+int startUDP(std::string port) {
     struct addrinfo hints{}, *res;
     struct sockaddr_in client_addr{};
     socklen_t client_len;
@@ -51,7 +50,7 @@ int startUDP() {
     hints.ai_socktype = SOCK_DGRAM;
     hints.ai_flags = AI_PASSIVE;
 
-    if (getaddrinfo(NULL, PORT, &hints, &res) != 0) {
+    if (getaddrinfo(NULL, port.c_str(), &hints, &res) != 0) {
         perror("Erro em getaddrinfo UDP");
         exit(1);
     }
@@ -63,7 +62,7 @@ int startUDP() {
     }
 
     freeaddrinfo(res);
-    std::cout << "Servidor UDP iniciado na porta " << PORT << std::endl;
+    std::cout << "Servidor UDP iniciado na porta " << port << std::endl;
     return udp_fd;
 }
 

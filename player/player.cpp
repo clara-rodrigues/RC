@@ -147,11 +147,23 @@ int getCommandID(const std::string& command) {
 }
 
 // Main function
-int main() {
+int main(int argc, char* argv[]) {
     std::string ip = "localhost";  // Server's IP
-    std::string port = "58000";     // Server's Port
-    std::string port_tcp = "58000";
+    std::string port = "58068";     // Server's Port
+
     Player player;
+
+    for (int i = 1; i < argc; i++) {
+        if (std::string(argv[i]) == "-n") {
+            ip = argv[i + 1];
+        } else if (std::string(argv[i]) == "-p") {
+            port = argv[i + 1];
+         
+        }
+    }
+
+    std::cout << "PORT: " << port << std::endl;
+    std::cout << "IP: " << ip << std::endl;
 
     running = true;
     while (running) {

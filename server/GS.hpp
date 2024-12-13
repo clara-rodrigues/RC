@@ -20,6 +20,7 @@ struct Player {
 extern std::vector<Player> players;
 
 extern std::vector<std::string> colors;
+extern int verbose;
 
 struct Trial {
     std::vector<std::string> guesses;

@@ -15,6 +15,7 @@
 std::vector<Player> players;
 std::vector<std::string> colors = {"R", "G", "B", "Y", "O", "P"};
 std::vector<Game> games;
+int verbose = 0;
 
 namespace fs = std::filesystem;
 
@@ -309,13 +310,24 @@ void serverLoop(int udp_fd, int tcp_fd) {
 }
 
 
-int main() {
+int main(int argc, char* argv[]) {
     int tcp_fd,udp_fd;
+    std::string port = "58068";
+
+
+    for (int i = 1; i < argc; i++) {
+        if (std::string(argv[i]) == "-p") {
+            port = argv[i + 1];
+        } else if (std::string(argv[i]) == "-v") {
+            verbose = 1;
+        }
+    }
+
     std::signal(SIGINT, signalHandler);
     std::cout << "Iniciando servidor UDP..." << std::endl;
-    udp_fd = startUDP();
+    udp_fd = startUDP(port);
     std::cout << "Iniciando servidor TCP..." << std::endl;
-    tcp_fd = startTCPServer();  
+    tcp_fd = startTCPServer(port);  
     
     serverLoop(udp_fd,tcp_fd);
     

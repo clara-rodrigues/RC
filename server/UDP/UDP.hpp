@@ -11,7 +11,7 @@
 #include "../GS.hpp"
 
 
-int startUDP();
+int startUDP(std::string port);
 
 int getCommandID_UDP(const std::string& command);
 

@@ -35,6 +35,6 @@ void parseTryGuess(const std::string& input, Player& player, std::vector<std::st
 
 int getCommandID(const std::string& command);
 
-int main();
+int main(int argc, char* argv[]);
 
 #endif // CLIENT_HPP

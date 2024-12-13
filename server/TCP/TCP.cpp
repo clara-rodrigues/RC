@@ -11,7 +11,6 @@
 #include <netinet/in.h>
 #include <netdb.h>
 
-#define TCP_PORT "58000"
 
 int getCommandID_TCP(const std::string& command) {
     static std::unordered_map<std::string, int> commandMap = {
@@ -88,7 +87,7 @@ void handlePlayerRequest(int client_fd) {
 
 
 
-int startTCPServer() {
+int startTCPServer(std::string port) {
     int server_fd, client_fd;
     struct addrinfo hints{}, *res;
     struct sockaddr_in client_addr{};
@@ -106,7 +105,7 @@ int startTCPServer() {
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_flags = AI_PASSIVE;
 
-    int errcode = getaddrinfo(NULL, TCP_PORT, &hints, &res);
+    int errcode = getaddrinfo(NULL, port.c_str(), &hints, &res);
     if (errcode != 0) {
         std::cerr << "Erro em getaddrinfo TCP: " << gai_strerror(errcode) << std::endl;
         exit(1);
@@ -125,7 +124,7 @@ int startTCPServer() {
         exit(1);
     }
 
-    std::cout << "Servidor TCP iniciado na porta " << TCP_PORT << std::endl;
+    std::cout << "Servidor TCP iniciado na porta " << port << std::endl;
     tcp_fd = server_fd;
     return tcp_fd;
 }
