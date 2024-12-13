@@ -34,6 +34,8 @@ void sendFile(int client_fd, const std::string &filename) {
     file.close();
 }
 
+
+
 void handleShowTrials(int client_fd, std::istringstream &commandStream) {
     int plid;
     try{

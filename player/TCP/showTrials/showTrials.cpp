@@ -1,5 +1,6 @@
 #include <iostream>
 #include <sstream>
+#include <fstream>
 #include <string>
 #include <vector>
 #include <sys/socket.h>
@@ -9,7 +10,11 @@
 #include <netdb.h>
 #include "../TCP.hpp"
 
-void show_trials(const std::string& ip, const std::string& port,const std::string& plid) {
+bool is_numeric(const std::string& str) {
+    return !str.empty() && std::all_of(str.begin(), str.end(), ::isdigit);
+}
+
+void show_trials(const std::string& ip, const std::string& port, const std::string& plid) {
     const std::string msg = "STR " + plid; 
     std::cout << "Sending 'show trials' command: " << msg << std::endl;
 
@@ -20,29 +25,62 @@ void show_trials(const std::string& ip, const std::string& port,const std::strin
         return;
     }
 
-    std::cout << "Server Response:\n" << response << std::endl;
+    std::cout << "Server Response Received:\n" << response << std::endl;
 
     std::istringstream iss(response);
-    std::string line;
-    std::vector<std::string> trials;
+    std::string status, fname, fsize_str, line;
 
-    while (std::getline(iss, line)) {
-        if (!line.empty()) {
-            trials.push_back(line);
-        }
-    }
-
-    if (trials.empty()) {
-        std::cout << "No trials found in the server response." << std::endl;
+    // Read the status (should be "RST OK")
+    if (!(iss >> status) || status != "RST") {
+        std::cerr << "Error: Invalid server response format (status)." << std::endl;
         return;
     }
 
-    std::cout << "Trials History:\n";
-    for (size_t i = 0; i < trials.size(); ++i) {
-        if (i == trials.size() - 1 && trials[i].find("Time remaining") != std::string::npos) {
-            std::cout << trials[i] << std::endl; 
-        } else {
-            std::cout << "Trial " << i + 1 << ": " << trials[i] << std::endl; 
-        }
+    if (!(iss >> status) || status != "OK") {
+        std::cerr << "Error: Invalid server response format (OK)." << std::endl;
+        return;
     }
+
+    std::getline(iss, fname);  
+    std::stringstream ss(fname);  
+    ss >> fname;  
+    ss >> fsize_str;  
+
+    if (!is_numeric(fsize_str)) {
+        std::cerr << "Error: Invalid file size format: '" << fsize_str << "'\n";
+        return;
+    }
+
+    int fsize = std::stoi(fsize_str);
+    std::cout << "File size: " << fsize << " bytes\n";
+
+    std::vector<std::string> file_data;
+    while (std::getline(iss, line)) {
+        file_data.push_back(line);
+    }
+
+    if (file_data.empty()) {
+        std::cerr << "Error: No file data received.\n";
+        return;
+    }
+
+    std::string file_path = "player/" + fname;
+
+    std::ofstream output_file(file_path, std::ios::binary);
+    if (!output_file) {
+        std::cerr << "Error: Failed to open file '" << file_path << "' for writing.\n";
+        return;
+    }
+
+    for (const auto& file_line : file_data) {
+        output_file << file_line << '\n';
+    }
+
+    output_file.close();
+    if (output_file.fail()) {
+        std::cerr << "Error: Failed to save the file.\n";
+        return;
+    }
+
+    std::cout << "File received and saved as '" << file_path << "'.\n";
 }
