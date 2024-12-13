@@ -8,6 +8,7 @@ void execute_debug(Player &player,const std::string& ip, const std::string& port
     
     if (send_UDP(msg, response, ip, port) == 1) {
         std::cout << "Server Response: " << response << std::endl;
+        player.isPlaying = true;
     } else {
         std::cerr << "Failed to send 'debug' command." << std::endl;
     }

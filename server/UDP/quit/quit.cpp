@@ -21,9 +21,12 @@ void handleQuit(int fd, struct sockaddr_in &client_addr, socklen_t client_len, s
         return;
     }
 
+    std::cout<<"HELLPPP"<<std::endl;
+
     currentPlayer = findPlayerById(plid);
 
     if(currentPlayer->isPlaying){
+        std::cout << "Player is playing" << std::endl;
         int gameId = currentPlayer->gameId;
         std::vector<std::string> secretKey = games[gameId].secretKey;
         currentPlayer->isPlaying = false;

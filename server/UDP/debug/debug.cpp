@@ -58,6 +58,7 @@ int debug(int plid, int maxPlaytime, std::vector<std::string> guesses){
 
         games[gameId].secretKey = guesses;
         games[gameId].gameMode = "D";
+        createPlayerFile(plid,gameId);
         return 1;
     }
     return 0;
