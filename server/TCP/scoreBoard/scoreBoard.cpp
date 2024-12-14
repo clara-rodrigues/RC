@@ -2,10 +2,20 @@
 #include <iomanip>
 #include "scoreBoard.hpp"
 #include <string>
+#include <vector>
+#include <algorithm>
+#include <iostream>
+#include <sstream>
+#include <sys/socket.h>
+#include <unistd.h>
+
+
+
+
 
 void handleScoreBoard(int client_fd, std::istringstream &commandStream) {
     try {
-        checkExtraInput(commandStream); 
+        checkExtraInput(commandStream);
     } catch (const std::exception &e) {
         std::cerr << "[ERROR] Invalid command." << std::endl;
         const std::string error_response = "RSS NOK\n";
@@ -21,15 +31,14 @@ void handleScoreBoard(int client_fd, std::istringstream &commandStream) {
     }
 
     // Sort games by score in descending order
-    std::vector<Game> sortedGames = games; 
+    std::vector<Game> sortedGames = games;
     std::sort(sortedGames.begin(), sortedGames.end(), [](const Game &a, const Game &b) {
         return a.score > b.score;
     });
 
     const std::string filename = "server/scoreboard.txt";
     std::ofstream scoreboardFile(filename);
-    
-    // Check if the file is successfully opened
+
     if (!scoreboardFile.is_open()) {
         std::cerr << "[ERROR] Failed to create scoreboard file." << std::endl;
         const std::string error_response = "RSS NOK\n";
@@ -43,57 +52,54 @@ void handleScoreBoard(int client_fd, std::istringstream &commandStream) {
         const Game &game = sortedGames[i];
         std::string secretKey;
         for (const auto &part : game.secretKey) {
-            secretKey += part; 
+            secretKey += part;
         }
         scoreboardFile << game.plid << " " << secretKey << " " << game.score << "\n";
     }
     scoreboardFile.close();
     std::cerr << "[DEBUG] Scoreboard file written successfully.\n";
 
-    // **Check if file is empty after writing**
+    // Check if the file is empty
     std::ifstream checkFile(filename);
     if (checkFile.peek() == std::ifstream::traits_type::eof()) {
         std::cerr << "[ERROR] Scoreboard file is empty!" << std::endl;
-        const std::string error_response = "RST NOK\n";
+        const std::string error_response = "RSS NOK\n";
         send(client_fd, error_response.c_str(), error_response.size(), 0);
         return;
     }
     checkFile.close();
 
-    // Proceed with sending the file if not empty
+    // Open the file in binary mode
     std::ifstream file(filename, std::ios::binary | std::ios::ate);
     if (!file) {
         std::cerr << "[ERROR] Failed to read scoreboard file." << std::endl;
-        const std::string error_response = "RST NOK\n";
+        const std::string error_response = "RSS NOK\n";
         send(client_fd, error_response.c_str(), error_response.size(), 0);
         return;
     }
 
-    // Get the file size
+    // Calculate file size
     std::size_t fileSize = file.tellg();
-    file.close();
+    file.seekg(0);
 
-    // **Debug the file size before sending**
-    std::cerr << "[DEBUG] File size: " << fileSize << " bytes" << std::endl;
-    if (fileSize == 0) {
-        std::cerr << "[ERROR] File size is zero, nothing to send." << std::endl;
-        const std::string error_response = "RST NOK\n";
-        send(client_fd, error_response.c_str(), error_response.size(), 0);
-        return;
-    }
-
-    // Send header with file size and filename
+    // Prepare header
     std::ostringstream header;
     header << "RSS OK " << "scoreboard.txt" << " " << fileSize << "\n";
     std::string header_str = header.str();
-    send(client_fd, header_str.c_str(), header_str.size(), 0);
 
-    // Now send the file in chunks
-    file.open(filename, std::ios::binary);
-    char buffer[4096];
-    while (file.read(buffer, sizeof(buffer)) || file.gcount() > 0) {
-        send(client_fd, buffer, file.gcount(), 0);
+    // Combine header and file data into one buffer
+    std::vector<char> buffer(header_str.begin(), header_str.end()); // Start with header
+
+    // Read the file into the same buffer
+    char file_buffer[4096];
+    while (file.read(file_buffer, sizeof(file_buffer)) || file.gcount() > 0) {
+        buffer.insert(buffer.end(), file_buffer, file_buffer + file.gcount());
     }
+
     file.close();
-    std::cerr << "[DEBUG] File sent successfully." << std::endl;
+    std::cerr << "[DEBUG] File content read into buffer successfully.\n";
+
+    sendToPlayer(client_fd, buffer);
+
+    
 }

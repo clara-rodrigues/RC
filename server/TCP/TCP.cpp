@@ -24,6 +24,27 @@ int getCommandID_TCP(const std::string& command) {
 
 
 
+void sendToPlayer(int client_fd,std::vector<char> buffer){
+    int total_num_bytes = buffer.size();
+    int num_bytes_sent = 0;
+    ssize_t sent_bytes = 0;
+
+    // Send the combined data (header + file body) in one call
+    while(num_bytes_sent != total_num_bytes) {
+        sent_bytes = send(client_fd, buffer.data() + num_bytes_sent, total_num_bytes - num_bytes_sent, 0);
+        if (sent_bytes < 0) {
+            std::cerr << "[ERROR] Failed to send combined data." << std::endl;
+            return;
+        }
+        num_bytes_sent += sent_bytes;
+    }
+
+    std::cerr << "[DEBUG] Sent " << sent_bytes << " bytes (header + file data)." << std::endl;
+
+}
+
+
+
 void handlePlayerRequest(int client_fd) {
     char buffer[BUFFER_SIZE];
     ssize_t n = read(client_fd, buffer, sizeof(buffer) - 1);

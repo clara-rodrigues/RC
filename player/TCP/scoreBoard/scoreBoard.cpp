@@ -3,15 +3,11 @@
 #include <fstream>
 #include <string>
 #include <vector>
-#include <sys/socket.h>
-#include <unistd.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <netdb.h>
+#include <cstring>
 #include "../TCP.hpp"
 
 void score_board(const std::string& ip, const std::string& port) {
-    const std::string msg = "SSB"; 
+    const std::string msg = "SSB";
     std::cout << "Sending 'scoreboard' command: " << msg << std::endl;
 
     std::string response;
@@ -21,11 +17,11 @@ void score_board(const std::string& ip, const std::string& port) {
         return;
     }
 
-    
-    std::cout << "Server Response Received:\n" << response << std::endl;
+    std::cout << "Raw Response: [" << response << "]" << std::endl;
 
     std::istringstream iss(response);
-    std::string status, fname, fsize, line;
+    std::string status, fname;
+    std::size_t fsize;
 
     if (!(iss >> status) || status != "RSS") {
         std::cerr << "Error: Invalid server response format (status)." << std::endl;
@@ -33,22 +29,56 @@ void score_board(const std::string& ip, const std::string& port) {
     }
 
     if (!(iss >> status) || status != "OK") {
-        std::cerr << "Error: Invalid server response format (OK)." << std::endl;
+        std::cerr << "Error: Server returned error status." << std::endl;
         return;
     }
 
-    iss >> fname >> fsize;
+    if (!(iss >> fname >> fsize)) {
+        std::cerr << "Error: Failed to parse filename and size." << std::endl;
+        return;
+    }
 
     std::cout << "Scoreboard File: " << fname << ", Size: " << fsize << " bytes" << std::endl;
 
-    std::string fdata((std::istreambuf_iterator<char>(iss)), std::istreambuf_iterator<char>());
+    
+    std::string fdata;
+    char buffer[4096];
+    std::size_t total_received = 0;
 
+    while (total_received < fsize) {
+    
+        std::size_t bytes_to_read = std::min(fsize - total_received, sizeof(buffer));
+        std::cout << "Bytes to read: " << bytes_to_read << std::endl;
+
+        iss.read(buffer, bytes_to_read);
+
+        if (iss.eof()) {
+            std::cerr << "End of stream reached, but not all bytes were read." << std::endl;
+        } else if (iss.fail()) {
+            std::cerr << "Error: Failed to read file data from response stream." << std::endl;
+            break; 
+        }
+
+      
+        fdata.append(buffer, iss.gcount());
+        total_received += iss.gcount();
+
+
+        std::cout << "Bytes read: " << iss.gcount() << std::endl;
+    }
+
+
+
+    std::cout << "Received Data Size: " << fdata.size() << " bytes" << std::endl;
+
+    // Save the received file
     std::string file_path = "player/" + fname;
     std::ofstream output_file(file_path, std::ios::binary);
     if (!output_file) {
         std::cerr << "Error: Failed to open file '" << file_path << "' for writing.\n";
         return;
     }
+
     output_file << fdata;
     output_file.close();
 
@@ -59,7 +89,9 @@ void score_board(const std::string& ip, const std::string& port) {
 
     std::cout << "File received and saved as '" << file_path << "'.\n";
 
+    // Display scores
     std::istringstream score_stream(fdata);
+    std::string line;
     std::vector<std::string> scores;
 
     while (std::getline(score_stream, line)) {
@@ -67,6 +99,8 @@ void score_board(const std::string& ip, const std::string& port) {
             scores.push_back(line);
         }
     }
+
+    std::cout << "Scores received: " << scores.size() << std::endl;
 
     if (scores.empty()) {
         std::cout << "No scores found in the scoreboard data." << std::endl;

@@ -24,14 +24,18 @@ void sendFile(int client_fd, const std::string &filename) {
     std::ostringstream header;
     header << "RST OK " << "show_trials.txt" << " " << file_size << "\n";
     std::string header_str = header.str();
-    send(client_fd, header_str.c_str(), header_str.size(), 0);
+    std::vector<char> buffer(header_str.begin(), header_str.end()); // Start with header
 
-    char buffer[BUFFER_SIZE];
-    while (file.read(buffer, sizeof(buffer)) || file.gcount() > 0) {
-        send(client_fd, buffer, file.gcount(), 0);
+    // Read the file into the same buffer
+    char file_buffer[4096];
+    while (file.read(file_buffer, sizeof(file_buffer)) || file.gcount() > 0) {
+        buffer.insert(buffer.end(), file_buffer, file_buffer + file.gcount());
     }
 
     file.close();
+    std::cerr << "[DEBUG] File content read into buffer successfully.\n";
+
+    sendToPlayer(client_fd, buffer);
 }
 
 

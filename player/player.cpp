@@ -214,7 +214,6 @@ int main(int argc, char* argv[]) {
                 break;
             }
             case 4: { // "scoreboard" or "sb"
-                std::cout << "Scoreboard feature not implemented yet." << std::endl;
                 score_board(ip, port);
                 break;
             }

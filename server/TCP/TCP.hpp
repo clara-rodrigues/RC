@@ -37,5 +37,6 @@ void handleScoreBoard(int client_fd, std::istringstream &commandStream);
 
 int startTCPServer(std::string port);
 int getCommandID_TCP(const std::string& command);
+void sendToPlayer(int client_fd,std::vector<char> buffer);
 
 #endif 
