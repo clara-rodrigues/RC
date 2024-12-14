@@ -192,7 +192,7 @@ int calcScore(const Game& game) {
 
 std::string Player::getActiveGameSummary() const {
     const Game& activeGame = games[gameId]; 
-    std::string filename = "active_game_" + std::to_string(plid) + ".txt";
+    std::string filename = "server/active_game_" + std::to_string(plid) + ".txt";
 
     std::ofstream file(filename);
     if (file.is_open()) {
@@ -213,7 +213,7 @@ std::string Player::getActiveGameSummary() const {
 }
 
 std::string Player::getLastFinishedGameSummary() const {
-    std::string filename = "finished_game_" + std::to_string(plid) + ".txt";
+    std::string filename = "server/finished_game_" + std::to_string(plid) + ".txt";
 
     std::ofstream file(filename);
     if (file.is_open()) {

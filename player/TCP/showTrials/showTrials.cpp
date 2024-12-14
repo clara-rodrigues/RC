@@ -39,7 +39,7 @@ void show_trials(const std::string& ip, const std::string& port, const std::stri
     if (!(iss >> status) || status != "OK") {
         std::cerr << "Error: Invalid server response format (OK)." << std::endl;
         return;
-    }
+    }   
 
     std::getline(iss, fname);  
     std::stringstream ss(fname);  

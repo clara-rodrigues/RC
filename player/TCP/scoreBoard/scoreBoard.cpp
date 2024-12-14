@@ -1,5 +1,14 @@
-#include "scoreBoard.hpp"
-
+#include <iostream>
+#include <sstream>
+#include <fstream>
+#include <string>
+#include <vector>
+#include <sys/socket.h>
+#include <unistd.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <netdb.h>
+#include "../TCP.hpp"
 
 void score_board(const std::string& ip, const std::string& port) {
     const std::string msg = "SSB"; 
@@ -12,31 +21,48 @@ void score_board(const std::string& ip, const std::string& port) {
         return;
     }
 
-    std::istringstream iss(response);
-    std::string status;
-    iss >> status;
+    
+    std::cout << "Server Response Received:\n" << response << std::endl;
 
-    if (status == "EMPTY") {
-        std::cout << "Scoreboard is empty. No games have been won yet." << std::endl;
-        return;
-    } else if (status != "OK") {
-        std::cerr << "Unexpected response from server: " << status << std::endl;
+    std::istringstream iss(response);
+    std::string status, fname, fsize, line;
+
+    if (!(iss >> status) || status != "RSS") {
+        std::cerr << "Error: Invalid server response format (status)." << std::endl;
         return;
     }
 
-    std::string fname;
-    size_t fsize;
+    if (!(iss >> status) || status != "OK") {
+        std::cerr << "Error: Invalid server response format (OK)." << std::endl;
+        return;
+    }
+
     iss >> fname >> fsize;
 
     std::cout << "Scoreboard File: " << fname << ", Size: " << fsize << " bytes" << std::endl;
-    std::string fdata;
-    std::getline(iss, fdata, '\0'); 
 
-    std::istringstream fdata_stream(fdata);
-    std::string line;
+    std::string fdata((std::istreambuf_iterator<char>(iss)), std::istreambuf_iterator<char>());
+
+    std::string file_path = "player/" + fname;
+    std::ofstream output_file(file_path, std::ios::binary);
+    if (!output_file) {
+        std::cerr << "Error: Failed to open file '" << file_path << "' for writing.\n";
+        return;
+    }
+    output_file << fdata;
+    output_file.close();
+
+    if (output_file.fail()) {
+        std::cerr << "Error: Failed to save the file.\n";
+        return;
+    }
+
+    std::cout << "File received and saved as '" << file_path << "'.\n";
+
+    std::istringstream score_stream(fdata);
     std::vector<std::string> scores;
 
-    while (std::getline(fdata_stream, line)) {
+    while (std::getline(score_stream, line)) {
         if (!line.empty()) {
             scores.push_back(line);
         }
@@ -51,5 +77,4 @@ void score_board(const std::string& ip, const std::string& port) {
     for (size_t i = 0; i < scores.size(); ++i) {
         std::cout << i + 1 << ". " << scores[i] << std::endl;
     }
-
 }
