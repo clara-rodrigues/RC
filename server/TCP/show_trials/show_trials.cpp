@@ -22,7 +22,7 @@ void sendFile(int client_fd, const std::string &filename) {
     std::cerr << "[DEBUG] sendFile: Tamanho do arquivo: " << file_size << " bytes" << std::endl;
 
     std::ostringstream header;
-    header << "RST OK " << filename << " " << file_size << "\n";
+    header << "RST OK " << "show_trials.txt" << " " << file_size << "\n";
     std::string header_str = header.str();
     send(client_fd, header_str.c_str(), header_str.size(), 0);
 

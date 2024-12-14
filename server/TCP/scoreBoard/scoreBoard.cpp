@@ -50,7 +50,17 @@ void handleScoreBoard(int client_fd, std::istringstream &commandStream) {
     scoreboardFile.close();
     std::cerr << "[DEBUG] Scoreboard file written successfully.\n";
 
-    // Now proceed to send the file content to the client
+    // **Check if file is empty after writing**
+    std::ifstream checkFile(filename);
+    if (checkFile.peek() == std::ifstream::traits_type::eof()) {
+        std::cerr << "[ERROR] Scoreboard file is empty!" << std::endl;
+        const std::string error_response = "RST NOK\n";
+        send(client_fd, error_response.c_str(), error_response.size(), 0);
+        return;
+    }
+    checkFile.close();
+
+    // Proceed with sending the file if not empty
     std::ifstream file(filename, std::ios::binary | std::ios::ate);
     if (!file) {
         std::cerr << "[ERROR] Failed to read scoreboard file." << std::endl;
@@ -63,9 +73,18 @@ void handleScoreBoard(int client_fd, std::istringstream &commandStream) {
     std::size_t fileSize = file.tellg();
     file.close();
 
+    // **Debug the file size before sending**
+    std::cerr << "[DEBUG] File size: " << fileSize << " bytes" << std::endl;
+    if (fileSize == 0) {
+        std::cerr << "[ERROR] File size is zero, nothing to send." << std::endl;
+        const std::string error_response = "RST NOK\n";
+        send(client_fd, error_response.c_str(), error_response.size(), 0);
+        return;
+    }
+
     // Send header with file size and filename
     std::ostringstream header;
-    header << "RSS OK " << filename << " " << fileSize << "\n";
+    header << "RSS OK " << "scoreboard.txt" << " " << fileSize << "\n";
     std::string header_str = header.str();
     send(client_fd, header_str.c_str(), header_str.size(), 0);
 
@@ -76,4 +95,5 @@ void handleScoreBoard(int client_fd, std::istringstream &commandStream) {
         send(client_fd, buffer, file.gcount(), 0);
     }
     file.close();
+    std::cerr << "[DEBUG] File sent successfully." << std::endl;
 }
