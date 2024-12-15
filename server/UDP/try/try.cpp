@@ -19,6 +19,42 @@ int existDup(std::vector<Trial> trials, std::vector<std::string> guesses){
     return 0;
 }
 
+void createScoreFile(int plid, Game &game){
+    struct tm *timeinfo;
+    std::string folder = "server/SCORES/";
+    std::string filename;
+
+    timeinfo = gmtime(&game.startTime);
+    filename = folder +"score_"+ std::to_string(plid) + "_"+
+                    std::to_string(timeinfo->tm_year + 1900) + 
+                    std::to_string(timeinfo->tm_mon + 1) + 
+                    std::to_string(timeinfo->tm_mday) + 
+                    "_" + 
+                    std::to_string(timeinfo->tm_hour) + 
+                    std::to_string(timeinfo->tm_min) + 
+                    std::to_string(timeinfo->tm_sec) + 
+                    ".txt";
+
+    std::cout << "FILE NAME:" << filename << std::endl;
+
+    std::ofstream file(filename, std::ios::app);
+
+    if (file.is_open()) {
+        file << game.score << " ";
+        file << plid << " ";
+        for (const auto& key : game.secretKey) {
+            file << key ;
+        }
+        file << " ";
+        file << game.numTrials << " ";
+        file << game.gameMode<< std::endl;
+    } else {
+        std::cerr << "Erro ao abrir o arquivo " << filename << std::endl;
+    }
+
+}
+
+
 
 void writeTrial(int plid, std::vector<std::string> guesses, std::pair<int, int> args, time_t currentTime, time_t startTime) {
     std::string folder = "server/GAMES";
@@ -116,15 +152,17 @@ void handleTry(int fd, struct sockaddr_in &client_addr, socklen_t client_len, st
     if (args.first == 4){
         std::ostringstream oss;
         std::vector<std::string> secretKey = games[gameId].secretKey;
-        currentPlayer->isPlaying = false;
+        //currentPlayer->isPlaying = false;
         oss << "RTR OK " << numTrials << " " << args.first << " " << args.second ;
         std::string message = oss.str();
         sendto(fd, message.c_str(), 12, 0, (struct sockaddr *)&client_addr, client_len);
+
         games[gameId].score = calcScore(games[gameId]);
         games[gameId].finalSate = 'W';
+        games[gameId].numTrials++;
+        
         closeGame(*currentPlayer, games[gameId]);
-
-
+        createScoreFile(plid, games[gameId]);
         return ;
     }
 
