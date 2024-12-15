@@ -8,7 +8,52 @@
 #include <sstream>
 #include <sys/socket.h>
 #include <unistd.h>
+#include <filesystem>
 
+
+std::vector<Game> getGameScores(){
+    std::string folderName = "server/SCORES";
+    std::vector<Game> games;
+    std::string secretKey;
+
+    if(!std::filesystem::exists(folderName)){
+        std::cerr << "Folder " << folderName << " does not exist." << std::endl;
+        return {};
+    }
+
+    if(std::filesystem::is_empty(folderName)){
+        std::cerr << "Folder " << folderName << " is empty." << std::endl;
+        return {};
+    }
+
+    for (const auto &entry : std::filesystem::directory_iterator(folderName)) {
+        std::ifstream file(entry.path());
+        if (!file.is_open()) {
+            std::cerr << "Failed to open file " << entry.path() << std::endl;
+            continue;
+        }
+
+        Game game;
+        file >> game.score;
+        file >> game.plid;
+        file >> secretKey;
+        file >> game.numTrials;
+        file >> game.gameMode;
+
+
+        for (size_t i = 0; i < secretKey.size(); i++) {
+            game.secretKey.push_back(secretKey.substr(i, 1));
+        }
+
+        games.push_back(game);
+        file.close();
+        
+    }
+
+    return games;
+    
+
+}
 
 
 
@@ -23,15 +68,15 @@ void handleScoreBoard(int client_fd, std::istringstream &commandStream) {
         return;
     }
 
-    if (games.empty()) {
-        std::cerr << "[INFO] No games found for the scoreboard." << std::endl;
-        const std::string no_games_response = "RSS EMPTY\n";
-        send(client_fd, no_games_response.c_str(), no_games_response.size(), 0);
-        return;
-    }
+    //if (games.empty()) {
+    //    std::cerr << "[INFO] No games found for the scoreboard." << std::endl;
+    //    const std::string no_games_response = "RSS EMPTY\n";
+    //    send(client_fd, no_games_response.c_str(), no_games_response.size(), 0);
+    //    return;
+    //}
 
     // Sort games by score in descending order
-    std::vector<Game> sortedGames = games;
+    std::vector<Game> sortedGames = getGameScores();
     std::sort(sortedGames.begin(), sortedGames.end(), [](const Game &a, const Game &b) {
         return a.score > b.score;
     });
