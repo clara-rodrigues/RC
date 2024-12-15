@@ -13,7 +13,7 @@ struct Player {
     int gameId;
 
     bool hasFinishedGames() const;
-    std::string getActiveGameSummary() const;
+    std::string getActiveGameSummary(std::string gameFile) const;
     std::string getLastFinishedGameSummary() const;
 };
 

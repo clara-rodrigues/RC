@@ -7,6 +7,93 @@
 #include "../TCP.hpp"
 
 
+
+#include <iostream>
+#include <filesystem>
+#include <fstream>
+#include <sstream>
+#include <string>
+#include <ctime>
+#include <limits>
+
+namespace fs = std::filesystem;
+
+
+std::time_t parseDateTime(const std::string &dateTimeStr) {
+    struct std::tm tm = {};
+    std::istringstream ss(dateTimeStr);
+    ss >> std::get_time(&tm, "%Y-%m-%d %H:%M:%S");  
+    if (ss.fail()) {
+        throw std::runtime_error("Failed to parse date-time: " + dateTimeStr);
+    }
+    return std::mktime(&tm);
+}
+
+
+std::string getLastLine(const std::string &filePath) {
+    std::ifstream file(filePath, std::ios::ate);  
+    if (!file.is_open()) {
+        throw std::runtime_error("Failed to open file: " + filePath);
+    }
+    std::string line;
+    if (file.seekg(-1, std::ios::end)) {
+        char ch;
+        while (file.tellg() > 0) {
+            file.seekg(-1, std::ios::cur);
+            file.get(ch);
+            if (ch == '\n' && file.tellg() > 1) {
+                break;
+            }
+            file.seekg(-1, std::ios::cur);
+        }
+    }
+
+    std::getline(file, line);
+    return line;
+}
+
+
+std::string getLastGameSummary(int plid) {
+    std::string folder = "server/GAMES/" + std::to_string(plid);
+    std::time_t currentTime = std::time(nullptr);
+    std::string closestFile;
+    double minDifference = std::numeric_limits<double>::max();
+
+    if (!fs::exists(folder)) {
+        std::cerr << "[ERROR] Folder " << folder << " does not exist." << std::endl;
+        return "";
+    }
+
+    for (const auto &entry : fs::directory_iterator(folder)) {
+        if (entry.is_regular_file()) {
+            try {
+                std::string lastLine = getLastLine(entry.path().string());
+                
+                std::time_t fileTime = parseDateTime(lastLine);
+
+                double diff = std::difftime(std::abs(currentTime - fileTime), 0);
+                
+                if (diff < minDifference) {
+                    minDifference = diff;
+                    closestFile = entry.path().filename().string();
+                }
+            } catch (const std::exception &e) {
+                std::cerr << "[ERROR] Failed to process file " << entry.path() << ": " << e.what() << std::endl;
+            }
+        }
+    }
+
+    if (!closestFile.empty()) {
+        std::cout << "[INFO] Closest file found: " << closestFile << std::endl;
+    } else {
+        std::cerr << "[ERROR] No valid files found in folder." << std::endl;
+    }
+
+    return folder + "/" + closestFile;
+}
+
+
+
 void sendFile(int client_fd, const std::string &filename) {
     std::ifstream file(filename, std::ios::binary);
     if (!file) {
@@ -62,11 +149,13 @@ void handleShowTrials(int client_fd, std::istringstream &commandStream) {
     }
 
     if (player->isPlaying) {
-        std::string active_game_file = player->getActiveGameSummary();
+        std::string gameFile = "server/GAMES/GAME_" + std::to_string(plid) + ".txt";
+        std::string active_game_file = player->getActiveGameSummary(gameFile);
+
         sendFile(client_fd, active_game_file);
     } else if (player->hasFinishedGames()) {
-        std::string last_game_file = player->getLastFinishedGameSummary();
-        sendFile(client_fd, last_game_file);
+        std::string gameFile =  getLastGameSummary(plid);
+        sendFile(client_fd, gameFile);
     } else {
         const std::string no_games_response = "RST NOK\n";
         send(client_fd, no_games_response.c_str(), no_games_response.size(), 0);

@@ -190,26 +190,50 @@ int calcScore(const Game& game) {
     return score;
 }
 
-std::string Player::getActiveGameSummary() const {
+std::string Player::getActiveGameSummary(std::string gameFile ) const {
     const Game& activeGame = games[gameId]; 
-    std::string filename = "server/active_game_" + std::to_string(plid) + ".txt";
+    std::string trialsFile = "server/active_game_" + std::to_string(plid) + ".txt";
+    time_t currentTime = time(0);
 
-    std::ofstream file(filename);
-    if (file.is_open()) {
-        for (const Trial& trial : activeGame.trials) {
-            for (const std::string& guess : trial.guesses) {
-                file << guess << " ";
-            }
-            file << trial.numBlack << " " << trial.numWhite << "\n";
-        }
-
-        time_t currentTime = time(0);
-        int remainingTime = activeGame.maxPlaytime - (currentTime - activeGame.startTime);
-        file << "Time remaining: " << remainingTime << " seconds\n";
-
-        file.close();
+    std::ofstream trials(trialsFile);
+    if (!trials.is_open()) {
+        std::cerr << "Failed to open file " << std::endl; 
     }
-    return filename;
+
+    std::ifstream file(gameFile);
+    if (!file.is_open()) {
+        std::cerr << "Failed to open file " << std::endl;  
+    }
+
+    std::string line;
+    while (std::getline(file, line)) {
+        std::stringstream ss(line);
+        std::string token;
+        if(ss >> token){
+            if (token == "T:") {
+                std::string guess;
+                std::string black;
+                std::string white;
+                std::string time;
+                ss >> guess;
+                ss >> black;
+                ss >> white;
+
+                trials <<"T: "<< guess << " " << black << " " << white << "\n"; 
+               
+            }
+        }
+    }
+    file.close();
+    int remainingTime = activeGame.maxPlaytime - (currentTime - activeGame.startTime);
+    trials << "Time remaining: " << remainingTime << " seconds\n";
+
+    trials.close();
+    return trialsFile;
+
+
+
+
 }
 
 std::string Player::getLastFinishedGameSummary() const {

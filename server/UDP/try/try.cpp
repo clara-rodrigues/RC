@@ -61,7 +61,7 @@ void writeTrial(int plid, std::vector<std::string> guesses, std::pair<int, int> 
     std::string filename = folder + "/GAME_" + std::to_string(plid) + ".txt";
     std::ofstream file(filename, std::ios::app);
     if (file.is_open()) {
-        file << "T:";
+        file << "T:" << " ";
         for (const auto& guess : guesses) {
             file << guess;
         }
@@ -160,7 +160,7 @@ void handleTry(int fd, struct sockaddr_in &client_addr, socklen_t client_len, st
         games[gameId].score = calcScore(games[gameId]);
         games[gameId].finalSate = 'W';
         games[gameId].numTrials++;
-        
+
         closeGame(*currentPlayer, games[gameId]);
         createScoreFile(plid, games[gameId]);
         return ;
