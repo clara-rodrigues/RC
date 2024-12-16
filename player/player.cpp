@@ -240,6 +240,7 @@ int main(int argc, char* argv[]) {
                     parseDebug(input,player,guesses);
                 }catch (const std::invalid_argument& e){
                     std::cerr << "Error: " << e.what() << std::endl;
+                    break;
                 }
                 execute_debug(player, ip, port, guesses);
                 break;

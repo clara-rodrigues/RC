@@ -94,7 +94,7 @@ std::string getLastGameSummary(int plid) {
 
 
 
-void sendFile(int client_fd, const std::string &filename) {
+void sendFile(int client_fd, const std::string &filename,std::string status) {
     std::ifstream file(filename, std::ios::binary);
 
     if (!file) {
@@ -110,7 +110,7 @@ void sendFile(int client_fd, const std::string &filename) {
     std::cerr << "[DEBUG] sendFile: Tamanho do arquivo: " << file_size << " bytes" << std::endl;
 
     std::ostringstream header;
-    header << "RST OK " << "show_trials.txt" << " " << file_size << "\n";
+    header << "RST "+ status + " " << "show_trials.txt" << " " << file_size << "\n";
     std::string header_str = header.str();
     std::vector<char> buffer(header_str.begin(), header_str.end()); // Start with header
 
@@ -153,12 +153,12 @@ void handleShowTrials(int client_fd, std::istringstream &commandStream) {
         std::string gameFile = "server/GAMES/GAME_" + std::to_string(plid) + ".txt";
         std::string active_game_file = player->getActiveGameSummary(gameFile);
 
-        sendFile(client_fd, active_game_file);
+        sendFile(client_fd, active_game_file,"ACT");
         
 
     } else if (player->hasFinishedGames()) {
         std::string gameFile =  getLastGameSummary(plid);
-        sendFile(client_fd, gameFile);
+        sendFile(client_fd, gameFile,"FIN");
         
 
     } else {
