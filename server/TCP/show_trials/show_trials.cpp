@@ -96,10 +96,11 @@ std::string getLastGameSummary(int plid) {
 
 void sendFile(int client_fd, const std::string &filename) {
     std::ifstream file(filename, std::ios::binary);
+
     if (!file) {
         std::cerr << "[ERROR] Não foi possível abrir o arquivo: " << filename << std::endl;
         const std::string error_response = "RST NOK\n";
-        send(client_fd, error_response.c_str(), error_response.size(), 0);
+        write(client_fd, error_response.c_str(), error_response.size());
         return;
     }
 
@@ -135,7 +136,7 @@ void handleShowTrials(int client_fd, std::istringstream &commandStream) {
     }catch (const std::invalid_argument& e){
         std::cerr << "[ERROR] " << e.what() << std::endl;
         const std::string error_response = "RST NOK\n";
-        send(client_fd, error_response.c_str(), error_response.size(), 0);
+        write(client_fd, error_response.c_str(), error_response.size());
         return;
     }
 
@@ -144,7 +145,7 @@ void handleShowTrials(int client_fd, std::istringstream &commandStream) {
     if (!player) {
         std::cerr << "[ERROR] Jogador com PLID " << plid << " não encontrado." << std::endl;
         const std::string error_response = "RST NOK\n";
-        send(client_fd, error_response.c_str(), error_response.size(), 0);
+        write(client_fd, error_response.c_str(), error_response.size());
         return;
     }
 
@@ -153,11 +154,17 @@ void handleShowTrials(int client_fd, std::istringstream &commandStream) {
         std::string active_game_file = player->getActiveGameSummary(gameFile);
 
         sendFile(client_fd, active_game_file);
+        
+
     } else if (player->hasFinishedGames()) {
         std::string gameFile =  getLastGameSummary(plid);
         sendFile(client_fd, gameFile);
+        
+
     } else {
         const std::string no_games_response = "RST NOK\n";
-        send(client_fd, no_games_response.c_str(), no_games_response.size(), 0);
+        write(client_fd, no_games_response.c_str(), no_games_response.size());
+        
     }
+    return;
 }

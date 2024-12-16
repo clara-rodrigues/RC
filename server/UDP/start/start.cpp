@@ -57,7 +57,13 @@ void createPlayerFile(int plid,int gameId){
             file << key ;
         }
         file << " "<< games[gameId].maxPlaytime << " ";
-        file <<  timeinfo->tm_year +1900<< "-" << timeinfo->tm_mon+1 << "-"<< timeinfo->tm_mday << " " <<timeinfo->tm_hour << ":" << timeinfo->tm_min<< ":" << timeinfo->tm_sec   << std::endl;
+        file <<  timeinfo->tm_year +1900<< "-"; 
+        file << timeinfo->tm_mon+1 << "-";
+        file << timeinfo->tm_mday << " " ;
+        file <<timeinfo->tm_hour << ":";
+        file << timeinfo->tm_min<< ":" ;
+        file << timeinfo->tm_sec <<" "  ;
+        file << std::to_string(time(0))<< std::endl;
     
         file.close();
     } else {

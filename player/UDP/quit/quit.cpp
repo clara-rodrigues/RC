@@ -4,7 +4,7 @@
 
 void execute_quit(Player &player ,const std::string& ip, const std::string& port) {
     std::string plid = player.plid;
-    std::string msg = "QUT "+ plid;
+    std::string msg = "QUT "+ plid + "\n";
     std::string response;
 
     std::cout << "Sending 'quit' command: " << msg << std::endl;

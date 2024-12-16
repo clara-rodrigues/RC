@@ -6,7 +6,7 @@
 void execute_start(Player &player, const std::string& ip, const std::string& port) {
     std::string plid = player.plid;
     int maxPlaytime = player.maxPlaytime;
-    std::string msg = "SNG " + plid + " " + std::to_string(maxPlaytime);
+    std::string msg = "SNG " + plid + " " + std::to_string(maxPlaytime)+ "\n";
     std::string response;
 
   

@@ -7,6 +7,7 @@
 #include <arpa/inet.h>
 #include <netdb.h>
 #include <string.h>
+#include <fstream> // Add this line
 
 #include <iostream>
 #include <string>
@@ -18,6 +19,77 @@
 #include <cstring>
 #include <netdb.h>
 #include <cerrno>
+#include <sstream>
+
+
+void writeFile(std::istringstream& response){
+    std::string fname, fsize_str, line;
+    
+    response >> fname >> fsize_str;
+
+    // Read the status (should be "RST OK")
+    //if (!(iss >> status) || status != "RST") {
+    //    std::cerr << "Error: Invalid server response format (status)." << std::endl;
+    //    return;
+    //}
+//
+    //if (!(iss >> status) || status != "OK") {
+    //    std::cerr << "Error: Invalid server response format (OK)." << std::endl;
+    //    return;
+    //}   
+
+    std::cout << "File name: " << fname << std::endl;
+    std::cout << "File size: " << fsize_str << " bytes" << std::endl;
+
+    //std::getline(iss, fname);  
+    //std::stringstream ss(fname);  
+    //ss >> fname;  
+    //ss >> fsize_str;  
+
+    //if (!is_numeric(fsize_str)) {
+    //    std::cerr << "Error: Invalid file size format: '" << fsize_str << "'\n";
+    //    return;
+    //}
+
+    //int fsize = std::stoi(fsize_str);
+    //std::cout << "File size: " << fsize << " bytes\n";
+
+    std::vector<std::string> file_data;
+    while (std::getline(response, line)) {
+        file_data.push_back(line);
+    }
+
+    if (file_data.empty()) {
+        std::cerr << "Error: No file data received.\n";
+        return;
+    }
+
+    std::string file_path = "player/" + fname;
+
+    std::ofstream output_file(file_path, std::ios::binary);
+    if (!output_file) {
+        std::cerr << "Error: Failed to open file '" << file_path << "' for writing.\n";
+        return;
+    }
+
+    for (const auto& file_line : file_data) {
+        output_file << file_line << '\n';
+    }
+
+    output_file.close();
+    if (output_file.fail()) {
+        std::cerr << "Error: Failed to save the file.\n";
+        return;
+    }
+
+    std::cout << "File received and saved as '" << file_path << "'.\n";
+
+}
+
+
+
+
+
 
 int send_TCP(const std::string& msg, std::string& response, const std::string& ip, const std::string& port) {
     char buffer[1024];
@@ -79,17 +151,29 @@ int send_TCP(const std::string& msg, std::string& response, const std::string& i
         total_sent += tcp_n;
     }
 
-    // Receive response from server
-    ssize_t bytes_received = recv(fd, buffer, sizeof(buffer) - 1, 0);
-    if (bytes_received == -1) {
-        perror("Error receiving response");
-        freeaddrinfo(tcp_res);
-        close(fd);
-        return -1;
+  
+
+
+
+    while (true) {
+        ssize_t bytes_received = read(fd, buffer, sizeof(buffer) - 1);
+        std::cout << "Bytes received: " << bytes_received << std::endl;
+        
+        if (bytes_received == -1) {
+            perror("Error receiving response");
+            return -1;
+        }
+
+        if (bytes_received == 0) {
+            break;
+        }
+
+        buffer[bytes_received] = '\0';  // Null-terminate the buffer
+        response += buffer;  // Append the received data to the response
+
     }
 
-    buffer[bytes_received] = '\0';  // Null-terminate the buffer
-    response = std::string(buffer);
+    std::cout << "Response: " << response << std::endl;
 
     freeaddrinfo(tcp_res);
     close(fd);

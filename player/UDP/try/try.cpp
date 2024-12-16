@@ -21,7 +21,7 @@ void execute_try(Player &player, const std::vector<std::string>& guesses, const 
     for (const auto& guess : guesses) {
         msg += " " + guess;
     }
-    msg += " " + std::to_string(numTrials);
+    msg += " " + std::to_string(numTrials) + "\n";
 
     std::cout << "Sending 'try' command: " << msg << std::endl;
 
