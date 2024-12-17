@@ -187,10 +187,16 @@ bool Player::hasFinishedGames() const {
 int calcScore(const Game& game) {
     int score = 0;
     time_t currentTime = time(0);
-    int remainingTime = game.maxPlaytime - (currentTime - game.startTime);
+    int gameTime = (currentTime - game.startTime);
     int numTrials = game.trials.size();
     int remainingTrials = game.MAX_NUM_TRIALS - numTrials;
-    score = remainingTime + remainingTrials;
+    double timeNormalized = (10.00/gameTime) * 1000.00;
+
+    std::cout << "Remaining Time: " << gameTime << std::endl;
+
+    std::cout << "Time Normalized: " << timeNormalized << std::endl;
+
+    score = timeNormalized + remainingTrials;
     std::cout << "Score: " << score << std::endl;
     return score;
 }

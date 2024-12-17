@@ -30,7 +30,7 @@ void sendToPlayer(int client_fd,std::vector<char> buffer){
     ssize_t sent_bytes = 0;
 
     // Send the combined data (header + file body) in one call
-    while(num_bytes_sent != total_num_bytes) {
+    while(num_bytes_sent < total_num_bytes) {
         sent_bytes = write(client_fd, buffer.data() + num_bytes_sent, total_num_bytes - num_bytes_sent);
         if (sent_bytes < 0) {
             std::cerr << "[ERROR] Failed to send combined data." << std::endl;

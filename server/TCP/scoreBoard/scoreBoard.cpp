@@ -66,14 +66,14 @@ void handleScoreBoard(int client_fd, std::istringstream &commandStream) {
     } catch (const std::exception &e) {
         std::cerr << "[ERROR] Invalid command." << std::endl;
         const std::string error_response = "RSS NOK\n";
-        send(client_fd, error_response.c_str(), error_response.size(), 0);
+        write(client_fd, error_response.c_str(), error_response.size());
         return;
     }
 
     //if (games.empty()) {
     //    std::cerr << "[INFO] No games found for the scoreboard." << std::endl;
     //    const std::string no_games_response = "RSS EMPTY\n";
-    //    send(client_fd, no_games_response.c_str(), no_games_response.size(), 0);
+    //    write(client_fd, no_games_response.c_str(), no_games_response.e(), 0);
     //    return;
     //}
 
@@ -89,7 +89,7 @@ void handleScoreBoard(int client_fd, std::istringstream &commandStream) {
     if (!scoreboardFile.is_open()) {
         std::cerr << "[ERROR] Failed to create scoreboard file." << std::endl;
         const std::string error_response = "RSS NOK\n";
-        send(client_fd, error_response.c_str(), error_response.size(), 0);
+        write(client_fd, error_response.c_str(), error_response.size());
         return;
     }
 
@@ -111,7 +111,7 @@ void handleScoreBoard(int client_fd, std::istringstream &commandStream) {
     if (checkFile.peek() == std::ifstream::traits_type::eof()) {
         std::cerr << "[ERROR] Scoreboard file is empty!" << std::endl;
         const std::string error_response = "RSS NOK\n";
-        send(client_fd, error_response.c_str(), error_response.size(), 0);
+        write(client_fd, error_response.c_str(), error_response.size());
         return;
     }
     checkFile.close();
@@ -121,7 +121,7 @@ void handleScoreBoard(int client_fd, std::istringstream &commandStream) {
     if (!file) {
         std::cerr << "[ERROR] Failed to read scoreboard file." << std::endl;
         const std::string error_response = "RSS NOK\n";
-        send(client_fd, error_response.c_str(), error_response.size(), 0);
+        write(client_fd, error_response.c_str(), error_response.size());
         return;
     }
 
