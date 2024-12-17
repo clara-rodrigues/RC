@@ -70,7 +70,7 @@ void execute_try(Player &player, const std::vector<std::string>& guesses, const 
     std::istringstream iss(response);
     std::string message,responseStatus,gameTrials,numBlacks,numWhites,guess1,guess2,guess3,guess4;
     std::vector<char> valid_colors = {'R', 'G', 'B', 'Y', 'O', 'P'};
-    iss >> message >> responseStatus >> gameTrials >> numBlacks >> numWhites >> guess1 >> guess2 >> guess3 >> guess4; 
+    iss >> message >> responseStatus ;
     
     if(message != "RTR"){
         std::cerr << "Error: Invalid server response format (status)." << std::endl;
@@ -81,6 +81,7 @@ void execute_try(Player &player, const std::vector<std::string>& guesses, const 
 
     switch (responseId) {
         case 1:{
+            iss >> gameTrials >> numBlacks >> numWhites;
             int numBlacksInt = checkNums(gameTrials,numBlacks,numWhites)[1];
             if(numBlacksInt == 4){
                 closeGame(player);
@@ -92,10 +93,13 @@ void execute_try(Player &player, const std::vector<std::string>& guesses, const 
             break;
         }
         case 2:{
+            iss >> guess1 >> guess2 >> guess3 >> guess4;
             char guess1_color = guess1[0];
             char guess2_color = guess2[0];
             char guess3_color = guess3[0];
             char guess4_color = guess4[0];
+
+
 
             if (std::find(valid_colors.begin(), valid_colors.end(),guess1_color) == valid_colors.end() || 
                 std::find(valid_colors.begin(), valid_colors.end(), guess2_color) == valid_colors.end() || 

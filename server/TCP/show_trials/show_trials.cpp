@@ -110,7 +110,7 @@ void sendFile(int client_fd, const std::string &filename,std::string status) {
     std::cerr << "[DEBUG] sendFile: Tamanho do arquivo: " << file_size << " bytes" << std::endl;
 
     std::ostringstream header;
-    header << "RST "+ status + " " << "show_trials.txt" << " " << file_size << "\n";
+    header << "RST "+ status + " " << "show_trials.txt" << " " << file_size << " ";
     std::string header_str = header.str();
     std::vector<char> buffer(header_str.begin(), header_str.end()); // Start with header
 
@@ -135,7 +135,7 @@ void handleShowTrials(int client_fd, std::istringstream &commandStream) {
         checkExtraInput(commandStream);
     }catch (const std::invalid_argument& e){
         std::cerr << "[ERROR] " << e.what() << std::endl;
-        const std::string error_response = "RST NOK\n";
+        const std::string error_response = "RST ERR\n";
         write(client_fd, error_response.c_str(), error_response.size());
         return;
     }

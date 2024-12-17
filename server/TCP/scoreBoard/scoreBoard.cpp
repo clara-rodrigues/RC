@@ -129,7 +129,7 @@ void handleScoreBoard(int client_fd, std::istringstream &commandStream) {
 
     // Prepare header
     std::ostringstream header;
-    header << "RSS OK " << "scoreboard.txt" << " " << fileSize << "\n";
+    header << "RSS OK " << "scoreboard.txt" << " " << fileSize << " ";
     std::string header_str = header.str();
 
     // Combine header and file data into one buffer
@@ -140,7 +140,7 @@ void handleScoreBoard(int client_fd, std::istringstream &commandStream) {
     while (file.read(file_buffer, sizeof(file_buffer)) || file.gcount() > 0) {
         buffer.insert(buffer.end(), file_buffer, file_buffer + file.gcount());
     }
-
+    buffer.push_back('\n');  
     file.close();
     std::cerr << "[DEBUG] File content read into buffer successfully.\n";
 

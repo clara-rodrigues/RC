@@ -20,6 +20,7 @@
 #include <netdb.h>
 #include <cerrno>
 #include <sstream>
+#include <vector>
 
 
 void writeFile(std::istringstream& response){
@@ -152,8 +153,6 @@ int send_TCP(const std::string& msg, std::string& response, const std::string& i
     }
 
   
-
-
 
     while (true) {
         ssize_t bytes_received = read(fd, buffer, sizeof(buffer) - 1);

@@ -33,7 +33,7 @@ struct Game {
     int plid;
     int maxPlaytime;
     int numTrials = 0;
-    static const int MAX_NUM_TRIALS = 3;
+    static const int MAX_NUM_TRIALS = 8;
     std::vector<Trial> trials;
     time_t startTime;
     int score = 0;

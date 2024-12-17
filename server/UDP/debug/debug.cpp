@@ -22,16 +22,16 @@ void handleDebug(int fd, struct sockaddr_in &client_addr, socklen_t client_len, 
 
     }catch(const std::invalid_argument& e){
         std::cout << e.what() << std::endl;
-        sendto(fd, "RDG ERR", 7, 0, (struct sockaddr *)&client_addr, client_len);
+        sendto(fd, "RDB ERR\n", 8, 0, (struct sockaddr *)&client_addr, client_len);
         return;
     }
     
     responseOk = debug(plid, maxPlaytime, guesses);
 
     if(responseOk){
-        sendto(fd, "RDG OK", 6, 0, (struct sockaddr *)&client_addr, client_len);
+        sendto(fd, "RDB OK\n", 7, 0, (struct sockaddr *)&client_addr, client_len);
     }else{
-        sendto(fd, "RDG NOK", 7, 0, (struct sockaddr *)&client_addr, client_len);
+        sendto(fd, "RDB NOK\n", 8, 0, (struct sockaddr *)&client_addr, client_len);
     }
 }
 

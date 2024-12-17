@@ -2,7 +2,7 @@
 CXX = g++
 
 # Compiler flags
-CXXFLAGS = -std=c++17 -Wall -Wextra
+CXXFLAGS = -std=c++17 -Wall -Wextra 
 
 # Root directory
 SRC_DIR = player
@@ -16,7 +16,6 @@ OBJ_FILES2 = $(patsubst %.cpp, %.player2.o, $(SRC_FILES))
 
 # Output executable names
 OUTPUT1 = player1
-OUTPUT2 = player2
 
 # Default target: build both executables
 all: $(OUTPUT1) $(OUTPUT2)

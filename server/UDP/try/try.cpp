@@ -88,7 +88,7 @@ void handleTry(int fd, struct sockaddr_in &client_addr, socklen_t client_len, st
 
     }catch(const std::invalid_argument& e){
         std::cout << e.what() << std::endl;
-        sendto(fd, "RTR ERR", 7, 0, (struct sockaddr *)&client_addr, client_len);
+        sendto(fd, "RTR ERR\n", 8, 0, (struct sockaddr *)&client_addr, client_len);
         return;
     }
     
@@ -103,11 +103,11 @@ void handleTry(int fd, struct sockaddr_in &client_addr, socklen_t client_len, st
 
         // check if trial number is correct
         if (games[gameId].numTrials +1 != numTrials){
-            sendto(fd, "RTR INV", 7, 0, (struct sockaddr *)&client_addr, client_len);
+            sendto(fd, "RTR INV\n", 8, 0, (struct sockaddr *)&client_addr, client_len);
             return;
         }
     }else{
-        sendto(fd, "RTR NOK", 7, 0, (struct sockaddr *)&client_addr, client_len);
+        sendto(fd, "RTR NOK\n", 8, 0, (struct sockaddr *)&client_addr, client_len);
         return;
     }
 
@@ -119,16 +119,16 @@ void handleTry(int fd, struct sockaddr_in &client_addr, socklen_t client_len, st
         std::vector<std::string> secretKey = games[gameId].secretKey;
         games[gameId].finalSate = 'T';
         currentPlayer->isPlaying = false;
-        oss << "RTR ETM " << secretKey[0] << " " << secretKey[1] << " " << secretKey[2] << " " << secretKey[3];
+        oss << "RTR ETM " << secretKey[0] << " " << secretKey[1] << " " << secretKey[2] << " " << secretKey[3] << "\n";
         std::string message = oss.str();
-        sendto(fd, message.c_str(), 15, 0, (struct sockaddr *)&client_addr, client_len);
+        sendto(fd, message.c_str(), 16, 0, (struct sockaddr *)&client_addr, client_len);
         closeGame(*currentPlayer, games[gameId]);
         return ;
     }
 
 
     if (existDup(games[gameId].trials, guesses)){
-        sendto(fd, "RTR DUP", 7, 0, (struct sockaddr *)&client_addr, client_len);
+        sendto(fd, "RTR DUP\n", 8, 0, (struct sockaddr *)&client_addr, client_len);
         return;
     }
 
@@ -141,10 +141,10 @@ void handleTry(int fd, struct sockaddr_in &client_addr, socklen_t client_len, st
         std::vector<std::string> secretKey = games[gameId].secretKey;
 
         currentPlayer->isPlaying = false;
-        oss << "RTR ENT " << secretKey[0] << " " << secretKey[1] << " " << secretKey[2] << " " << secretKey[3];
+        oss << "RTR ENT " << secretKey[0] << " " << secretKey[1] << " " << secretKey[2] << " " << secretKey[3] << "\n";
         std::string message = oss.str();
         games[gameId].finalSate = 'F';
-        sendto(fd, message.c_str(), 15, 0, (struct sockaddr *)&client_addr, client_len);
+        sendto(fd, message.c_str(), 16, 0, (struct sockaddr *)&client_addr, client_len);
         closeGame(*currentPlayer, games[gameId]);
         return ;
     }
@@ -153,9 +153,9 @@ void handleTry(int fd, struct sockaddr_in &client_addr, socklen_t client_len, st
         std::ostringstream oss;
         std::vector<std::string> secretKey = games[gameId].secretKey;
         //currentPlayer->isPlaying = false;
-        oss << "RTR OK " << numTrials << " " << args.first << " " << args.second ;
+        oss << "RTR OK " << numTrials << " " << args.first << " " << args.second << "\n";
         std::string message = oss.str();
-        sendto(fd, message.c_str(), 12, 0, (struct sockaddr *)&client_addr, client_len);
+        sendto(fd, message.c_str(), 13, 0, (struct sockaddr *)&client_addr, client_len);
 
         games[gameId].score = calcScore(games[gameId]);
         games[gameId].finalSate = 'W';
@@ -167,13 +167,13 @@ void handleTry(int fd, struct sockaddr_in &client_addr, socklen_t client_len, st
     }
 
     std::ostringstream oss;
-    oss << "RTR OK " << numTrials << " " << args.first << " " << args.second ;
+    oss << "RTR OK " << numTrials << " " << args.first << " " << args.second << "\n";
 
     games[gameId].numTrials++;
 
     std::string message = oss.str();
 
-    sendto(fd, message.c_str(), 12, 0, (struct sockaddr *)&client_addr, client_len);
+    sendto(fd, message.c_str(), 13, 0, (struct sockaddr *)&client_addr, client_len);
    
 }
 

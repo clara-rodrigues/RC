@@ -15,6 +15,8 @@
 std::vector<Player> players;
 std::vector<std::string> colors = {"R", "G", "B", "Y", "O", "P"};
 std::vector<Game> games;
+int udp_fd;
+int tcp_fd;
 int verbose = 0;
 
 namespace fs = std::filesystem;
@@ -96,6 +98,8 @@ void clearGamesDir() {
 void signalHandler(int signum) {
     std::cout << "\nSinal (" << signum << ") recebido. Limpando a diretoria GAMES...\n";
     clearGamesDir();
+    close(udp_fd);
+    close(tcp_fd);
     std::exit(signum);
 }
 
@@ -335,7 +339,6 @@ void serverLoop(int udp_fd, int tcp_fd) {
 
 
 int main(int argc, char* argv[]) {
-    int tcp_fd,udp_fd;
     std::string port = "58068";
 
 
@@ -347,11 +350,12 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    std::signal(SIGINT, signalHandler);
+    
     std::cout << "Iniciando servidor UDP..." << std::endl;
     udp_fd = startUDP(port);
     std::cout << "Iniciando servidor TCP..." << std::endl;
     tcp_fd = startTCPServer(port);  
+    std::signal(SIGINT, signalHandler);
     
     serverLoop(udp_fd,tcp_fd);
     

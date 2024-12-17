@@ -14,6 +14,7 @@
 #include <vector>
 #include <stdexcept>
 #include <unordered_map>
+#include <algorithm>
 
 
 struct Player {

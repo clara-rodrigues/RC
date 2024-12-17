@@ -12,7 +12,7 @@ SRC_FILES = $(shell find $(SRC_DIR) -name '*.cpp')
 OBJ_FILES = $(SRC_FILES:.cpp=.o)
 
 # Output executable name
-OUTPUT = server1
+OUTPUT = GS
 
 # Default target
 all: $(OUTPUT)

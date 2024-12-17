@@ -9,6 +9,7 @@
 #include <arpa/inet.h>
 #include <netdb.h>
 #include "../TCP.hpp"
+#include <algorithm>
 
 
 

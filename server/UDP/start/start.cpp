@@ -18,7 +18,7 @@ void handleStartGame( int fd, struct sockaddr_in &client_addr, socklen_t client_
         checkExtraInput(commandStream);
     }catch(const std::invalid_argument& e){
         std::cout << e.what() << std::endl;
-        sendto(fd, "RSG ERR", 7, 0, (struct sockaddr *)&client_addr, client_len);
+        sendto(fd, "RSG ERR\n", 8, 0, (struct sockaddr *)&client_addr, client_len);
         return;
     }
 
@@ -27,9 +27,9 @@ void handleStartGame( int fd, struct sockaddr_in &client_addr, socklen_t client_
     responseOK = startNewGame(plid, maxPlaytime);
 
     if(responseOK){
-        sendto(fd, "RSG OK", 6, 0, (struct sockaddr *)&client_addr, client_len);
+        sendto(fd, "RSG OK\n", 7, 0, (struct sockaddr *)&client_addr, client_len);
     }else{
-        sendto(fd, "RSG NOK", 7, 0, (struct sockaddr *)&client_addr, client_len);
+        sendto(fd, "RSG NOK\n", 8, 0, (struct sockaddr *)&client_addr, client_len);
     }
 
 }
