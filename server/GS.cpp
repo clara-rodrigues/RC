@@ -15,8 +15,6 @@
 std::vector<Player> players;
 std::vector<std::string> colors = {"R", "G", "B", "Y", "O", "P"};
 std::vector<Game> games;
-int udp_fd;
-int tcp_fd;
 int verbose = 0;
 
 namespace fs = std::filesystem;
@@ -98,8 +96,6 @@ void clearGamesDir() {
 void signalHandler(int signum) {
     std::cout << "\nSinal (" << signum << ") recebido. Limpando a diretoria GAMES...\n";
     clearGamesDir();
-    close(udp_fd);
-    close(tcp_fd);
     std::exit(signum);
 }
 
@@ -270,14 +266,14 @@ void serverLoop(int udp_fd, int tcp_fd) {
     socklen_t client_len = sizeof(client_addr);
     char buffer[BUFFER_SIZE];
 
-    FD_ZERO(&inputs);  // Limpa os descritores
-    FD_SET(0, &inputs);  // A entrada padrão (teclado)
-    FD_SET(udp_fd, &inputs);  // O socket UDP
-    FD_SET(tcp_fd, &inputs);  // O socket TCP
+    FD_ZERO(&inputs);  
+    FD_SET(0, &inputs);  
+    FD_SET(udp_fd, &inputs);  
+    FD_SET(tcp_fd, &inputs); 
 
     while (1) {
-        testfds = inputs;  // Recarrega a máscara de entrada
-        timeout.tv_sec = 10;  // Timeout de 10 segundos
+        testfds = inputs;  
+        timeout.tv_sec = 10; 
         timeout.tv_usec = 0;
 
         out_fds = select(FD_SETSIZE, &testfds, NULL, NULL, &timeout);
@@ -292,13 +288,11 @@ void serverLoop(int udp_fd, int tcp_fd) {
             continue;
         }
 
-        // Se houver dados no teclado
         if (FD_ISSET(0, &testfds)) {
             fgets(buffer, sizeof(buffer), stdin);
             printf("Input recebido no teclado: %s\n", buffer);
         }
 
-        // Se houver dados no socket UDP
         if (FD_ISSET(udp_fd, &testfds)) {
             int ret = recvfrom(udp_fd, buffer, sizeof(buffer), 0, (struct sockaddr *)&client_addr, &client_len);
             if (ret >= 0) {
@@ -308,7 +302,6 @@ void serverLoop(int udp_fd, int tcp_fd) {
             }
         }
 
-        // Se houver dados no socket TCP
         if (FD_ISSET(tcp_fd, &testfds)) {
             int client_fd = accept(tcp_fd, (struct sockaddr *)&client_addr, &client_len);
             if (client_fd == -1) {
@@ -325,13 +318,13 @@ void serverLoop(int udp_fd, int tcp_fd) {
                 continue;
             }
 
-            if (pid == 0) {  // Processo filho
-                close(tcp_fd);  // O filho não precisa do socket de escuta
+            if (pid == 0) {  
+                close(tcp_fd); 
                 handlePlayerRequest(client_fd);
                 close(client_fd);
                 exit(0);
-            } else {  // Processo pai
-                close(client_fd);  // O pai não precisa manter a conexão com o cliente
+            } else {  
+                close(client_fd);  
             }
         }
     }
@@ -339,23 +332,25 @@ void serverLoop(int udp_fd, int tcp_fd) {
 
 
 int main(int argc, char* argv[]) {
+    int tcp_fd,udp_fd;
     std::string port = "58068";
-
+    std::cout << "HELLO";
 
     for (int i = 1; i < argc; i++) {
+        std::cout << argv[i];
         if (std::string(argv[i]) == "-p") {
             port = argv[i + 1];
         } else if (std::string(argv[i]) == "-v") {
             verbose = 1;
+            std::cout << " VERBOSE";
         }
     }
 
-    
+    std::signal(SIGINT, signalHandler);
     std::cout << "Iniciando servidor UDP..." << std::endl;
     udp_fd = startUDP(port);
     std::cout << "Iniciando servidor TCP..." << std::endl;
     tcp_fd = startTCPServer(port);  
-    std::signal(SIGINT, signalHandler);
     
     serverLoop(udp_fd,tcp_fd);
     

@@ -7,6 +7,6 @@
 
 std::pair<int, int> tryGuess(int plid, std::vector<std::string> guesses, int gameId);
 
-void handleTry(int fd, struct sockaddr_in &client_addr, socklen_t client_len, std::istringstream &commandStream);
+void handleTry(int fd, struct sockaddr_in &client_addr, socklen_t client_len, std::istringstream &commandStream, std::string client_ip, int client_port);
 
 #endif

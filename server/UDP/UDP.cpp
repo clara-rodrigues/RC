@@ -89,7 +89,8 @@ void handleUserMessage(int fd, struct sockaddr_in &client_addr, socklen_t client
     std::istringstream commandStream(command); 
     std::string plid;
     std::string commandType;
-
+    std::string client_ip = inet_ntoa(client_addr.sin_addr);
+    int client_port = ntohs(client_addr.sin_port);
     commandStream >> commandType;
 
 
@@ -99,20 +100,20 @@ void handleUserMessage(int fd, struct sockaddr_in &client_addr, socklen_t client
 
     switch (commandID) {
         case 1: { // "start"
-            handleStartGame(fd, client_addr, client_len, commandStream);
+            handleStartGame(fd, client_addr, client_len, commandStream, client_ip, client_port);
             break;
         }
         case 2: { // "try"
-            handleTry(fd, client_addr, client_len, commandStream);
+            handleTry(fd, client_addr, client_len, commandStream, client_ip, client_port);
             break;
         }
         case 3: { // "quit"
-            handleQuit(fd, client_addr, client_len, commandStream);
+            handleQuit(fd, client_addr, client_len, commandStream, client_ip, client_port);
             std::cout << "Received 'quit' command." << std::endl;
             break;
         }
         case 4: { // "debug"
-            handleDebug(fd, client_addr, client_len, commandStream);
+            handleDebug(fd, client_addr, client_len, commandStream, client_ip, client_port);
             std::cout << "Received 'debug' command." << std::endl;
             
             break;

@@ -7,7 +7,7 @@
 #include <fstream>
 
 
-void handleStartGame( int fd, struct sockaddr_in &client_addr, socklen_t client_len, std::istringstream &commandStream){
+void handleStartGame( int fd, struct sockaddr_in &client_addr, socklen_t client_len, std::istringstream &commandStream,  std::string client_ip, int client_port){
     int responseOK;
     int plid;
     int maxPlaytime;
@@ -16,6 +16,9 @@ void handleStartGame( int fd, struct sockaddr_in &client_addr, socklen_t client_
         plid = validPLID(commandStream);
         maxPlaytime = validMaxPlayTime(commandStream);
         checkExtraInput(commandStream);
+        if (verbose) {
+        std::cout << "[Verbose] [IP: "<< client_ip <<"] [PORT: "<< client_port <<"] Start Game for PLID: " << plid << std::endl;
+        }
     }catch(const std::invalid_argument& e){
         std::cout << e.what() << std::endl;
         sendto(fd, "RSG ERR\n", 8, 0, (struct sockaddr *)&client_addr, client_len);
@@ -26,6 +29,7 @@ void handleStartGame( int fd, struct sockaddr_in &client_addr, socklen_t client_
                 << ", Max Playtime: " << maxPlaytime << std::endl;
     responseOK = startNewGame(plid, maxPlaytime);
 
+    
     if(responseOK){
         sendto(fd, "RSG OK\n", 7, 0, (struct sockaddr *)&client_addr, client_len);
     }else{

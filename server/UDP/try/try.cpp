@@ -74,7 +74,7 @@ void writeTrial(int plid, std::vector<std::string> guesses, std::pair<int, int> 
 }
 
 
-void handleTry(int fd, struct sockaddr_in &client_addr, socklen_t client_len, std::istringstream &commandStream){
+void handleTry(int fd, struct sockaddr_in &client_addr, socklen_t client_len, std::istringstream &commandStream, std::string client_ip, int client_port){
     std::vector<std::string> guesses;
     int numTrials;
     int gameId;
@@ -85,6 +85,15 @@ void handleTry(int fd, struct sockaddr_in &client_addr, socklen_t client_len, st
         guesses = validGuess(commandStream);
         numTrials = checkNumTrials(commandStream);
         checkExtraInput(commandStream);
+        if (verbose) {
+            std::cout << "[Verbose] [IP: "<< client_ip <<"] [PORT: "<< client_port <<"]Try Guess: ";
+            for (const auto& guess : guesses) {
+                std::cout << guess << " ";  
+            }
+        }
+    std::cout << "for PLID: " << plid << std::endl;
+
+  
 
     }catch(const std::invalid_argument& e){
         std::cout << e.what() << std::endl;
@@ -96,8 +105,7 @@ void handleTry(int fd, struct sockaddr_in &client_addr, socklen_t client_len, st
     Player* currentPlayer = nullptr; 
     
     currentPlayer = findPlayerById(plid);
-
-    // check if player is playing
+     // check if player is playing
     if(currentPlayer->isPlaying){
         gameId = currentPlayer->gameId;
 

@@ -133,6 +133,8 @@ void handleShowTrials(int client_fd, std::istringstream &commandStream) {
     try{
         plid = validPLID(commandStream);
         checkExtraInput(commandStream);
+        if (verbose) 
+            std::cout << "[Verbose] Show Trials for PLID: " << plid << std::endl;
     }catch (const std::invalid_argument& e){
         std::cerr << "[ERROR] " << e.what() << std::endl;
         const std::string error_response = "RST ERR\n";

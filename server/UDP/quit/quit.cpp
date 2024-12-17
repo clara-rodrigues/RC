@@ -8,13 +8,16 @@
 
 
 
-void handleQuit(int fd, struct sockaddr_in &client_addr, socklen_t client_len, std::istringstream &commandStream){
+void handleQuit(int fd, struct sockaddr_in &client_addr, socklen_t client_len, std::istringstream &commandStream, std::string client_ip, int client_port){
     Player* currentPlayer = nullptr; 
     int plid;
 
     try{
         plid = validPLID(commandStream);
         checkExtraInput(commandStream);
+        if (verbose) {
+        std::cout << "[Verbose] [IP: "<< client_ip <<"] [PORT: "<< client_port <<"]Quit Game for PLID: " << plid << std::endl;
+        }
     }catch(const std::invalid_argument& e){
         std::cout << e.what() << std::endl;
         sendto(fd, "RQT ERR\n", 8, 0, (struct sockaddr *)&client_addr, client_len);
@@ -22,7 +25,7 @@ void handleQuit(int fd, struct sockaddr_in &client_addr, socklen_t client_len, s
     }
 
     currentPlayer = findPlayerById(plid);
-
+    
     if(currentPlayer->isPlaying){
         std::cout << "Player is playing" << std::endl;
         int gameId = currentPlayer->gameId;
