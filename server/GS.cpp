@@ -78,8 +78,7 @@ void closeGame(Player& player, Game& game) {
     createPlayerDir(player.plid, game);
 }
 
-void clearGamesDir() {
-    const std::string directory = "server/GAMES";
+void clearGamesDir(std::string directory) {
 
     try {
         if (fs::exists(directory) && fs::is_directory(directory)) {
@@ -98,7 +97,8 @@ void clearGamesDir() {
 
 void signalHandler(int signum) {
     std::cout << "\nSinal (" << signum << ") recebido. Limpando a diretoria GAMES...\n";
-    clearGamesDir();
+    clearGamesDir("server/GAMES");
+    clearGamesDir("server/SCORES");
     close(udp_fd);
     close(tcp_fd);
     std::exit(signum);
