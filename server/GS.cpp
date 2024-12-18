@@ -237,6 +237,9 @@ std::string Player::getActiveGameSummary(std::string gameFile ) const {
     }
     file.close();
     int remainingTime = activeGame.maxPlaytime - (currentTime - activeGame.startTime);
+    if(remainingTime < 0){
+        remainingTime = 0;
+    }
     trials << "Time remaining: " << remainingTime << " seconds\n";
 
     trials.close();

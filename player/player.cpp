@@ -180,6 +180,10 @@ int main(int argc, char* argv[]) {
         switch (commandID) {
             case 1: { // "start"
                 try {
+                    if(player.isPlaying && player.numTrials > 1){
+                        std::cerr << "Error: There is an ongoing game." << std::endl;
+                        break;
+                    }
                     player = parseStartGame(input);
                     std::cout << "PLID: " << player.plid << std::endl;
                     std::cout << "Max Playtime: " << player.maxPlaytime << " seconds" << std::endl;
@@ -235,6 +239,10 @@ int main(int argc, char* argv[]) {
                 break;
             }
             case 7: { // "debug"
+                if(player.isPlaying && player.numTrials > 1){
+                    std::cerr << "Error: There is an ongoing game." << std::endl;
+                    break;
+                }
                 std::vector<std::string> guesses;
                 try{
                     parseDebug(input,player,guesses);
