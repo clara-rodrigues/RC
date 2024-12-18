@@ -93,7 +93,7 @@ void handleScoreBoard(int client_fd, std::istringstream &commandStream) {
         return;
     }
 
-    // Write the top 10 scores (or fewer if less than 10 games)
+    
     int topCount = std::min(10, static_cast<int>(sortedGames.size()));
     for (int i = 0; i < topCount; ++i) {
         const Game &game = sortedGames[i];
@@ -134,15 +134,17 @@ void handleScoreBoard(int client_fd, std::istringstream &commandStream) {
     header << "RSS OK " << "scoreboard.txt" << " " << fileSize << " ";
     std::string header_str = header.str();
 
-    // Combine header and file data into one buffer
-    std::vector<char> buffer(header_str.begin(), header_str.end()); // Start with header
+    
+    std::vector<char> buffer(header_str.begin(), header_str.end()); 
 
-    // Read the file into the same buffer
     char file_buffer[4096];
     while (file.read(file_buffer, sizeof(file_buffer)) || file.gcount() > 0) {
         buffer.insert(buffer.end(), file_buffer, file_buffer + file.gcount());
     }
     buffer.push_back('\n');  
+    std::string bufferStr(buffer.begin(), buffer.end());
+    std::cout << "Buffer" << bufferStr << std::endl;
+    
     file.close();
     std::cerr << "[DEBUG] File content read into buffer successfully.\n";
 

@@ -152,10 +152,44 @@ int send_TCP(const std::string& msg, std::string& response, const std::string& i
         total_sent += tcp_n;
     }
 
-  
+    
+    std::string first_line;
+    int num_spaces = 0;
 
-    while (true) {
-        ssize_t bytes_received = read(fd, buffer, sizeof(buffer) - 1);
+    while(num_spaces < 4){
+        ssize_t bytes_received = read(fd, buffer, 1);
+        if (bytes_received == -1) {
+            perror("Error receiving response");
+            return -1;
+        }
+
+        if (bytes_received == 0) {
+            std::cout << "Connection closed by server" << std::endl;
+            return 1;
+        }
+
+        if(buffer[0] == ' '){
+            num_spaces++;
+        }
+        first_line += buffer[0];
+        response += buffer[0];
+    }
+
+    std::cout << "First Line: " << first_line << std::endl;
+
+    std::istringstream iss(first_line);
+    int num_total_bytes = 0;
+    std::string message, status, filename, fsize;
+    iss >> message >> status >> filename >> fsize;
+
+    std::cout << "Message: " << message << std::endl;
+    std::cout << "Status: " << status << std::endl;
+    std::cout << "Filename: " << filename << std::endl;
+    std::cout << "File Size: " << fsize << std::endl;
+
+
+    while (num_total_bytes < std::stoi(fsize)) {
+        ssize_t bytes_received = read(fd, buffer, std::stoi(fsize) - num_total_bytes);
         std::cout << "Bytes received: " << bytes_received << std::endl;
         
         if (bytes_received == -1) {
@@ -167,12 +201,12 @@ int send_TCP(const std::string& msg, std::string& response, const std::string& i
             break;
         }
 
-        buffer[bytes_received] = '\0';  // Null-terminate the buffer
-        response += buffer;  // Append the received data to the response
+        buffer[bytes_received] = '\0';  
+        response += buffer;  
+        num_total_bytes += bytes_received;
 
     }
 
-    std::cout << "Response: " << response << std::endl;
 
     freeaddrinfo(tcp_res);
     close(fd);
