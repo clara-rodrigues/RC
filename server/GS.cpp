@@ -328,7 +328,7 @@ void serverLoop(int udp_fd, int tcp_fd) {
 
             if (pid == 0) {  
                 close(tcp_fd); 
-                handlePlayerRequest(client_fd);
+                handlePlayerRequest(client_fd, client_addr);
                 close(client_fd);
                 exit(0);
             } else {  

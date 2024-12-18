@@ -5,6 +5,6 @@
 #include <string>
 #include <sstream>
 
-void handleShowTrials(int client_fd, std::istringstream &commandStream);
+void handleShowTrials(int client_fd, std::istringstream &commandStream, std::string client_ip, int client_port);
 
 #endif

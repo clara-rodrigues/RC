@@ -11,6 +11,6 @@
 #include <sstream>
 #include "../TCP.hpp"
 
-void handleScoreBoard(int client_fd,std::istringstream &commandStream);
+void handleScoreBoard(int client_fd,std::istringstream &commandStream, std::string client_ip, int client_port);
 
 #endif

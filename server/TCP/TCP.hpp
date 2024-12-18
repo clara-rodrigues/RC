@@ -30,7 +30,7 @@
 #define TCP_PORT "58000"
 #define BUFFER_SIZE 1024
 
-void handlePlayerRequest(int client_fd);
+void handlePlayerRequest(int client_fd, struct sockaddr_in client_addr);
 void handleShowTrials(int client_fd, std::istringstream &commandStream);
 void sendFile(int client_fd, const std::string &filename);
 void handleScoreBoard(int client_fd, std::istringstream &commandStream);

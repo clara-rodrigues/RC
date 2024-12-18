@@ -58,12 +58,12 @@ std::vector<Game> getGameScores(){
 
 
 
-void handleScoreBoard(int client_fd, std::istringstream &commandStream) {
+void handleScoreBoard(int client_fd, std::istringstream &commandStream, std::string client_ip, int client_port) {
     try {
         checkExtraInput(commandStream);
-        if (verbose) 
-        std::cout << "[Verbose] Show Trials" << std::endl;
-    } catch (const std::exception &e) {
+         if (verbose) 
+            std::cout << "[Verbose] [IP: " << client_ip << "] [PORT: " << client_port 
+                      << "] Requesting ScoreBoard" << std::endl;    } catch (const std::exception &e) {
         std::cerr << "[ERROR] Invalid command." << std::endl;
         const std::string error_response = "RSS NOK\n";
         write(client_fd, error_response.c_str(), error_response.size());

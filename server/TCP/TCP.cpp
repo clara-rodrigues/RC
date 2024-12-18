@@ -45,8 +45,10 @@ void sendToPlayer(int client_fd,std::vector<char> buffer){
 
 
 
-void handlePlayerRequest(int client_fd) {
+void handlePlayerRequest(int client_fd, struct sockaddr_in client_addr) {
     char buffer[BUFFER_SIZE];
+    std::string client_ip = inet_ntoa(client_addr.sin_addr);
+    int client_port = ntohs(client_addr.sin_port);
     ssize_t n = read(client_fd, buffer, sizeof(buffer) - 1);
     if (n <= 0) {
         close(client_fd);
@@ -65,11 +67,11 @@ void handlePlayerRequest(int client_fd) {
 
     switch (commandID) {
         case 1: { // "show trials"
-            handleShowTrials(client_fd, commandStream);
+            handleShowTrials(client_fd, commandStream, client_ip, client_port);
             break;
         }
         case 2: { // "scoreboard"
-            handleScoreBoard(client_fd, commandStream);
+            handleScoreBoard(client_fd, commandStream, client_ip, client_port);
             break;
         }
          default: {

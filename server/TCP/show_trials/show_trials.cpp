@@ -128,15 +128,18 @@ void sendFile(int client_fd, const std::string &filename,std::string status) {
 
 
 
-void handleShowTrials(int client_fd, std::istringstream &commandStream) {
+void handleShowTrials(int client_fd, std::istringstream &commandStream, std::string client_ip, int client_port) {
     int plid;
     try{
         plid = validPLID(commandStream);
         checkExtraInput(commandStream);
-        if (verbose) 
-            std::cout << "[Verbose] Show Trials for PLID: " << plid << std::endl;
-    }catch (const std::invalid_argument& e){
-        std::cerr << "[ERROR] " << e.what() << std::endl;
+        
+        if (verbose) {
+            std::cout << "[Verbose] [IP: " << client_ip << "] [PORT: " << client_port 
+                    << "] Show Trials for PLID: " << plid << std::endl;
+        }    
+        }catch (const std::invalid_argument& e){
+                std::cerr << "[ERROR] " << e.what() << std::endl;
         const std::string error_response = "RST ERR\n";
         write(client_fd, error_response.c_str(), error_response.size());
         return;
