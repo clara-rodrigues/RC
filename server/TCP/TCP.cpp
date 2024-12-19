@@ -23,28 +23,36 @@ int getCommandID_TCP(const std::string& command) {
 }
 
 
-void sendToPlayer(int client_fd,std::string header_str, std::string trials_info){
-    std::vector<char> buffer(header_str.begin(), header_str.end());
-        buffer.insert(buffer.end(), trials_info.begin(), trials_info.end());
-        
-    int total_num_bytes = buffer.size();
-    int num_bytes_sent = 0;
+void sendToPlayer(int client_fd, const std::string& header_str, const std::string& trials_info) {
+    char buffer[BUFFER_SIZE];
+    
+    size_t header_size = header_str.size();
+    size_t trials_size = trials_info.size();
+
+    std::memcpy(buffer, header_str.c_str(), header_size);
+    std::memcpy(buffer + header_size, trials_info.c_str(), trials_size);
+
+    buffer[header_size + trials_size] = '\n';
+    buffer[header_size + trials_size + 1] = '\0';
+
+    size_t total_num_bytes = header_size + trials_size + 1;  // +1 for '\n'
+    size_t num_bytes_sent = 0;
     ssize_t sent_bytes = 0;
 
-    // Send the combined data (header + file body) in one call
-    while(num_bytes_sent < total_num_bytes) {
-        sent_bytes = write(client_fd, buffer.data() + num_bytes_sent, total_num_bytes - num_bytes_sent);
+    std::cout << "[DEBUG] Full message: " << buffer << std::endl;
+
+    while (num_bytes_sent < total_num_bytes) {
+        sent_bytes = write(client_fd, buffer + num_bytes_sent, total_num_bytes - num_bytes_sent);
+        
         if (sent_bytes < 0) {
-            std::cerr << "[ERROR] Failed to send combined data." << std::endl;
+            std::cerr << "[ERROR] Failed to send data to client." << std::endl;
             return;
         }
         num_bytes_sent += sent_bytes;
     }
 
-    std::cerr << "[DEBUG] Sent " << sent_bytes << " bytes (header + file data)." << std::endl;
-
+    std::cout << "[DEBUG] Sent " << num_bytes_sent << " bytes (header + trials info)." << std::endl;
 }
-
 
 void handlePlayerRequest(int client_fd, struct sockaddr_in client_addr) {
     char buffer[BUFFER_SIZE];
@@ -117,6 +125,9 @@ int startTCPServer(std::string port) {
     socklen_t client_len = sizeof(client_addr);
     int tcp_fd;
 
+    int option_tcp = 1;
+    
+
     server_fd = socket(AF_INET, SOCK_STREAM, 0);
     if (server_fd == -1) {
         perror("Erro ao criar socket TCP");
@@ -133,6 +144,8 @@ int startTCPServer(std::string port) {
         std::cerr << "Erro em getaddrinfo TCP: " << gai_strerror(errcode) << std::endl;
         exit(1);
     }
+
+    setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &option_tcp, sizeof(option_tcp));
 
     if (bind(server_fd, res->ai_addr, res->ai_addrlen) == -1) {
         perror("Erro ao vincular socket TCP");

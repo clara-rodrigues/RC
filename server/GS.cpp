@@ -11,6 +11,7 @@
 #include <netinet/in.h>
 #include <csignal>
 #include <fstream>
+#include <dirent.h>
 
 std::vector<Player> players;
 std::vector<std::string> colors = {"R", "G", "B", "Y", "O", "P"};
@@ -185,14 +186,7 @@ Player* findPlayerById(int plid) {
 }
 
 
-bool Player::hasFinishedGames() const {
-    for (const Game& game : games) {
-        if (game.plid == plid && !game.trials.empty() && !isPlaying) {
-            return true;
-        }
-    }
-    return false;
-}
+
 
 std::string Player::getActiveGameSummary(std::string gameFile) const {
     const Game& activeGame = games[gameId];

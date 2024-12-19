@@ -32,7 +32,7 @@
 
 int getCommandID_TCP(const std::string& command);
 
-void sendToPlayer(int client_fd,std::string header_str, std::string trials_info);
+void sendToPlayer(int client_fd, const std::string& header_str, const std::string& trials_info);
 
 void handlePlayerRequest(int client_fd, struct sockaddr_in client_addr);
 
