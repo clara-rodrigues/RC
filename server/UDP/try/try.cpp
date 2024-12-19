@@ -20,6 +20,7 @@ int existDup(std::vector<Trial> trials, std::vector<std::string> guesses){
     return 0;
 }
 
+
 void createScoreFile(int plid, Game &game){
     struct tm *timeinfo;
     std::string folder = "server/SCORES/";
@@ -54,6 +55,7 @@ void createScoreFile(int plid, Game &game){
     }
 
 }
+
 
 void writeTrial(int plid, std::vector<std::string> guesses, std::pair<int, int> args, time_t currentTime, time_t startTime) {
     std::string folder = "server/GAMES";
@@ -182,6 +184,7 @@ void handleTry(int fd, struct sockaddr_in &client_addr, socklen_t client_len, st
    
 }
 
+
 int calcScore(const Game& game) {
     time_t currentTime = time(0);
     int gameTime = (currentTime - game.startTime);
@@ -192,6 +195,7 @@ int calcScore(const Game& game) {
     std::cout << "Score: " << score_normalized << std::endl;
     return score_normalized;
 }
+
 
 std::pair<int, int> tryGuess(int plid, std::vector<std::string> guesses, int gameId) {
     int numBlack = 0;

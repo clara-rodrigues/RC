@@ -13,9 +13,6 @@
 
 
 
-
-
-
 void handle_client(int fd, struct sockaddr_in &client_addr, socklen_t client_len, char *buffer, ssize_t n) {
     // Print client info
     char client_ip[INET_ADDRSTRLEN];
@@ -32,11 +29,9 @@ void handle_client(int fd, struct sockaddr_in &client_addr, socklen_t client_len
     }
 }
 
+
 int startUDP(std::string port) {
     struct addrinfo hints{}, *res;
-   //struct sockaddr_in client_addr{};
-    //socklen_t client_len;
-    //char buffer[BUFFER_SIZE];
     int udp_fd;
 
     udp_fd = socket(AF_INET, SOCK_DGRAM, 0);

@@ -110,16 +110,5 @@ void execute_try(Player &player, const std::vector<std::string>& guesses, const 
         }
 
     }
-    //if (responseStatus == "OK") {
-    //    if(numBlacksInt == 4){
-    //        closeGame(player);
-    //        std::cout << "WINNNN!" << std::endl;
-    //    }else{
-    //        numTrials++;    
-    //    }
-    //}else if (responseStatus == "ENT" || responseStatus == "ETM") {
-//
-//
-    //    
-    //}
+
 }

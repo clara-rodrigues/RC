@@ -76,6 +76,7 @@ void createPlayerFile(int plid,int gameId){
 
 }
 
+
 int startNewGame(int plid, int maxPlaytime) {
     std::vector<std::string> secret_key = generateSecretKey();
     Player* currentPlayer = findPlayerById(plid);
@@ -112,18 +113,22 @@ int startNewGame(int plid, int maxPlaytime) {
         return 1;
 
     } else {
+        // Verifiacar se o jogador está com um jogo ativo
         if (currentPlayer->isPlaying) {
             Game& currentGame = games[currentPlayer->gameId];
             time_t currentTime = time(0);
             if (currentTime - currentGame.startTime > currentGame.maxPlaytime) {
                 currentGame.finalSate = 'T';
                 closeGame(*currentPlayer, currentGame);
+                
             } else {
                 std::cout << "Game already in progress." << std::endl;
-                return 0;
+                
             }
+            return 0;
         }
 
+        // Iniciar um novo jogo para o jogador
         currentPlayer->isPlaying = true;
 
         Game newGame;
@@ -150,7 +155,6 @@ int startNewGame(int plid, int maxPlaytime) {
         return 1;
     }
 }
-
 
 
 std::vector<std::string> generateSecretKey(){

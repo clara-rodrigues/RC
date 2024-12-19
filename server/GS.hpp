@@ -13,10 +13,7 @@ struct Player {
     int plid;
     bool isPlaying = false;
     int gameId;
-
-    bool hasFinishedGames() const;
     std::string getActiveGameSummary(std::string gameFile) const;
-    //std::string getLastFinishedGameSummary() const;
 };
 
 extern std::vector<Player> players;
@@ -56,8 +53,6 @@ void clearGamesDir(std::string directory);
 void signalHandler(int signum);
 
 Player* findPlayerById(int plid);
-
-void serverLoop(int udp_fd, int tcp_fd);
 
 int validPLID(std::istream& input);
 

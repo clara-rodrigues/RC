@@ -186,8 +186,6 @@ Player* findPlayerById(int plid) {
 }
 
 
-
-
 std::string Player::getActiveGameSummary(std::string gameFile) const {
     const Game& activeGame = games[gameId];
     time_t currentTime = time(0);
@@ -229,28 +227,6 @@ std::string Player::getActiveGameSummary(std::string gameFile) const {
 
     return std::string(buffer);
 }
-
-
-//std::string Player::getLastFinishedGameSummary() const {
-//    std::string filename = "server/finished_game_" + std::to_string(plid) + ".txt";
-//
-//    std::ofstream file(filename);
-//    if (file.is_open()) {
-//        for (const Game& game : games) {
-//            if (game.plid == plid && !game.trials.empty() && !isPlaying) {
-//                for (const Trial& trial : game.trials) {
-//                    for (const std::string& guess : trial.guesses) {
-//                        file << guess << " ";
-//                    }
-//                    file << trial.numBlack << " " << trial.numWhite << "\n";
-//                }
-//                file.close();
-//                break;
-//            }
-//        }
-//    }
-//    return filename;
-//}
 
 
 void serverLoop(int udp_fd, int tcp_fd) {

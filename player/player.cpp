@@ -8,11 +8,15 @@
 #include "UDP/exit/exit.hpp"
 #include "TCP/showTrials/showTrials.hpp"
 #include "TCP/scoreBoard/scoreBoard.hpp"
+#include <csignal>
 
 
 
 extern bool running; 
 bool running = true; 
+std::string ip = "localhost";
+std::string port = "58068";
+Player player;
 
 std::vector<std::string> colors = {"R", "G", "B", "Y", "O", "P"};
 
@@ -154,10 +158,16 @@ int getCommandID(const std::string& command) {
     return (it != commandMap.end()) ? it->second : -1; 
 }
 
+
+void signalHandler(int signum) {
+    execute_exit(player, ip, port);
+    std::exit(signum);
+    
+}
+
+
 int main(int argc, char* argv[]) {
-    std::string ip = "localhost";  
-    std::string port = "58068";     
-    Player player;
+    
 
     for (int i = 1; i < argc; i++) {
         if (std::string(argv[i]) == "-n") {
@@ -178,6 +188,9 @@ int main(int argc, char* argv[]) {
         iss >> command;
 
         int commandID = getCommandID(command);
+
+
+        std::signal(SIGINT, signalHandler);
 
         switch (commandID) {
             case 1: { // "start"
