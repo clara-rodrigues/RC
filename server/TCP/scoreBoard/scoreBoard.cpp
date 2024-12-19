@@ -56,24 +56,115 @@ std::vector<Game> getGameScores(){
 }
 
 
+//void handleScoreBoard(int client_fd, std::istringstream &commandStream, std::string client_ip, int client_port) {
+//    try {
+//        checkExtraInput(commandStream);
+//         if (verbose) 
+//            std::cout << "[Verbose] [IP: " << client_ip << "] [PORT: " << client_port 
+//                      << "] Requesting ScoreBoard" << std::endl;    } catch (const std::exception &e) {
+//        std::cerr << "[ERROR] Invalid command." << std::endl;
+//        const std::string error_response = "RSS NOK\n";
+//        write(client_fd, error_response.c_str(), error_response.size());
+//        return;
+//    }
+//
+//    //if (games.empty()) {
+//    //    std::cerr << "[INFO] No games found for the scoreboard." << std::endl;
+//    //    const std::string no_games_response = "RSS EMPTY\n";
+//    //    write(client_fd, no_games_response.c_str(), no_games_response.e(), 0);
+//    //    return;
+//    //}
+//
+//    // Sort games by score in descending order
+//    std::vector<Game> sortedGames = getGameScores();
+//    std::sort(sortedGames.begin(), sortedGames.end(), [](const Game &a, const Game &b) {
+//        return a.score > b.score;
+//    });
+//
+//    const std::string filename = "server/scoreboard.txt";
+//    std::ofstream scoreboardFile(filename);
+//
+//    if (!scoreboardFile.is_open()) {
+//        std::cerr << "[ERROR] Failed to create scoreboard file." << std::endl;
+//        const std::string error_response = "RSS NOK\n";
+//        write(client_fd, error_response.c_str(), error_response.size());
+//        return;
+//    }
+//
+//    
+//    int topCount = std::min(10, static_cast<int>(sortedGames.size()));
+//    for (int i = 0; i < topCount; ++i) {
+//        const Game &game = sortedGames[i];
+//        std::string secretKey;
+//        for (const auto &part : game.secretKey) {
+//            secretKey += part;
+//        }
+//        scoreboardFile << game.plid << " " << secretKey << " " << game.score << "\n";
+//    }
+//    scoreboardFile.close();
+//    std::cerr << "[DEBUG] Scoreboard file written successfully.\n";
+//
+//    // Check if the file is empty
+//    std::ifstream checkFile(filename);
+//    if (checkFile.peek() == std::ifstream::traits_type::eof()) {
+//        std::cerr << "[ERROR] Scoreboard file is empty!" << std::endl;
+//        const std::string error_response = "RSS NOK\n";
+//        write(client_fd, error_response.c_str(), error_response.size());
+//        return;
+//    }
+//    checkFile.close();
+//
+//    // Open the file in binary mode
+//    std::ifstream file(filename, std::ios::binary | std::ios::ate);
+//    if (!file) {
+//        std::cerr << "[ERROR] Failed to read scoreboard file." << std::endl;
+//        const std::string error_response = "RSS NOK\n";
+//        write(client_fd, error_response.c_str(), error_response.size());
+//        return;
+//    }
+//
+//    // Calculate file size
+//    std::size_t fileSize = file.tellg();
+//    file.seekg(0);
+//
+//    // Prepare header
+//    std::ostringstream header;
+//    header << "RSS OK " << "scoreboard.txt" << " " << fileSize << " ";
+//    std::string header_str = header.str();
+//
+//    
+//    std::vector<char> buffer(header_str.begin(), header_str.end()); 
+//
+//    char file_buffer[4096];
+//    while (file.read(file_buffer, sizeof(file_buffer)) || file.gcount() > 0) {
+//        buffer.insert(buffer.end(), file_buffer, file_buffer + file.gcount());
+//    }
+//    buffer.push_back('\n');  
+//    std::string bufferStr(buffer.begin(), buffer.end());
+//    std::cout << "Buffer" << bufferStr << std::endl;
+//    
+//    file.close();
+//    std::cerr << "[DEBUG] File content read into buffer successfully.\n";
+//
+//    //sendToPlayer(client_fd, buffer);
+//
+//    
+//}
+//
+
+
 void handleScoreBoard(int client_fd, std::istringstream &commandStream, std::string client_ip, int client_port) {
     try {
         checkExtraInput(commandStream);
-         if (verbose) 
-            std::cout << "[Verbose] [IP: " << client_ip << "] [PORT: " << client_port 
-                      << "] Requesting ScoreBoard" << std::endl;    } catch (const std::exception &e) {
+        if (verbose)
+            std::cout << "[Verbose] [IP: " << client_ip << "] [PORT: " << client_port
+                      << "] Requesting ScoreBoard" << std::endl;
+    } catch (const std::exception &e) {
         std::cerr << "[ERROR] Invalid command." << std::endl;
         const std::string error_response = "RSS NOK\n";
         write(client_fd, error_response.c_str(), error_response.size());
         return;
     }
-
-    //if (games.empty()) {
-    //    std::cerr << "[INFO] No games found for the scoreboard." << std::endl;
-    //    const std::string no_games_response = "RSS EMPTY\n";
-    //    write(client_fd, no_games_response.c_str(), no_games_response.e(), 0);
-    //    return;
-    //}
 
     // Sort games by score in descending order
     std::vector<Game> sortedGames = getGameScores();
@@ -81,17 +172,9 @@ void handleScoreBoard(int client_fd, std::istringstream &commandStream, std::str
         return a.score > b.score;
     });
 
-    const std::string filename = "server/scoreboard.txt";
-    std::ofstream scoreboardFile(filename);
+    // Use a stringstream to store the scoreboard information in memory
+    std::ostringstream scoreboard_info;
 
-    if (!scoreboardFile.is_open()) {
-        std::cerr << "[ERROR] Failed to create scoreboard file." << std::endl;
-        const std::string error_response = "RSS NOK\n";
-        write(client_fd, error_response.c_str(), error_response.size());
-        return;
-    }
-
-    
     int topCount = std::min(10, static_cast<int>(sortedGames.size()));
     for (int i = 0; i < topCount; ++i) {
         const Game &game = sortedGames[i];
@@ -99,54 +182,30 @@ void handleScoreBoard(int client_fd, std::istringstream &commandStream, std::str
         for (const auto &part : game.secretKey) {
             secretKey += part;
         }
-        scoreboardFile << game.plid << " " << secretKey << " " << game.score << "\n";
+        scoreboard_info << game.plid << " " << secretKey << " " << game.score << "\n";
     }
-    scoreboardFile.close();
-    std::cerr << "[DEBUG] Scoreboard file written successfully.\n";
 
-    // Check if the file is empty
-    std::ifstream checkFile(filename);
-    if (checkFile.peek() == std::ifstream::traits_type::eof()) {
-        std::cerr << "[ERROR] Scoreboard file is empty!" << std::endl;
-        const std::string error_response = "RSS NOK\n";
-        write(client_fd, error_response.c_str(), error_response.size());
-        return;
-    }
-    checkFile.close();
+    std::cerr << "[DEBUG] Scoreboard information built successfully in memory.\n";
 
-    // Open the file in binary mode
-    std::ifstream file(filename, std::ios::binary | std::ios::ate);
-    if (!file) {
-        std::cerr << "[ERROR] Failed to read scoreboard file." << std::endl;
+    // Check if the scoreboard is empty
+    if (scoreboard_info.str().empty()) {
+        std::cerr << "[ERROR] Scoreboard is empty!" << std::endl;
         const std::string error_response = "RSS NOK\n";
         write(client_fd, error_response.c_str(), error_response.size());
         return;
     }
 
-    // Calculate file size
-    std::size_t fileSize = file.tellg();
-    file.seekg(0);
 
-    // Prepare header
+    std::string scoreboardStr = scoreboard_info.str();
+    std::size_t dataSize = scoreboardStr.size();
+
     std::ostringstream header;
-    header << "RSS OK " << "scoreboard.txt" << " " << fileSize << " ";
+    header << "RSS OK scoreboard.txt " << dataSize << " ";
     std::string header_str = header.str();
 
-    
-    std::vector<char> buffer(header_str.begin(), header_str.end()); 
 
-    char file_buffer[4096];
-    while (file.read(file_buffer, sizeof(file_buffer)) || file.gcount() > 0) {
-        buffer.insert(buffer.end(), file_buffer, file_buffer + file.gcount());
-    }
-    buffer.push_back('\n');  
-    std::string bufferStr(buffer.begin(), buffer.end());
-    std::cout << "Buffer" << bufferStr << std::endl;
-    
-    file.close();
-    std::cerr << "[DEBUG] File content read into buffer successfully.\n";
+    std::cerr << "[DEBUG] Scoreboard data prepared successfully in buffer.\n";
 
-    sendToPlayer(client_fd, buffer);
-
-    
+    // Send the buffer to the client
+    sendToPlayer(client_fd, header_str, scoreboardStr);
 }

@@ -194,54 +194,46 @@ bool Player::hasFinishedGames() const {
     return false;
 }
 
-
-std::string Player::getActiveGameSummary(std::string gameFile ) const {
-    const Game& activeGame = games[gameId]; 
-    std::string trialsFile = "server/active_game_" + std::to_string(plid) + ".txt";
+std::string Player::getActiveGameSummary(std::string gameFile) const {
+    const Game& activeGame = games[gameId];
     time_t currentTime = time(0);
-
-    std::ofstream trials(trialsFile);
-    if (!trials.is_open()) {
-        std::cerr << "Failed to open file " << std::endl; 
-    }
+    char buffer[BUFFER_SIZE] = {0};  // Initialize buffer with zeros
 
     std::ifstream file(gameFile);
     if (!file.is_open()) {
-        std::cerr << "Failed to open file " << std::endl;  
+        std::cerr << "Failed to open file " << gameFile << std::endl;
+        return "";
     }
 
+    std::ostringstream trialsStream;  
     std::string line;
     while (std::getline(file, line)) {
         std::stringstream ss(line);
         std::string token;
-        if(ss >> token){
+        
+        if (ss >> token) {
             if (token == "T:") {
-                std::string guess;
-                std::string black;
-                std::string white;
-                std::string time;
-                ss >> guess;
-                ss >> black;
-                ss >> white;
-
-                trials <<"T: "<< guess << " " << black << " " << white << "\n"; 
-               
+                trialsStream << line << '\n';
             }
         }
     }
     file.close();
+
     int remainingTime = activeGame.maxPlaytime - (currentTime - activeGame.startTime);
-    if(remainingTime < 0){
+    if (remainingTime < 0) {
         remainingTime = 0;
     }
-    trials << "Time remaining: " << remainingTime << " seconds\n";
 
-    trials.close();
-    return trialsFile;
+    trialsStream << "Time remaining: " << remainingTime << " seconds\n";
 
+    std::string trialsContent = trialsStream.str();
+    size_t copySize = std::min(trialsContent.size(), static_cast<size_t>(BUFFER_SIZE - 1));
+    std::copy(trialsContent.begin(), trialsContent.begin() + copySize, buffer);
+    buffer[copySize] = ('\0'); 
 
+    std::cout << buffer << std::endl;
 
-
+    return std::string(buffer);
 }
 
 

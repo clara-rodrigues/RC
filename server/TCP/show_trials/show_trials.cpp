@@ -19,6 +19,28 @@
 namespace fs = std::filesystem;
 
 
+std::string readFile(int client_fd, const std::string &filename) {
+    std::ifstream file(filename, std::ios::binary);
+    std::vector<char> buffer;
+
+    if (!file) {
+        std::cerr << "[ERROR] Não foi possível abrir o arquivo: " << filename << std::endl;
+        const std::string error_response = "RST NOK\n";
+        write(client_fd, error_response.c_str(), error_response.size());
+        return " ";
+    }
+
+
+    char file_buffer[BUFFER_SIZE];
+    while (file.read(file_buffer, sizeof(file_buffer)) || file.gcount() > 0) {
+        buffer.insert(buffer.end(), file_buffer, file_buffer + file.gcount());
+    }
+    buffer.push_back('\n');  
+    file.close();
+
+    return std::string(buffer.begin(), buffer.end());
+}
+
 std::time_t parseDateTime(const std::string &dateTimeStr) {
     struct std::tm tm = {};
     std::istringstream ss(dateTimeStr);
@@ -89,41 +111,43 @@ std::string getLastGameSummary(int plid) {
         std::cerr << "[ERROR] No valid files found in folder." << std::endl;
     }
 
+
+
     return folder + "/" + closestFile;
 }
 
 
-void sendFile(int client_fd, const std::string &filename,std::string status) {
-    std::ifstream file(filename, std::ios::binary);
-
-    if (!file) {
-        std::cerr << "[ERROR] Não foi possível abrir o arquivo: " << filename << std::endl;
-        const std::string error_response = "RST NOK\n";
-        write(client_fd, error_response.c_str(), error_response.size());
-        return;
-    }
-
-    file.seekg(0, std::ios::end);
-    std::size_t file_size = file.tellg();
-    file.seekg(0, std::ios::beg);
-    std::cerr << "[DEBUG] sendFile: Tamanho do arquivo: " << file_size << " bytes" << std::endl;
-
-    std::ostringstream header;
-    header << "RST "+ status + " " << "show_trials.txt" << " " << file_size << " ";
-    std::string header_str = header.str();
-    std::vector<char> buffer(header_str.begin(), header_str.end()); // Start with header
-
-    // Read the file into the same buffer
-    char file_buffer[BUFFER_SIZE];
-    while (file.read(file_buffer, sizeof(file_buffer)) || file.gcount() > 0) {
-        buffer.insert(buffer.end(), file_buffer, file_buffer + file.gcount());
-    }
-    buffer.push_back('\n\n');  
-    file.close();
-    std::cerr << "[DEBUG] File content read into buffer successfully.\n";
-
-    sendToPlayer(client_fd, buffer);
-}
+//void sendFile(int client_fd, const std::string &filename,std::string status) {
+//    std::ifstream file(filename, std::ios::binary);
+//
+//    if (!file) {
+//        std::cerr << "[ERROR] Não foi possível abrir o arquivo: " << filename << std::endl;
+//        const std::string error_response = "RST NOK\n";
+//        write(client_fd, error_response.c_str(), error_response.size());
+//        return;
+//    }
+//
+//    file.seekg(0, std::ios::end);
+//    std::size_t file_size = file.tellg();
+//    file.seekg(0, std::ios::beg);
+//    std::cerr << "[DEBUG] sendFile: Tamanho do arquivo: " << file_size << " bytes" << std::endl;
+//
+//    std::ostringstream header;
+//    header << "RST "+ status + " " << "show_trials.txt" << " " << file_size << " ";
+//    std::string header_str = header.str();
+//    std::vector<char> buffer(header_str.begin(), header_str.end()); // Start with header
+//
+//    // Read the file into the same buffer
+//    char file_buffer[BUFFER_SIZE];
+//    while (file.read(file_buffer, sizeof(file_buffer)) || file.gcount() > 0) {
+//        buffer.insert(buffer.end(), file_buffer, file_buffer + file.gcount());
+//    }
+//    buffer.push_back('\n\n');  
+//    file.close();
+//    std::cerr << "[DEBUG] File content read into buffer successfully.\n";
+//
+//    sendToPlayer(client_fd, buffer);
+//}
 
 
 void handleShowTrials(int client_fd, std::istringstream &commandStream, std::string client_ip, int client_port) {
@@ -154,14 +178,34 @@ void handleShowTrials(int client_fd, std::istringstream &commandStream, std::str
 
     if (player->isPlaying) {
         std::string gameFile = "server/GAMES/GAME_" + std::to_string(plid) + ".txt";
-        std::string active_game_file = player->getActiveGameSummary(gameFile);
+        std::string trials_info = player->getActiveGameSummary(gameFile);
+        std::ostringstream header;
 
-        sendFile(client_fd, active_game_file,"ACT");
+        header << "RST ACT show_trials.txt" << " " << trials_info.length() << " ";
+
+        std::cout << "Trials Info: " << trials_info << std::endl;
+        std::cout << "File size: " << trials_info << std::endl;
+
+        std::string header_str = header.str();
+        
+
+        //sendFile(client_fd, active_game_file,"ACT");
+        sendToPlayer(client_fd, header_str, trials_info);
         
 
     } else if (player->hasFinishedGames()) {
         std::string gameFile =  getLastGameSummary(plid);
-        sendFile(client_fd, gameFile,"FIN");
+        std::string trials_info = readFile(client_fd, gameFile);
+         std::ostringstream header;
+
+        header << "RST FIN show_trials.txt" << " " << trials_info.length() << " ";
+
+        std::cout << "Trials Info: " << trials_info << std::endl;
+        std::cout << "File size: " << trials_info << std::endl;
+
+        std::string header_str = header.str();
+    
+        sendToPlayer(client_fd, header_str, trials_info);
         
 
     } else {

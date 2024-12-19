@@ -23,7 +23,10 @@ int getCommandID_TCP(const std::string& command) {
 }
 
 
-void sendToPlayer(int client_fd,std::vector<char> buffer){
+void sendToPlayer(int client_fd,std::string header_str, std::string trials_info){
+    std::vector<char> buffer(header_str.begin(), header_str.end());
+        buffer.insert(buffer.end(), trials_info.begin(), trials_info.end());
+        
     int total_num_bytes = buffer.size();
     int num_bytes_sent = 0;
     ssize_t sent_bytes = 0;
