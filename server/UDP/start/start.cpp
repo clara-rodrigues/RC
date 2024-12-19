@@ -76,20 +76,16 @@ void createPlayerFile(int plid,int gameId){
 
 }
 
-
 int startNewGame(int plid, int maxPlaytime) {
     std::vector<std::string> secret_key = generateSecretKey();
+    Player* currentPlayer = findPlayerById(plid);
 
-    Player* currentPlayer = nullptr; 
-    currentPlayer = findPlayerById(plid);
-
-    if(!currentPlayer){
-        
+    if (!currentPlayer) {
+        // Criar um novo jogador e iniciar um novo jogo
         Player newPlayer;
         newPlayer.plid = plid;
         newPlayer.isPlaying = true;
 
-        
         Game newGame;
         newGame.secretKey = secret_key;
         newGame.plid = plid;
@@ -100,36 +96,34 @@ int startNewGame(int plid, int maxPlaytime) {
 
         int newIndex = games.size() - 1;
         newPlayer.gameId = newIndex;
-        std::cout << "Game ID in player: " << newPlayer.gameId << std::endl;
-
         players.push_back(newPlayer);
 
+        // Criar arquivo do jogador
+        createPlayerFile(plid, newIndex);
 
-        //PRINT
         std::cout << "New game started for player: " << plid
-                << " with max playtime: " << maxPlaytime
-                << " Secret Key: ";
+                  << " with max playtime: " << maxPlaytime
+                  << " Secret Key: ";
         for (const auto& key : secret_key) {
             std::cout << key << " ";
         }
         std::cout << std::endl;
-        //
-
-
-        createPlayerFile(plid,newIndex);
-
-
 
         return 1;
 
-    }
+    } else {
+        if (currentPlayer->isPlaying) {
+            Game& currentGame = games[currentPlayer->gameId];
+            time_t currentTime = time(0);
+            if (currentTime - currentGame.startTime > currentGame.maxPlaytime) {
+                currentGame.finalSate = 'T';
+                closeGame(*currentPlayer, currentGame);
+            } else {
+                std::cout << "Game already in progress." << std::endl;
+                return 0;
+            }
+        }
 
-    else if (currentPlayer->isPlaying) {
-        std::cout << "Game already in progress." << std::endl;
-        return 0;
-    }
-    else{
-        
         currentPlayer->isPlaying = true;
 
         Game newGame;
@@ -137,27 +131,26 @@ int startNewGame(int plid, int maxPlaytime) {
         newGame.maxPlaytime = maxPlaytime;
         newGame.gameMode = "P";
         newGame.startTime = time(0);
-        newGame.score = 0;
-        newGame.numTrials = 0;
         newGame.secretKey = secret_key;
         games.push_back(newGame);
-        
+
         int newIndex = games.size() - 1;
         currentPlayer->gameId = newIndex;
-        createPlayerFile(plid,newIndex);
-        std::cout << "Game ID in player: " << currentPlayer->gameId << std::endl;
 
-        
-        std::cout << "New Game for player: " << plid
-                    << " with max playtime: " << maxPlaytime << std::endl;
+        createPlayerFile(plid, newIndex);
+
+        std::cout << "New game started for player: " << plid
+                  << " with max playtime: " << maxPlaytime
+                  << " Secret Key: ";
+        for (const auto& key : secret_key) {
+            std::cout << key << " ";
+        }
+        std::cout << std::endl;
 
         return 1;
     }
-    
-
-
-    
 }
+
 
 
 std::vector<std::string> generateSecretKey(){

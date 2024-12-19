@@ -218,8 +218,13 @@ void handleShowTrials(int client_fd, std::istringstream &commandStream, std::str
         return;
     }
 
+    time_t currentTime = time(0);
+    auto &game = games[player->gameId];
 
-
+    if (currentTime - game.startTime > game.maxPlaytime) {
+        game.finalSate = 'T';
+        closeGame(*player, game);
+    }
 
     if (player->isPlaying) {
         std::string gameFile = "server/GAMES/GAME_" + std::to_string(plid) + ".txt";

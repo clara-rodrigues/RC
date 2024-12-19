@@ -1,27 +1,4 @@
-#include <iostream>
-#include <cstring>
-#include <cstdlib>
-#include <sys/socket.h>
-#include <unistd.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <netdb.h>
-#include <string.h>
-#include <fstream> // Add this line
-
-#include <iostream>
-#include <string>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <unistd.h>
-#include <cstring>
-#include <netdb.h>
-#include <cerrno>
-#include <sstream>
-#include <vector>
-
+#include "TCP.hpp"
 
 void writeFile(std::istringstream& response){
     std::string fname, fsize_str, line;
@@ -87,11 +64,6 @@ void writeFile(std::istringstream& response){
 
 }
 
-
-
-
-
-
 int send_TCP(const std::string& msg, std::string& response, const std::string& ip, const std::string& port) {
     char buffer[1024];
     int fd = socket(AF_INET, SOCK_STREAM, 0);
@@ -100,7 +72,6 @@ int send_TCP(const std::string& msg, std::string& response, const std::string& i
         return -1;
     }
 
-    // Set socket timeout
     struct timeval timeout;
     timeout.tv_sec = 5;
     timeout.tv_usec = 0;
@@ -117,11 +88,10 @@ int send_TCP(const std::string& msg, std::string& response, const std::string& i
         return -1;
     }
 
-    // Setup TCP connection
     struct addrinfo tcp_hints, *tcp_res;
     memset(&tcp_hints, 0, sizeof(tcp_hints));
-    tcp_hints.ai_family = AF_INET; // IPv4
-    tcp_hints.ai_socktype = SOCK_STREAM; // TCP socket
+    tcp_hints.ai_family = AF_INET;
+    tcp_hints.ai_socktype = SOCK_STREAM; 
 
     int tcp_errcode = getaddrinfo(ip.c_str(), port.c_str(), &tcp_hints, &tcp_res);
     if (tcp_errcode != 0) {
@@ -138,7 +108,6 @@ int send_TCP(const std::string& msg, std::string& response, const std::string& i
         return -1;
     }
 
-    // Send message to server
     size_t total_sent = 0;
     size_t msg_length = msg.length();
     while (total_sent < msg_length) {

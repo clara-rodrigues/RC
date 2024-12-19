@@ -1,7 +1,5 @@
 // exit.cpp
-#include <iostream>
-#include "../UDP.hpp"
-#include "../quit/quit.hpp"
+
 #include "exit.hpp"
 
 void execute_exit(Player &player,const std::string& ip, const std::string& port) {
