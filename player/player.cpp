@@ -11,10 +11,10 @@
 
 
 
-extern bool running; // Declaration of the running variable
-bool running = true; // Initialize the running variable
-std::vector<std::string> colors = {"R", "G", "B", "Y", "O", "P"};
+extern bool running; 
+bool running = true; 
 
+std::vector<std::string> colors = {"R", "G", "B", "Y", "O", "P"};
 
 
 std::string validPLID(std::istream& input){
@@ -77,7 +77,6 @@ Player parseStartGame(const std::string& input, Player& player) {
     std::istringstream iss(input);
     std::string command;
 
-
     iss >> command;
 
     try{
@@ -138,7 +137,6 @@ void closeGame(Player &player){
 }
 
 
-
 int getCommandID(const std::string& command) {
     static std::unordered_map<std::string, int> commandMap = {
         {"start", 1},
@@ -153,14 +151,12 @@ int getCommandID(const std::string& command) {
     };
 
     auto it = commandMap.find(command);
-    return (it != commandMap.end()) ? it->second : -1; // Return -1 for unknown commands
+    return (it != commandMap.end()) ? it->second : -1; 
 }
 
-// Main function
 int main(int argc, char* argv[]) {
-    std::string ip = "localhost";  // Server's IP
-    std::string port = "58068";     // Server's Port
-
+    std::string ip = "localhost";  
+    std::string port = "58068";     
     Player player;
 
     for (int i = 1; i < argc; i++) {
@@ -171,10 +167,6 @@ int main(int argc, char* argv[]) {
          
         }
     }
-
-    std::cout << "PORT: " << port << std::endl;
-    std::cout << "IP: " << ip << std::endl;
-
     running = true;
     while (running) {
         std::cout << "Enter command: ";
@@ -195,8 +187,6 @@ int main(int argc, char* argv[]) {
                         break;
                     }
                     parseStartGame(input, player);
-                    std::cout << "PLID: " << player.plid << std::endl;
-                    std::cout << "Max Playtime: " << player.maxPlaytime << " seconds" << std::endl;
                     execute_start(player, ip, port);
                 } catch (const std::invalid_argument& e) {
                     std::cerr << "Error: " << e.what() << std::endl;
@@ -207,14 +197,7 @@ int main(int argc, char* argv[]) {
                 try {
                     std::vector<std::string> guesses;
                     parseTryGuess(input, player, guesses);
-                    std::cout << "Guess recorded successfully!" << std::endl;
-                    std::cout << "Guesses: ";
-                    for (const auto& g : guesses) {
-                        std::cout << g << " ";
-                    }
-                    std::cout << std::endl;
                     int numTrials = player.numTrials;
-
                     execute_try(player, guesses, ip, port, numTrials);
                     player.numTrials = numTrials;
                 } catch (const std::invalid_argument& e) {
@@ -223,7 +206,6 @@ int main(int argc, char* argv[]) {
                 break;
             }
             case 3: { // "show_trials" or "st"
-                std::cout << "Number of trials made: " << player.numTrials << std::endl;
                 show_trials(ip, port, player.plid);  
                 break;
             }
@@ -231,12 +213,11 @@ int main(int argc, char* argv[]) {
                 score_board(ip, port);
                 break;
             }
-            case 5: { // "quit" or "exit"
+            case 5: { // "quit" 
                 if(player.isPlaying){
                     execute_quit(player,ip, port);
                 }
                 std::cout << "Exiting the game. Goodbye!" << std::endl;
-         
                 break;
             }
             case 6: { // "exit"
@@ -245,7 +226,6 @@ int main(int argc, char* argv[]) {
                 }
                 std::cout << "Exiting the game. Goodbye!" << std::endl;
                 running = false;
-         
                 break;
             }
             case 7: { // "debug"

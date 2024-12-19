@@ -1,13 +1,5 @@
 // udp.cpp
-#include <iostream>
-#include <cstring>
-#include <cstdlib>
-#include <sys/socket.h>
-#include <arpa/inet.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <netinet/in.h>
-#include <netdb.h>
+
 #include "UDP.hpp"
 
 int udp_errcode;
@@ -18,10 +10,8 @@ struct sockaddr_in udp_addr;
 
 
 
-
-
 void print_sockaddr_in(const struct sockaddr_in& addr) {
-    char ip[INET_ADDRSTRLEN]; // Buffer to hold the IP address string
+    char ip[INET_ADDRSTRLEN]; 
     inet_ntop(AF_INET, &(addr.sin_addr), ip, INET_ADDRSTRLEN);
 
     std::cout << "IP Address: " << ip << std::endl;
@@ -55,10 +45,6 @@ int send_UDP(const std::string& msg, std::string& response, const std::string& i
     udp_hints.ai_family = AF_INET;
     udp_hints.ai_socktype = SOCK_DGRAM;
 
-
-    std::cout << "ip: " << ip << std::endl;
-    std::cout << "port: " << port << std::endl;
-
     udp_errcode = getaddrinfo(ip.c_str(), port.c_str(), &udp_hints, &udp_res);
 
     if (udp_errcode != 0) {
@@ -78,8 +64,6 @@ int send_UDP(const std::string& msg, std::string& response, const std::string& i
     udp_n = recvfrom(fd, udp_buffer, 5003, 0, (struct sockaddr*)&udp_addr, &udp_addrlen);
 
 
-    std::cout << "udp_n: " << udp_n << std::endl;
-
     if (udp_n == -1) {
         std::cerr << "Error receiving message from server" << std::endl;
         return -1;
@@ -87,7 +71,6 @@ int send_UDP(const std::string& msg, std::string& response, const std::string& i
 
     response = std::string(udp_buffer, udp_n);
 
-  
 
     freeaddrinfo(udp_res);
     close(fd);

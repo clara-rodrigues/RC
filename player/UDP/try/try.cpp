@@ -1,7 +1,4 @@
-#include <iostream>
-#include <vector>
-#include <string>
-#include <sstream> // Add this line
+ 
 #include "try.hpp"    
 
 #include "../UDP.hpp"
@@ -21,8 +18,7 @@ std::vector<int> checkNums(std::string numTrials,std::string numBlacks, std::str
         std::cerr <<"Error: Invalid server response format (status)." << '\n';
     }
 
-    return {numTrialsInt,numBlacksInt,numWhitesInt}; // Return the variables as a vector
-    
+    return {numTrialsInt,numBlacksInt,numWhitesInt};   
 }
 
 
@@ -39,23 +35,19 @@ int getResponseId(const std::string& command) {
     };
 
     auto it = commandMap.find(command);
-    return (it != commandMap.end()) ? it->second : -1; // Return -1 for unknown commands
+    return (it != commandMap.end()) ? it->second : -1; 
 }
 
 
 
 void execute_try(Player &player, const std::vector<std::string>& guesses, const std::string& ip, const std::string& port, int& numTrials) {
-    
     std::string plid = player.plid;
     std::string msg = "TRY " + plid ;
    
-    
     for (const auto& guess : guesses) {
         msg += " " + guess;
     }
     msg += " " + std::to_string(numTrials) + "\n";
-
-    std::cout << "Sending 'try' command: " << msg << std::endl;
 
     std::string response;
     
@@ -63,9 +55,8 @@ void execute_try(Player &player, const std::vector<std::string>& guesses, const 
         std::cout << "Server Response: " << response << std::endl;
 
     } else {
-        std::cerr << "Failed to send 'try' command1." << std::endl;
+        std::cerr << "Failed to send 'try' command." << std::endl;
     }
-
 
     std::istringstream iss(response);
     std::string message,responseStatus,gameTrials,numBlacks,numWhites,guess1,guess2,guess3,guess4;
@@ -99,17 +90,13 @@ void execute_try(Player &player, const std::vector<std::string>& guesses, const 
             char guess3_color = guess3[0];
             char guess4_color = guess4[0];
 
-
-
             if (std::find(valid_colors.begin(), valid_colors.end(),guess1_color) == valid_colors.end() || 
                 std::find(valid_colors.begin(), valid_colors.end(), guess2_color) == valid_colors.end() || 
                 std::find(valid_colors.begin(), valid_colors.end(), guess3_color) == valid_colors.end() || 
                 std::find(valid_colors.begin(), valid_colors.end(), guess4_color) == valid_colors.end() ) {
-                    std::cout << "AQUIIIII" << std::endl;
                     std::cerr << "Error: Invalid server response format (status)." << std::endl;
                     return;
             }
-
             closeGame(player);
             break;
         }
@@ -123,9 +110,6 @@ void execute_try(Player &player, const std::vector<std::string>& guesses, const 
         }
 
     }
-
-    
-
     //if (responseStatus == "OK") {
     //    if(numBlacksInt == 4){
     //        closeGame(player);
