@@ -131,21 +131,27 @@ int validMaxPlayTime(std::istream& input){
     }
     return maxPlaytime;
 }
-
-std::vector<std::string> validGuess(std::istream& input){
+std::vector<std::string> validGuess(std::istream& input) {
+    std::vector<std::string> rawGuesses;
     std::string guess;
-    std::vector<std::string> guesses;
 
-
-    for (size_t i = 0; i < 4; i++){
-        input >> guess;
-        if (std::find(colors.begin(), colors.end(), guess) == colors.end()) {
-             throw std::invalid_argument("Invalid guess. One or more guesses are not valid.");
+    for (size_t i = 0; i < 4; ++i) {
+        if (!(input >> guess)) {
+            throw std::invalid_argument("Invalid input. Must provide exactly 4 guesses.");
         }
-        guesses.push_back(guess);
+        rawGuesses.push_back(guess);
     }
-    return guesses;
+
+    for (const auto& g : rawGuesses) {
+        if (std::find(colors.begin(), colors.end(), g) == colors.end()) {
+            throw std::invalid_argument("Invalid guess. One or more guesses are not valid.");
+        }
+    }
+
+    return rawGuesses;
 }
+
+
 
 
 void checkExtraInput(std::istream& input){

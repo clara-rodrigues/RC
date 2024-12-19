@@ -119,7 +119,7 @@ void sendFile(int client_fd, const std::string &filename,std::string status) {
     while (file.read(file_buffer, sizeof(file_buffer)) || file.gcount() > 0) {
         buffer.insert(buffer.end(), file_buffer, file_buffer + file.gcount());
     }
-    buffer.push_back('\n');  
+    buffer.push_back('\n\n');  
     file.close();
     std::cerr << "[DEBUG] File content read into buffer successfully.\n";
 
