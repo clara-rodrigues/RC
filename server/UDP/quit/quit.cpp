@@ -27,16 +27,18 @@ void handleQuit(int fd, struct sockaddr_in &client_addr, socklen_t client_len, s
     currentPlayer = findPlayerById(plid);
     
     if(currentPlayer->isPlaying){
-        std::cout << "Player is playing" << std::endl;
+
         int gameId = currentPlayer->gameId;
         std::vector<std::string> secretKey = games[gameId].secretKey;
-        currentPlayer->isPlaying = false;
-        games[gameId].finalSate = 'Q';
-        closeGame(*currentPlayer, games[gameId]);
         std::ostringstream oss;
+
+        games[gameId].finalSate = 'Q';
         oss << "RQT OK " << secretKey[0] << " " << secretKey[1] << " " << secretKey[2] << " " << secretKey[3] << "\n";
+
         std::string message = oss.str();
+        
         sendto(fd, message.c_str(), 15, 0, (struct sockaddr *)&client_addr, client_len);
+        closeGame(*currentPlayer, games[gameId]);
         
     }else{
         sendto(fd, "RQT NOK\n", 8, 0, (struct sockaddr *)&client_addr, client_len);

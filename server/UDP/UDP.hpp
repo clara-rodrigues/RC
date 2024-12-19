@@ -11,18 +11,12 @@
 #include "../GS.hpp"
 
 
+void handle_client(int fd, struct sockaddr_in &client_addr, socklen_t client_len, char *buffer, ssize_t n);
+
 int startUDP(std::string port);
 
 int getCommandID_UDP(const std::string& command);
 
 void handleUserMessage(int fd, struct sockaddr_in &client_addr, socklen_t client_len, char *buffer, ssize_t n);
-void handleStartGame( int fd, struct sockaddr_in &client_addr, socklen_t client_len, std::istringstream &commandStream);
-
-int validPLID(std::istream& input);
-int validMaxPlayTime(std::istream& input);
-std::vector<std::string> validGuess(std::istream& input);
-void checkExtraInput(std::istream& input);
-int checkNumTrials(std::istream& input);
-
 
 #endif

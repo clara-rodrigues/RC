@@ -14,7 +14,7 @@
 
 
 
-#define BUFFER_SIZE 5003
+
 
 void handle_client(int fd, struct sockaddr_in &client_addr, socklen_t client_len, char *buffer, ssize_t n) {
     // Print client info
@@ -34,9 +34,9 @@ void handle_client(int fd, struct sockaddr_in &client_addr, socklen_t client_len
 
 int startUDP(std::string port) {
     struct addrinfo hints{}, *res;
-    struct sockaddr_in client_addr{};
-    socklen_t client_len;
-    char buffer[BUFFER_SIZE];
+   //struct sockaddr_in client_addr{};
+    //socklen_t client_len;
+    //char buffer[BUFFER_SIZE];
     int udp_fd;
 
     udp_fd = socket(AF_INET, SOCK_DGRAM, 0);
@@ -67,7 +67,6 @@ int startUDP(std::string port) {
 }
 
 
-
 int getCommandID_UDP(const std::string& command) {
     static std::unordered_map<std::string, int> commandMap = {
         {"SNG", 1},
@@ -80,8 +79,6 @@ int getCommandID_UDP(const std::string& command) {
     auto it = commandMap.find(command);
     return (it != commandMap.end()) ? it->second : -1; // Return -1 for unknown commands
 }
-
-
 
 
 void handleUserMessage(int fd, struct sockaddr_in &client_addr, socklen_t client_len, char *buffer, ssize_t n) {
@@ -101,10 +98,12 @@ void handleUserMessage(int fd, struct sockaddr_in &client_addr, socklen_t client
     switch (commandID) {
         case 1: { // "start"
             handleStartGame(fd, client_addr, client_len, commandStream, client_ip, client_port);
+            std::cout << "Received 'start' command." << std::endl;
             break;
         }
         case 2: { // "try"
             handleTry(fd, client_addr, client_len, commandStream, client_ip, client_port);
+            std::cout << "Received 'try' command." << std::endl;
             break;
         }
         case 3: { // "quit"
@@ -115,7 +114,6 @@ void handleUserMessage(int fd, struct sockaddr_in &client_addr, socklen_t client
         case 4: { // "debug"
             handleDebug(fd, client_addr, client_len, commandStream, client_ip, client_port);
             std::cout << "Received 'debug' command." << std::endl;
-            
             break;
         }
         default: {

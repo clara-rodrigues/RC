@@ -11,6 +11,8 @@
 #include <sstream>
 #include "../TCP.hpp"
 
+std::vector<Game> getGameScores();
+
 void handleScoreBoard(int client_fd,std::istringstream &commandStream, std::string client_ip, int client_port);
 
 #endif

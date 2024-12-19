@@ -93,7 +93,6 @@ std::string getLastGameSummary(int plid) {
 }
 
 
-
 void sendFile(int client_fd, const std::string &filename,std::string status) {
     std::ifstream file(filename, std::ios::binary);
 
@@ -115,7 +114,7 @@ void sendFile(int client_fd, const std::string &filename,std::string status) {
     std::vector<char> buffer(header_str.begin(), header_str.end()); // Start with header
 
     // Read the file into the same buffer
-    char file_buffer[4096];
+    char file_buffer[BUFFER_SIZE];
     while (file.read(file_buffer, sizeof(file_buffer)) || file.gcount() > 0) {
         buffer.insert(buffer.end(), file_buffer, file_buffer + file.gcount());
     }
@@ -125,7 +124,6 @@ void sendFile(int client_fd, const std::string &filename,std::string status) {
 
     sendToPlayer(client_fd, buffer);
 }
-
 
 
 void handleShowTrials(int client_fd, std::istringstream &commandStream, std::string client_ip, int client_port) {

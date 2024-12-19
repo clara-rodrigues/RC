@@ -55,8 +55,6 @@ void createScoreFile(int plid, Game &game){
 
 }
 
-
-
 void writeTrial(int plid, std::vector<std::string> guesses, std::pair<int, int> args, time_t currentTime, time_t startTime) {
     std::string folder = "server/GAMES";
     std::string filename = folder + "/GAME_" + std::to_string(plid) + ".txt";
@@ -92,9 +90,7 @@ void handleTry(int fd, struct sockaddr_in &client_addr, socklen_t client_len, st
                 std::cout << guess << " ";  
             }
         }
-    std::cout << "for PLID: " << plid << std::endl;
-
-  
+        std::cout << "for PLID: " << plid << std::endl;
 
     }catch(const std::invalid_argument& e){
         std::cout << e.what() << std::endl;
@@ -106,11 +102,10 @@ void handleTry(int fd, struct sockaddr_in &client_addr, socklen_t client_len, st
     Player* currentPlayer = nullptr; 
     
     currentPlayer = findPlayerById(plid);
-     // check if player is playing
+
     if(currentPlayer->isPlaying){
         gameId = currentPlayer->gameId;
 
-        // check if trial number is correct
         if (games[gameId].numTrials +1 != numTrials){
             sendto(fd, "RTR INV\n", 8, 0, (struct sockaddr *)&client_addr, client_len);
             return;
@@ -127,7 +122,7 @@ void handleTry(int fd, struct sockaddr_in &client_addr, socklen_t client_len, st
         std::ostringstream oss;
         std::vector<std::string> secretKey = games[gameId].secretKey;
         games[gameId].finalSate = 'T';
-        currentPlayer->isPlaying = false;
+       
         oss << "RTR ETM " << secretKey[0] << " " << secretKey[1] << " " << secretKey[2] << " " << secretKey[3] << "\n";
         std::string message = oss.str();
         sendto(fd, message.c_str(), 16, 0, (struct sockaddr *)&client_addr, client_len);
@@ -149,10 +144,11 @@ void handleTry(int fd, struct sockaddr_in &client_addr, socklen_t client_len, st
         std::ostringstream oss;
         std::vector<std::string> secretKey = games[gameId].secretKey;
 
-        currentPlayer->isPlaying = false;
         oss << "RTR ENT " << secretKey[0] << " " << secretKey[1] << " " << secretKey[2] << " " << secretKey[3] << "\n";
         std::string message = oss.str();
+
         games[gameId].finalSate = 'F';
+
         sendto(fd, message.c_str(), 16, 0, (struct sockaddr *)&client_addr, client_len);
         closeGame(*currentPlayer, games[gameId]);
         return ;
@@ -161,7 +157,7 @@ void handleTry(int fd, struct sockaddr_in &client_addr, socklen_t client_len, st
     if (args.first == 4){
         std::ostringstream oss;
         std::vector<std::string> secretKey = games[gameId].secretKey;
-        //currentPlayer->isPlaying = false;
+        
         oss << "RTR OK " << numTrials << " " << args.first << " " << args.second << "\n";
         std::string message = oss.str();
         sendto(fd, message.c_str(), 13, 0, (struct sockaddr *)&client_addr, client_len);
@@ -186,7 +182,16 @@ void handleTry(int fd, struct sockaddr_in &client_addr, socklen_t client_len, st
    
 }
 
+int calcScore(const Game& game) {
+    time_t currentTime = time(0);
+    int gameTime = (currentTime - game.startTime);
+    int numTrials = game.trials.size();
+    int score_normalized = ((game.MAX_NUM_TRIALS - numTrials) * 50) / game.MAX_NUM_TRIALS  
+    + ((600 - gameTime) * 50) / 600;
 
+    std::cout << "Score: " << score_normalized << std::endl;
+    return score_normalized;
+}
 
 std::pair<int, int> tryGuess(int plid, std::vector<std::string> guesses, int gameId) {
     int numBlack = 0;

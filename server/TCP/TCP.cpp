@@ -23,7 +23,6 @@ int getCommandID_TCP(const std::string& command) {
 }
 
 
-
 void sendToPlayer(int client_fd,std::vector<char> buffer){
     int total_num_bytes = buffer.size();
     int num_bytes_sent = 0;
@@ -42,7 +41,6 @@ void sendToPlayer(int client_fd,std::vector<char> buffer){
     std::cerr << "[DEBUG] Sent " << sent_bytes << " bytes (header + file data)." << std::endl;
 
 }
-
 
 
 void handlePlayerRequest(int client_fd, struct sockaddr_in client_addr) {
@@ -107,7 +105,6 @@ void handlePlayerRequest(int client_fd, struct sockaddr_in client_addr) {
 
     close(client_fd);
 }
-
 
 
 int startTCPServer(std::string port) {

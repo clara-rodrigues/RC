@@ -73,10 +73,10 @@ void checkExtraInput(std::istream& input){
 }
 
 
-Player parseStartGame(const std::string& input) {
+Player parseStartGame(const std::string& input, Player& player) {
     std::istringstream iss(input);
     std::string command;
-    Player player;
+
 
     iss >> command;
 
@@ -87,6 +87,7 @@ Player parseStartGame(const std::string& input) {
     }catch (const std::invalid_argument& e){
        throw std::invalid_argument(e);
     }
+    player.numTrials = 1;
 
     return player;
 }
@@ -193,7 +194,7 @@ int main(int argc, char* argv[]) {
                         std::cerr << "Error: There is an ongoing game." << std::endl;
                         break;
                     }
-                    player = parseStartGame(input);
+                    parseStartGame(input, player);
                     std::cout << "PLID: " << player.plid << std::endl;
                     std::cout << "Max Playtime: " << player.maxPlaytime << " seconds" << std::endl;
                     execute_start(player, ip, port);

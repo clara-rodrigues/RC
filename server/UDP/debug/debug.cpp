@@ -39,9 +39,6 @@ void handleDebug(int fd, struct sockaddr_in &client_addr, socklen_t client_len, 
 }
 
 
-
-
-
 int debug(int plid, int maxPlaytime, std::vector<std::string> guesses){ 
     Player* currentPlayer = nullptr; 
     int gameId;
@@ -50,12 +47,7 @@ int debug(int plid, int maxPlaytime, std::vector<std::string> guesses){
     responseOK = startNewGame(plid, maxPlaytime);
 
     if(responseOK){
-        for (auto& player : players) {  
-            if (player.plid == plid) {
-                currentPlayer = &player;  
-                break;
-            }
-        }
+        currentPlayer = findPlayerById(plid);
 
         gameId = currentPlayer->gameId;
 

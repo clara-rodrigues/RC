@@ -78,6 +78,7 @@ void closeGame(Player& player, Game& game) {
     createPlayerDir(player.plid, game);
 }
 
+
 void clearGamesDir(std::string directory) {
 
     try {
@@ -94,6 +95,7 @@ void clearGamesDir(std::string directory) {
         std::cerr << "Error: " << e.what() << std::endl;
     }
 }
+
 
 void signalHandler(int signum) {
     std::cout << "\nSinal (" << signum << ") recebido. Limpando a diretoria GAMES...\n";
@@ -131,6 +133,8 @@ int validMaxPlayTime(std::istream& input){
     }
     return maxPlaytime;
 }
+
+
 std::vector<std::string> validGuess(std::istream& input) {
     std::vector<std::string> rawGuesses;
     std::string guess;
@@ -152,14 +156,13 @@ std::vector<std::string> validGuess(std::istream& input) {
 }
 
 
-
-
 void checkExtraInput(std::istream& input){
     std::string extra;
     if (input >> extra) {
         throw std::invalid_argument("Extra input detected.");
     }
 }
+
 
 int checkNumTrials(std::istream& input){
     int trials;
@@ -181,6 +184,7 @@ Player* findPlayerById(int plid) {
     return nullptr;
 }
 
+
 bool Player::hasFinishedGames() const {
     for (const Game& game : games) {
         if (game.plid == plid && !game.trials.empty() && !isPlaying) {
@@ -190,16 +194,6 @@ bool Player::hasFinishedGames() const {
     return false;
 }
 
-int calcScore(const Game& game) {
-    time_t currentTime = time(0);
-    int gameTime = (currentTime - game.startTime);
-    int numTrials = game.trials.size();
-    int score_normalized = ((game.MAX_NUM_TRIALS - numTrials) * 50) / game.MAX_NUM_TRIALS  
-    + ((600 - gameTime) * 50) / 600;
-
-    std::cout << "Score: " << score_normalized << std::endl;
-    return score_normalized;
-}
 
 std::string Player::getActiveGameSummary(std::string gameFile ) const {
     const Game& activeGame = games[gameId]; 
@@ -250,26 +244,27 @@ std::string Player::getActiveGameSummary(std::string gameFile ) const {
 
 }
 
-std::string Player::getLastFinishedGameSummary() const {
-    std::string filename = "server/finished_game_" + std::to_string(plid) + ".txt";
 
-    std::ofstream file(filename);
-    if (file.is_open()) {
-        for (const Game& game : games) {
-            if (game.plid == plid && !game.trials.empty() && !isPlaying) {
-                for (const Trial& trial : game.trials) {
-                    for (const std::string& guess : trial.guesses) {
-                        file << guess << " ";
-                    }
-                    file << trial.numBlack << " " << trial.numWhite << "\n";
-                }
-                file.close();
-                break;
-            }
-        }
-    }
-    return filename;
-}
+//std::string Player::getLastFinishedGameSummary() const {
+//    std::string filename = "server/finished_game_" + std::to_string(plid) + ".txt";
+//
+//    std::ofstream file(filename);
+//    if (file.is_open()) {
+//        for (const Game& game : games) {
+//            if (game.plid == plid && !game.trials.empty() && !isPlaying) {
+//                for (const Trial& trial : game.trials) {
+//                    for (const std::string& guess : trial.guesses) {
+//                        file << guess << " ";
+//                    }
+//                    file << trial.numBlack << " " << trial.numWhite << "\n";
+//                }
+//                file.close();
+//                break;
+//            }
+//        }
+//    }
+//    return filename;
+//}
 
 
 void serverLoop(int udp_fd, int tcp_fd) {

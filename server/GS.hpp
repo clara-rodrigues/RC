@@ -7,6 +7,8 @@
 #include <vector>
 #include <ctime>
 
+#define BUFFER_SIZE 4096
+
 struct Player {
     int plid;
     bool isPlaying = false;
@@ -14,7 +16,7 @@ struct Player {
 
     bool hasFinishedGames() const;
     std::string getActiveGameSummary(std::string gameFile) const;
-    std::string getLastFinishedGameSummary() const;
+    //std::string getLastFinishedGameSummary() const;
 };
 
 extern std::vector<Player> players;
@@ -43,19 +45,33 @@ struct Game {
 };
 
 extern std::vector<Game> games;
+
+
+void createPlayerDir(int plid, Game &game);
+
+void closeGame(Player& player, Game& game);
+
+void clearGamesDir(std::string directory);
+
+void signalHandler(int signum);
+
 Player* findPlayerById(int plid);
+
 void serverLoop(int udp_fd, int tcp_fd);
 
 int validPLID(std::istream& input);
+
 int validMaxPlayTime(std::istream& input);
+
 std::vector<std::string> validGuess(std::istream& input);
+
 void checkExtraInput(std::istream& input);
+
 int checkNumTrials(std::istream& input);
-int calcScore(const Game& game);
 
-void closeGame(Player& player, Game& game);
-void createPlayerDir(int plid, Game &game);
+Player* findPlayerById(int plid);
 
+void serverLoop(int udp_fd, int tcp_fd);
 
 
 #endif
