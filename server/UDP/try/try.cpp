@@ -41,7 +41,7 @@ void createScoreFile(int plid, Game &game){
     std::ofstream file(filename, std::ios::app);
 
     if (file.is_open()) {
-         file << std::setw(3) << std::setfill('0') << game.score << " ";
+        file << std::setw(3) << std::setfill('0') << game.score << " ";
         file << plid << " ";
         for (const auto& key : game.secretKey) {
             file << key ;

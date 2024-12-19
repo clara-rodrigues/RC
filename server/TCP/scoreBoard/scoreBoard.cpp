@@ -182,7 +182,8 @@ void handleScoreBoard(int client_fd, std::istringstream &commandStream, std::str
         for (const auto &part : game.secretKey) {
             secretKey += part;
         }
-        scoreboard_info << game.plid << " " << secretKey << " " << game.score << "\n";
+        scoreboard_info << game.plid << " " << secretKey << " " ;
+        scoreboard_info << std::setw(3) << std::setfill('0') << game.score << "\n";
     }
 
     std::cerr << "[DEBUG] Scoreboard information built successfully in memory.\n";
