@@ -12,7 +12,7 @@
 #include <unordered_map>
 
 
-
+// Function to handle a client message received via UDP
 void handle_client(int fd, struct sockaddr_in &client_addr, socklen_t client_len, char *buffer, ssize_t n) {
     char client_ip[INET_ADDRSTRLEN];
     inet_ntop(AF_INET, &client_addr.sin_addr, client_ip, INET_ADDRSTRLEN);
@@ -28,7 +28,7 @@ void handle_client(int fd, struct sockaddr_in &client_addr, socklen_t client_len
     }
 }
 
-
+// Function to start the UDP server
 int startUDP(std::string port) {
     struct addrinfo hints{}, *res;
     int udp_fd;
@@ -60,7 +60,7 @@ int startUDP(std::string port) {
     return udp_fd;
 }
 
-
+// Function to map a command string to its corresponding command ID
 int getCommandID_UDP(const std::string& command) {
     static std::unordered_map<std::string, int> commandMap = {
         {"SNG", 1},
@@ -74,7 +74,7 @@ int getCommandID_UDP(const std::string& command) {
     return (it != commandMap.end()) ? it->second : -1; // Return -1 for unknown commands
 }
 
-
+// Function to handle incoming UDP user messages based on the command type
 void handleUserMessage(int fd, struct sockaddr_in &client_addr, socklen_t client_len, char *buffer, ssize_t n) {
     std::string command(buffer, n); 
     std::istringstream commandStream(command); 
@@ -84,10 +84,7 @@ void handleUserMessage(int fd, struct sockaddr_in &client_addr, socklen_t client
     int client_port = ntohs(client_addr.sin_port);
     commandStream >> commandType;
 
-
     int commandID = getCommandID_UDP(commandType);
-
-
 
     switch (commandID) {
         case 1: { // "start"

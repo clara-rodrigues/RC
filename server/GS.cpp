@@ -13,16 +13,18 @@
 #include <fstream>
 #include <dirent.h>
 
-std::vector<Player> players;
-std::vector<std::string> colors = {"R", "G", "B", "Y", "O", "P"};
-std::vector<Game> games;
-int verbose = 0;
-int udp_fd;
-int tcp_fd;
+// Global variables used for managing the players, colors, and games
+std::vector<Player> players;  // List of players in the game
+std::vector<std::string> colors = {"R", "G", "B", "Y", "O", "P"};  // List of valid colors for guesses
+std::vector<Game> games;  // List of ongoing games
+int verbose = 0;  // Verbose flag for detailed output
+int udp_fd;  // UDP socket file descriptor
+int tcp_fd;  // TCP socket file descriptor
 
 
-namespace fs = std::filesystem;
+namespace fs = std::filesystem;  // Alias for filesystem namespace
 
+// Function to create a directory for a player and store game data
 void createPlayerDir(int plid, Game &game) {
     struct tm *timeinfo;
     const std::string oldFile = "server/GAMES/GAME_" + std::to_string(plid) + ".txt";
@@ -71,13 +73,13 @@ void createPlayerDir(int plid, Game &game) {
     }
 }
 
-
+// Function to close a game and store its data
 void closeGame(Player& player, Game& game) {
     player.isPlaying = false;
     createPlayerDir(player.plid, game);
 }
 
-
+// Function to clear all files in a directory
 void clearGamesDir(std::string directory) {
 
     try {
@@ -94,7 +96,7 @@ void clearGamesDir(std::string directory) {
     }
 }
 
-
+// Signal handler for cleaning up resources when the server is stopped
 void signalHandler(int signum) {
     clearGamesDir("server/GAMES");
     clearGamesDir("server/SCORES");
@@ -103,7 +105,7 @@ void signalHandler(int signum) {
     std::exit(signum);
 }
 
-
+// Function to validate the player's ID (PLID)
 int validPLID(std::istream& input){
     std::string plid;
     int digitPLID;
@@ -121,7 +123,7 @@ int validPLID(std::istream& input){
     return digitPLID;
 }
 
-
+// Function to validate the maximum playtime
 int validMaxPlayTime(std::istream& input){
     int maxPlaytime;
 
@@ -131,7 +133,7 @@ int validMaxPlayTime(std::istream& input){
     return maxPlaytime;
 }
 
-
+// Function to validate the player's guesses
 std::vector<std::string> validGuess(std::istream& input) {
     std::vector<std::string> rawGuesses;
     std::string guess;
@@ -152,7 +154,7 @@ std::vector<std::string> validGuess(std::istream& input) {
     return rawGuesses;
 }
 
-
+// Function to check if there is any extra input after valid guesses
 void checkExtraInput(std::istream& input){
     std::string extra;
     if (input >> extra) {
@@ -160,7 +162,7 @@ void checkExtraInput(std::istream& input){
     }
 }
 
-
+// Function to check the number of trials
 int checkNumTrials(std::istream& input){
     int trials;
     if (!(input >> trials) ) {
@@ -171,7 +173,7 @@ int checkNumTrials(std::istream& input){
 
 }
 
-
+// Function to find a player by their PLID
 Player* findPlayerById(int plid) {
     for (auto& player : players) { 
         if (player.plid == plid) { 
@@ -181,11 +183,11 @@ Player* findPlayerById(int plid) {
     return nullptr;
 }
 
-
+// Function to get a summary of an active game for a player
 std::string Player::getActiveGameSummary(std::string gameFile) const {
     const Game& activeGame = games[gameId];
     time_t currentTime = time(0);
-    char buffer[BUFFER_SIZE] = {0};  // Initialize buffer with zeros
+    char buffer[BUFFER_SIZE] = {0};  
 
     std::ifstream file(gameFile);
     if (!file.is_open()) {
@@ -224,7 +226,7 @@ std::string Player::getActiveGameSummary(std::string gameFile) const {
     return std::string(buffer);
 }
 
-
+// Main server loop function
 void serverLoop(int udp_fd, int tcp_fd) {
     fd_set inputs, testfds;
     struct timeval timeout;
@@ -297,9 +299,9 @@ void serverLoop(int udp_fd, int tcp_fd) {
     }
 }
 
-
+// Main function to start the server
 int main(int argc, char* argv[]) {
-    std::string port = "58068";
+    std::string port = "58068"; // Default port
 
 
     for (int i = 1; i < argc; i++) {
@@ -313,9 +315,7 @@ int main(int argc, char* argv[]) {
     }
 
     std::signal(SIGINT, signalHandler);
-    std::cout << "Iniciando servidor UDP..." << std::endl;
     udp_fd = startUDP(port);
-    std::cout << "Iniciando servidor TCP..." << std::endl;
     tcp_fd = startTCPServer(port);  
     
     serverLoop(udp_fd,tcp_fd);

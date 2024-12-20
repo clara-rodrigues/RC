@@ -10,7 +10,7 @@
 #include <iomanip>
 
 
-
+// Function to check if a trial has been made before
 int existDup(std::vector<Trial> trials, std::vector<std::string> guesses){
     for(const auto& trial : trials){
         if(trial.guesses == guesses){
@@ -20,7 +20,7 @@ int existDup(std::vector<Trial> trials, std::vector<std::string> guesses){
     return 0;
 }
 
-
+// Function to create a score file for the player after the game
 void createScoreFile(int plid, Game &game){
     struct tm *timeinfo;
     std::string folder = "server/SCORES/";
@@ -55,7 +55,7 @@ void createScoreFile(int plid, Game &game){
 
 }
 
-
+// Function to write a trial attempt to the game file
 void writeTrial(int plid, std::vector<std::string> guesses, std::pair<int, int> args, time_t currentTime, time_t startTime) {
     std::string folder = "server/GAMES";
     std::string filename = folder + "/GAME_" + std::to_string(plid) + ".txt";
@@ -73,7 +73,7 @@ void writeTrial(int plid, std::vector<std::string> guesses, std::pair<int, int> 
     }
 }
 
-
+// Function to handle the try/guess request from the player
 void handleTry(int fd, struct sockaddr_in &client_addr, socklen_t client_len, std::istringstream &commandStream, std::string client_ip, int client_port){
     std::vector<std::string> guesses;
     int numTrials;
@@ -92,14 +92,12 @@ void handleTry(int fd, struct sockaddr_in &client_addr, socklen_t client_len, st
             }
              std::cout << "for PLID: " << plid << std::endl;
         }
-       
 
     }catch(const std::invalid_argument& e){
         std::cout << e.what() << std::endl;
         sendto(fd, "RTR ERR\n", 8, 0, (struct sockaddr *)&client_addr, client_len);
         return;
     }
-    
 
     Player* currentPlayer = nullptr; 
     
@@ -117,7 +115,6 @@ void handleTry(int fd, struct sockaddr_in &client_addr, socklen_t client_len, st
         return;
     }
 
-
     //check if time has been exceeded
     time_t currentTime = time(0);
     if (currentTime - games[gameId].startTime > games[gameId].maxPlaytime){
@@ -131,7 +128,6 @@ void handleTry(int fd, struct sockaddr_in &client_addr, socklen_t client_len, st
         closeGame(*currentPlayer, games[gameId]);
         return ;
     }
-
 
     if (existDup(games[gameId].trials, guesses)){
         sendto(fd, "RTR DUP\n", 8, 0, (struct sockaddr *)&client_addr, client_len);
@@ -184,7 +180,7 @@ void handleTry(int fd, struct sockaddr_in &client_addr, socklen_t client_len, st
    
 }
 
-
+// Function to calculate the score based on trials and time
 int calcScore(const Game& game) {
     time_t currentTime = time(0);
     int gameTime = (currentTime - game.startTime);
@@ -195,7 +191,7 @@ int calcScore(const Game& game) {
     return score_normalized;
 }
 
-
+// Function to process the guess and return black and white peg counts
 std::pair<int, int> tryGuess(int plid, std::vector<std::string> guesses, int gameId) {
     int numBlack = 0;
     int numWhite = 0;
@@ -220,12 +216,9 @@ std::pair<int, int> tryGuess(int plid, std::vector<std::string> guesses, int gam
         }
     }
     
-
     Trial newTrial = {guesses, numBlack, numWhite};
 
-
     games[gameId].trials.push_back(newTrial);
-
 
     return std::make_pair(numBlack, numWhite);
 }

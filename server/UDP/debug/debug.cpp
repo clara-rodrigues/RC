@@ -6,7 +6,7 @@
 #include <sstream>
 
 
-
+// Function to handle the "debug" command received from the client
 void handleDebug(int fd, struct sockaddr_in &client_addr, socklen_t client_len, std::istringstream &commandStream, std::string client_ip, int client_port){
     int maxPlaytime;
     std::vector<std::string> guesses;
@@ -38,7 +38,7 @@ void handleDebug(int fd, struct sockaddr_in &client_addr, socklen_t client_len, 
     }
 }
 
-
+// Function to simulate the "debug" command logic
 int debug(int plid, int maxPlaytime, std::vector<std::string> guesses){ 
     Player* currentPlayer = nullptr; 
     int gameId;

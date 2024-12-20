@@ -6,7 +6,7 @@
 #include <sstream>
 #include <fstream>
 
-
+// Function to handle the "start" command from the client
 void handleStartGame( int fd, struct sockaddr_in &client_addr, socklen_t client_len, std::istringstream &commandStream,  std::string client_ip, int client_port){
     int responseOK;
     int plid;
@@ -38,7 +38,7 @@ void handleStartGame( int fd, struct sockaddr_in &client_addr, socklen_t client_
 
 }
 
-
+// Function to create a file for the player with game details
 void createPlayerFile(int plid,int gameId){
     std::string folder = "server/GAMES";
     std::string filename = folder + "/GAME_" + std::to_string(plid) + ".txt";
@@ -73,7 +73,7 @@ void createPlayerFile(int plid,int gameId){
 
 }
 
-
+// Function to start a new game for the player
 int startNewGame(int plid, int maxPlaytime) {
     std::vector<std::string> secret_key = generateSecretKey();
     Player* currentPlayer = findPlayerById(plid);
@@ -145,7 +145,7 @@ int startNewGame(int plid, int maxPlaytime) {
     }
 }
 
-
+// Function to generate a secret key for the game
 std::vector<std::string> generateSecretKey(){
     std::vector<std::string> secretKey;
     
