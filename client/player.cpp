@@ -162,12 +162,25 @@ int getCommandID(const std::string& command) {
     return (it != commandMap.end()) ? it->second : -1; 
 }
 
+void deleteFiles(){
+    std::string folder = "client/";
+    for (const auto & entry : std::filesystem::directory_iterator(folder)){
+        if(entry.path().extension() == ".txt"){
+            std::filesystem::remove(entry.path());
+        }
+    }
+
+}
+
+
+
 // Handles signals (such as SIGINT) to perform cleanup actions before exiting the program.
 void signalHandler(int signum) {
     if (player.isPlaying){
         execute_exit(player, ip, port);
         
     }
+    deleteFiles();
     std::exit(signum);
     
 }
