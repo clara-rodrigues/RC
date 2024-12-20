@@ -157,8 +157,9 @@ int getCommandID(const std::string& command) {
 void signalHandler(int signum) {
     if (player.isPlaying){
         execute_exit(player, ip, port);
-        std::exit(signum);
+        
     }
+    std::exit(signum);
     
 }
 
