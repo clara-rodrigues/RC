@@ -46,10 +46,10 @@ void handleQuit(int fd, struct sockaddr_in &client_addr, socklen_t client_len, s
         game.finalSate = 'Q';
         std::ostringstream oss;
         for (const auto &key : game.secretKey) {
-            oss << key << " ";
+            oss << " " << key;
         }
 
-        std::string message = "RQT OK " + oss.str() + "\n";
+        std::string message = "RQT OK" + oss.str() + "\n";
         sendto(fd, message.c_str(), message.size(), 0, (struct sockaddr *)&client_addr, client_len);
         closeGame(*currentPlayer, game);
     } else {
