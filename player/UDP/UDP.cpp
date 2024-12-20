@@ -9,13 +9,9 @@ struct addrinfo udp_hints, *udp_res;
 struct sockaddr_in udp_addr;
 
 
-
 void print_sockaddr_in(const struct sockaddr_in& addr) {
     char ip[INET_ADDRSTRLEN]; 
     inet_ntop(AF_INET, &(addr.sin_addr), ip, INET_ADDRSTRLEN);
-
-    std::cout << "IP Address: " << ip << std::endl;
-    std::cout << "Port: " << ntohs(addr.sin_port) << std::endl;
 }
 
 int send_UDP(const std::string& msg, std::string& response, const std::string& ip, const std::string& port) {

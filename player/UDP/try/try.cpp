@@ -76,7 +76,7 @@ void execute_try(Player &player, const std::vector<std::string>& guesses, const 
             int numBlacksInt = checkNums(gameTrials,numBlacks,numWhites)[1];
             if(numBlacksInt == 4){
                 closeGame(player);
-                std::cout << "WINNNN!" << std::endl;
+                std::cout << "WIN!" << std::endl;
             }else{
                 numTrials++;    
             }

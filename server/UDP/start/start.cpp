@@ -102,14 +102,6 @@ int startNewGame(int plid, int maxPlaytime) {
         // Criar arquivo do jogador
         createPlayerFile(plid, newIndex);
 
-        std::cout << "New game started for player: " << plid
-                  << " with max playtime: " << maxPlaytime
-                  << " Secret Key: ";
-        for (const auto& key : secret_key) {
-            std::cout << key << " ";
-        }
-        std::cout << std::endl;
-
         return 1;
 
     } else {
@@ -123,9 +115,10 @@ int startNewGame(int plid, int maxPlaytime) {
                 
             } else {
                 std::cout << "Game already in progress." << std::endl;
+                return 0;
                 
             }
-            return 0;
+            
         }
 
         // Iniciar um novo jogo para o jogador

@@ -128,11 +128,6 @@ void parseDebug(const std::string& input, Player& player, std::vector<std::strin
     }catch (const std::invalid_argument& e){
        throw std::invalid_argument(e);
     }
-
-    std::cout << "Player Id: " << player.plid <<std::endl;
-    std::cout << "Max Play time: " << player.maxPlaytime <<std::endl;
-    std::cout << " Valid Guess: " << guesses[0] << guesses[1] << guesses[2] << guesses[3] <<std::endl;
-
 }
 
 void closeGame(Player &player){
@@ -160,8 +155,10 @@ int getCommandID(const std::string& command) {
 
 
 void signalHandler(int signum) {
-    execute_exit(player, ip, port);
-    std::exit(signum);
+    if (player.isPlaying){
+        execute_exit(player, ip, port);
+        std::exit(signum);
+    }
     
 }
 
@@ -195,10 +192,6 @@ int main(int argc, char* argv[]) {
         switch (commandID) {
             case 1: { // "start"
                 try {
-                    if(player.isPlaying && player.numTrials > 1){
-                        std::cerr << "Error: There is an ongoing game." << std::endl;
-                        break;
-                    }
                     parseStartGame(input, player);
                     execute_start(player, ip, port);
                 } catch (const std::invalid_argument& e) {

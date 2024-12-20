@@ -18,8 +18,6 @@ bool is_numeric(const std::string& str) {
 
 void show_trials(const std::string& ip, const std::string& port, const std::string& plid) {
     const std::string msg = "STR " + plid + "\n"; 
-    std::cout << "Sending 'show trials' command: " << msg << std::endl;
-
     std::string response;
 
     if (send_TCP(msg, response, ip, port) != 1) {
@@ -27,7 +25,7 @@ void show_trials(const std::string& ip, const std::string& port, const std::stri
         return;
     }
 
-    std::cout << "SERVER RESPONSE:" << response << std::endl;
+    std::cout << "Server Response:" << response << std::endl;
 
     std::istringstream iss(response);
     std::string status, fname;

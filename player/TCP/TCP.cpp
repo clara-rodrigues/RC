@@ -5,33 +5,6 @@ void writeFile(std::istringstream& response){
     
     response >> fname >> fsize_str;
 
-    // Read the status (should be "RST OK")
-    //if (!(iss >> status) || status != "RST") {
-    //    std::cerr << "Error: Invalid server response format (status)." << std::endl;
-    //    return;
-    //}
-//
-    //if (!(iss >> status) || status != "OK") {
-    //    std::cerr << "Error: Invalid server response format (OK)." << std::endl;
-    //    return;
-    //}   
-
-    std::cout << "File name: " << fname << std::endl;
-    std::cout << "File size: " << fsize_str << " bytes" << std::endl;
-
-    //std::getline(iss, fname);  
-    //std::stringstream ss(fname);  
-    //ss >> fname;  
-    //ss >> fsize_str;  
-
-    //if (!is_numeric(fsize_str)) {
-    //    std::cerr << "Error: Invalid file size format: '" << fsize_str << "'\n";
-    //    return;
-    //}
-
-    //int fsize = std::stoi(fsize_str);
-    //std::cout << "File size: " << fsize << " bytes\n";
-
     std::vector<std::string> file_data;
     while (std::getline(response, line)) {
         file_data.push_back(line);
@@ -59,9 +32,6 @@ void writeFile(std::istringstream& response){
         std::cerr << "Error: Failed to save the file.\n";
         return;
     }
-
-    std::cout << "File received and saved as '" << file_path << "'.\n";
-
 }
 
 int send_TCP(const std::string& msg, std::string& response, const std::string& ip, const std::string& port) {
@@ -144,23 +114,16 @@ int send_TCP(const std::string& msg, std::string& response, const std::string& i
         response += buffer[0];
     }
 
-    std::cout << "First Line: " << first_line << std::endl;
 
     std::istringstream iss(first_line);
     int num_total_bytes = 0;
     std::string message, status, filename, fsize;
     iss >> message >> status >> filename >> fsize;
 
-    std::cout << "Message: " << message << std::endl;
-    std::cout << "Status: " << status << std::endl;
-    std::cout << "Filename: " << filename << std::endl;
-    std::cout << "File Size: " << fsize << std::endl;
-
 
     while (num_total_bytes < std::stoi(fsize)) {
         ssize_t bytes_received = read(fd, buffer, std::stoi(fsize) - num_total_bytes);
-        std::cout << "Bytes received: " << bytes_received << std::endl;
-        
+       
         if (bytes_received == -1) {
             perror("Error receiving response");
             return -1;

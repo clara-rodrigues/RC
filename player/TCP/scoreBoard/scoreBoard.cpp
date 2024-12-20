@@ -7,12 +7,8 @@
 #include "../TCP.hpp"
 
 
-
-
-
 void score_board(const std::string& ip, const std::string& port) {
     const std::string msg = "SSB\n";
-    std::cout << "Sending 'scoreboard' command: " << msg << std::endl;
 
     std::string response;
 
@@ -21,11 +17,8 @@ void score_board(const std::string& ip, const std::string& port) {
         return;
     }
 
-    std::cout << "Raw Response: [" << response << "]" << std::endl;
-
     std::istringstream iss(response);
     std::string status, fname;
-    //std::size_t fsize;
 
     if (!(iss >> status) || status != "RSS") {
         std::cerr << "Error: Invalid server response format (status)." << std::endl;

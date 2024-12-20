@@ -47,7 +47,6 @@ void execute_quit(Player &player ,const std::string& ip, const std::string& port
             std::find(valid_colors.begin(), valid_colors.end(), guess2_color) == valid_colors.end() || 
             std::find(valid_colors.begin(), valid_colors.end(), guess3_color) == valid_colors.end() || 
             std::find(valid_colors.begin(), valid_colors.end(), guess4_color) == valid_colors.end() ) {
-                std::cout << "AQUIIIII" << std::endl;
                 std::cerr << "Error: Invalid server response format (status)." << std::endl;
                 return;
             }
