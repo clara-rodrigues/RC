@@ -312,6 +312,7 @@ int main(int argc, char* argv[]) {
         }
     }
 
+
     std::signal(SIGINT, signalHandler);
     udp_fd = startUDP(port);
     tcp_fd = startTCPServer(port);  
