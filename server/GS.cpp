@@ -26,6 +26,7 @@ namespace fs = std::filesystem;  // Alias for filesystem namespace
 
 // Function to create a directory for a player and store game data
 void createPlayerDir(int plid, Game &game) {
+    time_t fulltime = time(0);
     struct tm *timeinfo;
     const std::string oldFile = "server/GAMES/GAME_" + std::to_string(plid) + ".txt";
     const std::string folder = "server/GAMES/" + std::to_string(plid);
@@ -37,19 +38,18 @@ void createPlayerDir(int plid, Game &game) {
     std::string newFileName;
 
     if (fs::exists(oldFile)) {
-        timeinfo = gmtime(&game.startTime);
-        newFileName = folder + "/" + 
-                      std::to_string(timeinfo->tm_year + 1900) + 
-                      std::to_string(timeinfo->tm_mon + 1) + 
-                      std::to_string(timeinfo->tm_mday) + 
-                      "_" + 
-                      std::to_string(timeinfo->tm_hour) + 
-                      std::to_string(timeinfo->tm_min) + 
-                      std::to_string(timeinfo->tm_sec) + 
-                      "_" +
-                      game.finalSate + 
-                      ".txt";
-
+        timeinfo = gmtime(&fulltime);
+        std::ostringstream oss;
+        oss << folder << "/"
+            << timeinfo->tm_year + 1900
+            << std::setw(2) << std::setfill('0') << timeinfo->tm_mon + 1
+            << std::setw(2) << std::setfill('0') << timeinfo->tm_mday << "_"
+            << std::setw(2) << std::setfill('0') << timeinfo->tm_hour
+            << std::setw(2) << std::setfill('0') << timeinfo->tm_min
+            << std::setw(2) << std::setfill('0') << timeinfo->tm_sec << "_"
+            << game.finalSate
+            << ".txt";
+        newFileName = oss.str();
 
         // Rename the old file to the new file
         fs::rename(oldFile, newFileName);
@@ -58,15 +58,14 @@ void createPlayerDir(int plid, Game &game) {
         return;
     }
 
-    // Open the new file in append mode to avoid truncation
     std::ofstream file(newFileName, std::ios::app);
     if (file.is_open()) {
         file << timeinfo->tm_year + 1900 << "-"
-             << timeinfo->tm_mon + 1 << "-"
-             << timeinfo->tm_mday << " "
-             << timeinfo->tm_hour << ":"
-             << timeinfo->tm_min << ":"
-             << timeinfo->tm_sec << std::endl;
+         << std::setw(2) << std::setfill('0') << timeinfo->tm_mon + 1 << "-"
+         << std::setw(2) << std::setfill('0') << timeinfo->tm_mday << " "
+         << std::setw(2) << std::setfill('0') << timeinfo->tm_hour << ":"
+         << std::setw(2) << std::setfill('0') << timeinfo->tm_min << ":"
+         << std::setw(2) << std::setfill('0') << timeinfo->tm_sec << std::endl;
     } else {
         std::cerr << "Error opening the file " << newFileName << std::endl;
     }

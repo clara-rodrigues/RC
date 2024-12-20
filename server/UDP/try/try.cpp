@@ -24,20 +24,21 @@ int existDup(std::vector<Trial> trials, std::vector<std::string> guesses){
 void createScoreFile(int plid, Game &game){
     struct tm *timeinfo;
     std::string folder = "server/SCORES/";
-    std::string filename;
+ 
 
     timeinfo = gmtime(&game.startTime);
-    filename = folder +"score_"+ std::to_string(plid) + "_"+
-                    std::to_string(timeinfo->tm_year + 1900) + 
-                    std::to_string(timeinfo->tm_mon + 1) + 
-                    std::to_string(timeinfo->tm_mday) + 
-                    "_" + 
-                    std::to_string(timeinfo->tm_hour) + 
-                    std::to_string(timeinfo->tm_min) + 
-                    std::to_string(timeinfo->tm_sec) + 
-                    ".txt";
+    std::stringstream filenameStream;
+    filenameStream << folder << "score_" << std::to_string(plid) << "_"
+               << timeinfo->tm_year + 1900
+               << std::setw(2) << std::setfill('0') << timeinfo->tm_mon + 1
+               << std::setw(2) << std::setfill('0') << timeinfo->tm_mday
+               << "_"
+               << std::setw(2) << std::setfill('0') << timeinfo->tm_hour
+               << std::setw(2) << std::setfill('0') << timeinfo->tm_min
+               << std::setw(2) << std::setfill('0') << timeinfo->tm_sec
+               << ".txt";
 
-
+    std::string filename = filenameStream.str();
     std::ofstream file(filename, std::ios::app);
 
     if (file.is_open()) {
@@ -138,7 +139,7 @@ void handleTry(int fd, struct sockaddr_in &client_addr, socklen_t client_len, st
 
     writeTrial(plid, guesses, args,currentTime, games[gameId].startTime);
 
-    if(args.first != 4 & numTrials >= games[gameId].MAX_NUM_TRIALS){
+    if( (args.first != 4 )& (numTrials >= games[gameId].MAX_NUM_TRIALS)){
         std::ostringstream oss;
         std::vector<std::string> secretKey = games[gameId].secretKey;
 

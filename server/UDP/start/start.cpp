@@ -51,18 +51,19 @@ void createPlayerFile(int plid,int gameId){
 
     std::ofstream file(filename);
     if (file.is_open()) {
-        file <<  plid << " "<< games[gameId].gameMode << " " ;
+        file << plid << " " << games[gameId].gameMode << " ";
         for (const auto& key : games[gameId].secretKey) {
-            file << key ;
+            file << key;
         }
-        file << " "<< games[gameId].maxPlaytime << " ";
-        file <<  timeinfo->tm_year +1900<< "-"; 
-        file << timeinfo->tm_mon+1 << "-";
-        file << timeinfo->tm_mday << " " ;
-        file <<timeinfo->tm_hour << ":";
-        file << timeinfo->tm_min<< ":" ;
-        file << timeinfo->tm_sec <<" "  ;
-        file << std::to_string(time(0))<< std::endl;
+        file << " " << games[gameId].maxPlaytime << " ";
+        file << timeinfo->tm_year + 1900 << "-";
+        file << std::setw(2) << std::setfill('0') << timeinfo->tm_mon + 1 << "-";
+        file << std::setw(2) << std::setfill('0') << timeinfo->tm_mday << " ";
+        file << std::setw(2) << std::setfill('0') << timeinfo->tm_hour << ":";
+        file << std::setw(2) << std::setfill('0') << timeinfo->tm_min << ":";
+        file << std::setw(2) << std::setfill('0') << timeinfo->tm_sec << " ";
+        file << std::to_string(time(0)) << std::endl;
+
     
         file.close();
     } else {
