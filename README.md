@@ -1,6 +1,6 @@
 # **Mastermind Game Client**
 
-This project is a client application for the Mastermind game. It communicates with a server using both UDP and TCP protocols to play the game, send commands, and receive responses. The client sends various commands such as `TRY`, `START`, `QUIT`, `DEBUG`, and `SCOREBOARD` to interact with the game and receive feedback.
+This project is a client application for the Mastermind game. It communicates with a server using both UDP and TCP protocols to play the game, send commands, and receive responses. The client sends various commands such as `TRY`, `START`, `QUIT`, `DEBUG`, `EXIT`, `SHOW_TRIALS`, and `SCOREBOARD` to interact with the game and receive feedback.
 
 ## **Project Structure**
 
@@ -13,7 +13,7 @@ This project is a client application for the Mastermind game. It communicates wi
 #### **player**
 Contains the client-side application that interacts with the game server using UDP and TCP communication.
 
-- **udp**: Contains files responsible for handling UDP communication, which is used for real-time commands like `START`, `TRY`, `QUIT`, and `EXIT`.
+- **udp**: Contains files responsible for handling UDP communication, which is used for real-time commands like `START`, `TRY`, `QUIT`, `EXIT`, and `DEBUG`.
     - `start/`: Folder containing files for the 'START' command.
         - `start.cpp`: Implements the 'START' command to initiate a new game session.
         - `start.hpp`: Header file for `start.cpp`, declaring the 'START' function.
@@ -26,10 +26,13 @@ Contains the client-side application that interacts with the game server using U
     - `exit/`: Folder containing files for the 'EXIT' command.
         - `exit.cpp`: Implements the 'EXIT' command to exit the game completely.
         - `exit.hpp`: Header file for `exit.cpp`, declaring the 'EXIT' function.
+    - `debug/`: Folder containing files for the 'DEBUG' command.
+        - `debug.cpp`: Implements the 'DEBUG' command to create a game in debug mode.
+        - `debug.hpp`: Header file for `debug.cpp`, declaring the 'DEBUG' function.
     - `udp.cpp`: Implements general UDP communication functions used throughout the `player` application.
     - `udp.hpp`: Header file for `udp.cpp`, declaring functions for UDP communication.
   
-- **tcp**: Contains files responsible for handling TCP communication, which is used for receiving files and scoreboard data.
+- **tcp**: Contains files responsible for handling TCP communication, which is used for receiving files, scoreboard, and show_trials data.
     - `scoreboard/`: Folder containing files to handle the 'SCOREBOARD' command.
         - `scoreboard.cpp`: Implements the 'SCOREBOARD' command to fetch the current scoreboard from the server.
         - `scoreboard.hpp`: Header file for `scoreboard.cpp`, declaring functions for scoreboard handling.
@@ -58,6 +61,9 @@ Contains the backend Game Server that handles game logic and communicates with t
     - `exit/`: Folder containing files for the 'EXIT' command on the server.
         - `exit.cpp`: Implements the 'EXIT' command on the server, closing the game session and cleaning up.
         - `exit.hpp`: Header file for `exit.cpp`, declaring functions for handling 'EXIT' commands.
+    - `debug/`: Folder containing files for the 'DEBUG' command on the server.
+        - `debug.cpp`: Implements the 'DEBUG' command on the server to create and manage a game in debug mode.
+        - `debug.hpp`: Header file for `debug.cpp`, declaring functions for the 'DEBUG' command.
     - `udp.cpp`: Implements general UDP communication functions used by the server.
     - `udp.hpp`: Header file for `udp.cpp`, declaring UDP communication functions on the server side.
 
@@ -97,16 +103,15 @@ To run the project, you only need to navigate to the root directory (the one you
       ./player1
       ```
 
-4. **Game Interaction**:
-    - After starting both the server and the player application, the player can interact with the game by sending commands such as `START`, `TRY`, `QUIT`, and `SCOREBOARD`.
-
 ## **Commands**
 
 - **START**: Starts a new game session.
 - **TRY**: Submits a guess to the server.
 - **QUIT**: Quits the current game session.
 - **EXIT**: Exits the game entirely.
+- **DEBUG**: Creates a game in Debug mode.
 - **SCOREBOARD**: Requests the current scoreboard from the server.
+- **SHOW_TRIALS**: Displays trial guesses made by the player.
 
 ## **License**
 
