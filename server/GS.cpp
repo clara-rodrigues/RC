@@ -248,25 +248,24 @@ void serverLoop(int udp_fd, int tcp_fd) {
         out_fds = select(FD_SETSIZE, &testfds, NULL, NULL, &timeout);
 
         if (out_fds == -1) {
-            perror("select error");
+            perror("Select error");
             exit(1);
         }
 
         if (out_fds == 0) {
-            printf("Timeout: Nenhuma atividade detectada.\n");
+            printf("Timeout: No activity detected.\n");
             continue;
         }
 
         if (FD_ISSET(0, &testfds)) {
             fgets(buffer, sizeof(buffer), stdin);
-            printf("Input recebido no teclado: %s\n", buffer);
+           
         }
 
         if (FD_ISSET(udp_fd, &testfds)) {
             int ret = recvfrom(udp_fd, buffer, sizeof(buffer), 0, (struct sockaddr *)&client_addr, &client_len);
             if (ret >= 0) {
                 buffer[ret] = '\0';  
-                printf("Mensagem recebida no socket UDP: %s\n", buffer);
                 handleUserMessage(udp_fd, client_addr, client_len, buffer, ret);
             }
         }
@@ -278,11 +277,10 @@ void serverLoop(int udp_fd, int tcp_fd) {
                 continue;
             }
 
-            printf("Nova conexão TCP aceita.\n");
 
             pid_t pid = fork();
             if (pid == -1) {
-                perror("Erro ao criar processo filho");
+                perror("Error creating child process");
                 close(client_fd);
                 continue;
             }

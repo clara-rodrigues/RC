@@ -90,17 +90,15 @@ void handlePlayerRequest(int client_fd, struct sockaddr_in client_addr) {
 
 // Function to start the TCP server and bind it to the given port.
 int startTCPServer(std::string port) {
-    int server_fd, client_fd;
+    int server_fd;
     struct addrinfo hints{}, *res;
-    struct sockaddr_in client_addr{};
-    socklen_t client_len = sizeof(client_addr);
     int tcp_fd;
 
     int option_tcp = 1;
 
     server_fd = socket(AF_INET, SOCK_STREAM, 0);
     if (server_fd == -1) {
-        perror("Erro ao criar socket TCP");
+        perror("[ERROR] Failed to create TCP socket");
         exit(1);
     }
 
@@ -111,14 +109,14 @@ int startTCPServer(std::string port) {
 
     int errcode = getaddrinfo(NULL, port.c_str(), &hints, &res);
     if (errcode != 0) {
-        std::cerr << "Erro em getaddrinfo TCP: " << gai_strerror(errcode) << std::endl;
+        std::cerr << "Errer in getaddrinfo TCP: " << gai_strerror(errcode) << std::endl;
         exit(1);
     }
 
     setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &option_tcp, sizeof(option_tcp));
 
     if (bind(server_fd, res->ai_addr, res->ai_addrlen) == -1) {
-        perror("Erro ao vincular socket TCP");
+        perror("Error while binding TCP socket");
         freeaddrinfo(res);
         exit(1);
     }
@@ -126,7 +124,7 @@ int startTCPServer(std::string port) {
     freeaddrinfo(res);
 
     if (listen(server_fd, 5) == -1) {
-        perror("Erro ao escutar no socket TCP");
+        perror("Error while listening on TCP socket");
         exit(1);
     }
 

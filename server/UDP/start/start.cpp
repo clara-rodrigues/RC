@@ -25,8 +25,6 @@ void handleStartGame( int fd, struct sockaddr_in &client_addr, socklen_t client_
         return;
     }
 
-    std::cout << "Starting new game for Player ID: " << plid 
-                << ", Max Playtime: " << maxPlaytime << std::endl;
     responseOK = startNewGame(plid, maxPlaytime);
 
     
@@ -79,7 +77,7 @@ int startNewGame(int plid, int maxPlaytime) {
     Player* currentPlayer = findPlayerById(plid);
 
     if (!currentPlayer) {
-        // Criar um novo jogador e iniciar um novo jogo
+        // Create a new player and game
         Player newPlayer;
         newPlayer.plid = plid;
         newPlayer.isPlaying = true;
@@ -101,7 +99,7 @@ int startNewGame(int plid, int maxPlaytime) {
         return 1;
 
     } else {
-        // Verifiacar se o jogador está com um jogo ativo
+        // Verify if the player is already playing a game
         if (currentPlayer->isPlaying) {
             Game& currentGame = games[currentPlayer->gameId];
             time_t currentTime = time(0);
@@ -117,7 +115,7 @@ int startNewGame(int plid, int maxPlaytime) {
             
         }
 
-        // Iniciar um novo jogo para o jogador
+        // Start a new game for player
         currentPlayer->isPlaying = true;
 
         Game newGame;
@@ -132,14 +130,6 @@ int startNewGame(int plid, int maxPlaytime) {
         currentPlayer->gameId = newIndex;
 
         createPlayerFile(plid, newIndex);
-
-        std::cout << "New game started for player: " << plid
-                  << " with max playtime: " << maxPlaytime
-                  << " Secret Key: ";
-        for (const auto& key : secret_key) {
-            std::cout << key << " ";
-        }
-        std::cout << std::endl;
 
         return 1;
     }

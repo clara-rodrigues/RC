@@ -5,7 +5,7 @@ CXX = g++
 CXXFLAGS = -std=c++17 -Wall -Wextra
 
 # Root directories for player and server files
-PLAYER_SRC_DIR = player
+PLAYER_SRC_DIR = client
 SERVER_SRC_DIR = server
 
 # Find all .cpp files in the player and server directories
@@ -19,7 +19,7 @@ PLAYER_OBJ_FILES1 = $(patsubst %.cpp, %.player1.o, $(PLAYER_SRC_FILES))
 SERVER_OBJ_FILES = $(SERVER_SRC_FILES:.cpp=.o)
 
 # Output executable names
-PLAYER_OUTPUT1 = player1
+PLAYER_OUTPUT1 = player
 SERVER_OUTPUT = GS
 
 # Default target: build both executables

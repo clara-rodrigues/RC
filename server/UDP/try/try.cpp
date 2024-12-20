@@ -115,7 +115,7 @@ void handleTry(int fd, struct sockaddr_in &client_addr, socklen_t client_len, st
         return;
     }
 
-    //check if time has been exceeded
+    // Check if time has been exceeded
     time_t currentTime = time(0);
     if (currentTime - games[gameId].startTime > games[gameId].maxPlaytime){
         std::ostringstream oss;
@@ -134,7 +134,7 @@ void handleTry(int fd, struct sockaddr_in &client_addr, socklen_t client_len, st
         return;
     }
 
-    std::pair<int, int>  args = tryGuess(plid, guesses, gameId);
+    std::pair<int, int>  args = tryGuess(guesses, gameId);
 
     writeTrial(plid, guesses, args,currentTime, games[gameId].startTime);
 
@@ -192,7 +192,7 @@ int calcScore(const Game& game) {
 }
 
 // Function to process the guess and return black and white peg counts
-std::pair<int, int> tryGuess(int plid, std::vector<std::string> guesses, int gameId) {
+std::pair<int, int> tryGuess( std::vector<std::string> guesses, int gameId) {
     int numBlack = 0;
     int numWhite = 0;
     std::vector<int> trialState(4, 0);

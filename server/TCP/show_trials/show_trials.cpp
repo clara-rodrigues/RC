@@ -20,7 +20,7 @@ std::string readFile(int client_fd, const std::string &filename) {
     std::vector<char> buffer;
 
     if (!file) {
-        std::cerr << "[ERROR] Não foi possível abrir o arquivo: " << filename << std::endl;
+        std::cerr << "[ERROR] Failed to open file: " << filename << std::endl;
         const std::string error_response = "RST NOK\n";
         write(client_fd, error_response.c_str(), error_response.size());
         return " ";
@@ -90,7 +90,7 @@ void handleShowTrials(int client_fd, std::istringstream &commandStream, std::str
 
     Player *player = findPlayerById(plid);
     if (!player) {
-        std::cerr << "[ERROR] Jogador com PLID " << plid << " não encontrado." << std::endl;
+        std::cerr << "[ERROR] Player with PLID: " << plid << " not found." << std::endl;
         const std::string error_response = "RST NOK\n";
         write(client_fd, error_response.c_str(), error_response.size());
         return;

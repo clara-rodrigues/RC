@@ -16,6 +16,6 @@ void handleTry(int fd, struct sockaddr_in &client_addr, socklen_t client_len, st
 
 int calcScore(const Game& game);
 
-std::pair<int, int> tryGuess(int plid, std::vector<std::string> guesses, int gameId);
+std::pair<int, int> tryGuess( std::vector<std::string> guesses, int gameId);
 
 #endif

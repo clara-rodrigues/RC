@@ -18,7 +18,7 @@ void writeFile(std::istringstream& response){
         return;
     }
 
-    std::string file_path = "player/" + fname;
+    std::string file_path = "client/" + fname;
 
     std::ofstream output_file(file_path, std::ios::binary);
     if (!output_file) {

@@ -16,8 +16,6 @@
 void handle_client(int fd, struct sockaddr_in &client_addr, socklen_t client_len, char *buffer, ssize_t n) {
     char client_ip[INET_ADDRSTRLEN];
     inet_ntop(AF_INET, &client_addr.sin_addr, client_ip, INET_ADDRSTRLEN);
-    std::cout << "Received message from IP: " << client_ip
-              << ", port: " << ntohs(client_addr.sin_port) << std::endl;
 
 
     ssize_t sent_n = sendto(fd, buffer, n, 0, (struct sockaddr *)&client_addr, client_len);
@@ -35,7 +33,7 @@ int startUDP(std::string port) {
 
     udp_fd = socket(AF_INET, SOCK_DGRAM, 0);
     if (udp_fd == -1) {
-        perror("Erro ao criar socket UDP");
+        perror("Error creating UDP socket");
         exit(1);
     }
 
@@ -45,18 +43,17 @@ int startUDP(std::string port) {
     hints.ai_flags = AI_PASSIVE;
 
     if (getaddrinfo(NULL, port.c_str(), &hints, &res) != 0) {
-        perror("Erro em getaddrinfo UDP");
+        perror("Error getting address info UDP");
         exit(1);
     }
 
     if (bind(udp_fd, res->ai_addr, res->ai_addrlen) == -1) {
-        perror("Erro ao vincular socket UDP");
+        perror("Error binding socket UDP");
         freeaddrinfo(res);
         exit(1);
     }
 
     freeaddrinfo(res);
-    std::cout << "Servidor UDP iniciado na porta " << port << std::endl;
     return udp_fd;
 }
 
