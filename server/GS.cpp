@@ -50,7 +50,6 @@ void createPlayerDir(int plid, Game &game) {
                       game.finalSate + 
                       ".txt";
 
-        std::cout << "Renaming " << oldFile << " to " << newFileName << std::endl;
 
         // Rename the old file to the new file
         fs::rename(oldFile, newFileName);
