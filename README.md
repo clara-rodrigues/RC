@@ -1,118 +1,100 @@
-# **Mastermind Game Client**
+# Mastermind Game Client
 
-This project is a client application for the Mastermind game. It communicates with a server using both UDP and TCP protocols to play the game, send commands, and receive responses. The client sends various commands such as `TRY`, `START`, `QUIT`, `DEBUG`, `EXIT`, `SHOW_TRIALS`, and `SCOREBOARD` to interact with the game and receive feedback.
+This project is a **Mastermind game client** that communicates with a backend **Game Server** (GS) using both **UDP** and **TCP** protocols. The client sends various commands, including `TRY`, `START`, `QUIT`, `DEBUG`, `EXIT`, `SHOW_TRIALS`, and `SCOREBOARD`, to interact with the game server and receive feedback.
 
-## **Project Structure**
+---
 
-- **player**: The client-side application folder that communicates with the server using UDP and TCP protocols.
-- **server**: The backend Game Server folder that handles game logic and client communication.
-- **Makefile**: The build system for compiling both the player and the server applications.
+## Project Structure
 
-### **Directory Layout**
+The project is divided into two main components: **player** (the client-side application) and **server** (the backend game logic).
 
-#### **player**
-Contains the client-side application that interacts with the game server using UDP and TCP communication.
+### **player**
+The client-side application that communicates with the server via UDP and TCP protocols.
 
-- **udp**: Contains files responsible for handling UDP communication, which is used for real-time commands like `START`, `TRY`, `QUIT`, `EXIT`, and `DEBUG`.
-    - `start/`: Folder containing files for the 'START' command.
-        - `start.cpp`: Implements the 'START' command to initiate a new game session.
-        - `start.hpp`: Header file for `start.cpp`, declaring the 'START' function.
-    - `try/`: Folder containing files for the 'TRY' command.
-        - `try.cpp`: Implements the 'TRY' command, sending the player's guess to the server.
-        - `try.hpp`: Header file for `try.cpp`, declaring the 'TRY' function.
-    - `quit/`: Folder containing files for the 'QUIT' command.
-        - `quit.cpp`: Implements the 'QUIT' command to quit the game.
-        - `quit.hpp`: Header file for `quit.cpp`, declaring the 'QUIT' function.
-    - `exit/`: Folder containing files for the 'EXIT' command.
-        - `exit.cpp`: Implements the 'EXIT' command to exit the game completely.
-        - `exit.hpp`: Header file for `exit.cpp`, declaring the 'EXIT' function.
-    - `debug/`: Folder containing files for the 'DEBUG' command.
-        - `debug.cpp`: Implements the 'DEBUG' command to create a game in debug mode.
-        - `debug.hpp`: Header file for `debug.cpp`, declaring the 'DEBUG' function.
-    - `udp.cpp`: Implements general UDP communication functions used throughout the `player` application.
-    - `udp.hpp`: Header file for `udp.cpp`, declaring functions for UDP communication.
-  
-- **tcp**: Contains files responsible for handling TCP communication, which is used for receiving files, scoreboard, and show_trials data.
-    - `scoreboard/`: Folder containing files to handle the 'SCOREBOARD' command.
-        - `scoreboard.cpp`: Implements the 'SCOREBOARD' command to fetch the current scoreboard from the server.
-        - `scoreboard.hpp`: Header file for `scoreboard.cpp`, declaring functions for scoreboard handling.
-    - `showTrials/`: Folder containing files to handle the 'SHOWTRIALS' command.
-        - `showTrials.cpp`: Implements the 'SHOWTRIALS' command to display trial guesses made by the player.
-        - `showTrials.hpp`: Header file for `showTrials.cpp`, declaring functions for showing trial guesses.
-    - `tcp.cpp`: Implements general TCP communication functions, such as sending and receiving data over TCP.
-    - `tcp.hpp`: Header file for `tcp.cpp`, declaring functions for TCP communication.
+- **udp**: Contains files responsible for handling **UDP** communication, used for real-time commands like `START`, `TRY`, `QUIT`, `EXIT`, and `DEBUG`.
+    - `start/`: Implements the 'START' command to initiate a new game session.
+    - `try/`: Implements the 'TRY' command, sending the player's guess to the server.
+    - `quit/`: Implements the 'QUIT' command to quit the current game session.
+    - `exit/`: Implements the 'EXIT' command to exit the game entirely.
+    - `debug/`: Implements the 'DEBUG' command to create a game in debug mode.
+    - `udp.cpp`: Implements general **UDP** communication functions used by the client.
+    - `udp.hpp`: Header file for **UDP** communication functions.
 
-- `player.cpp`: Contains the main logic for the player, including game state management and interactions with the server.
-- `player.hpp`: Header file for `player.cpp`, declaring the player class and related functions.
+- **tcp**: Contains files responsible for handling **TCP** communication, used for receiving files, scoreboard data, and trial guesses.
+    - `scoreboard/`: Handles the 'SCOREBOARD' command to fetch the current scoreboard from the server.
+    - `showTrials/`: Handles the 'SHOW_TRIALS' command to display trial guesses made by the player.
+    - `tcp.cpp`: Implements general **TCP** communication functions for the client.
+    - `tcp.hpp`: Header file for **TCP** communication functions.
 
-#### **server**
-Contains the backend Game Server that handles game logic and communicates with the client application.
+- `player.cpp`: Main logic for the player, including game state management and interactions with the server.
+- `player.hpp`: Header file for the **player** class and related functions.
 
-- **udp**: Folder containing files for handling UDP communication on the server side.
-    - `start/`: Folder containing files for the 'START' command on the server.
-        - `start.cpp`: Implements the 'START' command on the server, starting a new game session.
-        - `start.hpp`: Header file for the server-side 'START' functionality.
-    - `try/`: Folder containing files for the 'TRY' command on the server.
-        - `try.cpp`: Handles the 'TRY' command, processing guesses from the player and determining if they're correct.
-        - `try.hpp`: Header file for `try.cpp`, declaring functions for processing 'TRY' commands.
-    - `quit/`: Folder containing files for the 'QUIT' command on the server.
-        - `quit.cpp`: Implements the 'QUIT' command on the server, handling player quit requests.
-        - `quit.hpp`: Header file for `quit.cpp`, declaring functions for handling 'QUIT' commands.
-    - `exit/`: Folder containing files for the 'EXIT' command on the server.
-        - `exit.cpp`: Implements the 'EXIT' command on the server, closing the game session and cleaning up.
-        - `exit.hpp`: Header file for `exit.cpp`, declaring functions for handling 'EXIT' commands.
-    - `debug/`: Folder containing files for the 'DEBUG' command on the server.
-        - `debug.cpp`: Implements the 'DEBUG' command on the server to create and manage a game in debug mode.
-        - `debug.hpp`: Header file for `debug.cpp`, declaring functions for the 'DEBUG' command.
-    - `udp.cpp`: Implements general UDP communication functions used by the server.
-    - `udp.hpp`: Header file for `udp.cpp`, declaring UDP communication functions on the server side.
+---
 
-- **tcp**: Folder for handling TCP communication on the server side.
-    - `scoreboard/`: Folder containing files for the 'SCOREBOARD' command on the server.
-        - `scoreboard.cpp`: Implements the 'SCOREBOARD' functionality on the server, sending the scoreboard data to the player.
-        - `scoreboard.hpp`: Header file for `scoreboard.cpp`, declaring functions for scoreboard handling.
-    - `showTrials/`: Folder containing files for the 'SHOWTRIALS' command on the server.
-        - `showTrials.cpp`: Handles the server-side logic to display trial guesses made by the player.
-        - `showTrials.hpp`: Header file for `showTrials.cpp`, declaring functions for managing trials data.
-    - `tcp.cpp`: Implements general TCP communication functions for the server to handle requests from clients.
-    - `tcp.hpp`: Header file for `tcp.cpp`, declaring server-side TCP communication functions.
+### **server**
+Contains the backend **Game Server** that handles game logic and communication with the client application.
 
-- `GS.cpp`: Main server logic, responsible for managing the game state, processing client commands, and handling game flow.
-- `GS.hpp`: Header file for `GS.cpp`, declaring the game server logic and the functions for handling various commands.
+- **udp**: Contains files for handling **UDP** communication on the server side.
+    - `start/`: Implements the 'START' command on the server, starting a new game session.
+    - `try/`: Handles the 'TRY' command, processing guesses and determining correctness.
+    - `quit/`: Implements the 'QUIT' command, handling player quit requests.
+    - `exit/`: Implements the 'EXIT' command to close the game session.
+    - `debug/`: Implements the 'DEBUG' command to create and manage a game in debug mode.
+    - `udp.cpp`: Implements general **UDP** communication functions used by the server.
+    - `udp.hpp`: Header file for **UDP** communication functions on the server.
 
-## **How to Run**
+- **tcp**: Contains files for handling **TCP** communication on the server side.
+    - `scoreboard/`: Implements the 'SCOREBOARD' functionality, sending the scoreboard data to the client.
+    - `showTrials/`: Handles the server-side logic for displaying trial guesses made by the player.
+    - `tcp.cpp`: Implements general **TCP** communication functions for the server.
+    - `tcp.hpp`: Header file for **TCP** communication functions on the server.
 
-To run the project, you only need to navigate to the root directory (the one you cloned from GitHub).
+- `GS.cpp`: Main server logic, responsible for managing the game state and processing client commands.
+- `GS.hpp`: Header file for `GS.cpp`, declaring server-side game logic.
+
+---
+
+## How to Run
+
+To run the project, follow these steps:
 
 1. **Build the Project**:
-    - Open a terminal window and navigate to the root directory of the project.
+    - Open a terminal and navigate to the root directory of the project.
     - Run the following command to clean and build the project:
       ```bash
       make
       ```
 
 2. **Run the Game Server (GS)**:
-    - In the same terminal, run the Game Server by executing:
+    - In the same terminal, run the **Game Server (GS)** by executing:
       ```bash
-      ./server
+      ./GS [-p GSport] [-v]
       ```
+      - **`GSport`** (Optional): The port number where the Game Server accepts both **UDP** and **TCP** requests. If omitted, it defaults to **58000 + GN**, where **GN** is the number of the group.
+      - **`-v`** (Optional): Enables **verbose mode**, where the server outputs a short description of the received requests, including **PLID**, request type, and the originating **IP and port**.
 
 3. **Run the Player Application**:
-    - Open another terminal window and run the Player application by executing:
+    - Open another terminal window and run the **Player application** by executing:
       ```bash
       ./player1
       ```
 
-## **Commands**
+---
 
-- **START**: Starts a new game session.
-- **TRY**: Submits a guess to the server.
-- **QUIT**: Quits the current game session.
-- **EXIT**: Exits the game entirely.
-- **DEBUG**: Creates a game in Debug mode.
-- **SCOREBOARD**: Requests the current scoreboard from the server.
-- **SHOW_TRIALS**: Displays trial guesses made by the player.
+## Commands
 
-## **License**
+The following commands can be used by the client to interact with the game server:
+
+- **`START`**: Starts a new game session.
+- **`TRY`**: Submits a guess to the server.
+- **`QUIT`**: Quits the current game session.
+- **`EXIT`**: Exits the game entirely.
+- **`DEBUG`**: Creates a game in Debug mode.
+- **`SCOREBOARD`**: Requests the current scoreboard from the server.
+- **`SHOW_TRIALS`**: Displays trial guesses made by the player.
+
+---
+
+## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
