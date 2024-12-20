@@ -36,6 +36,9 @@ void writeFile(std::istringstream& response){
 
 int send_TCP(const std::string& msg, std::string& response, const std::string& ip, const std::string& port) {
     char buffer[1024];
+    std::string data;
+
+
     int fd = socket(AF_INET, SOCK_STREAM, 0);
     if (fd == -1) {
         std::cerr << "Error creating socket" << std::endl;
@@ -134,11 +137,14 @@ int send_TCP(const std::string& msg, std::string& response, const std::string& i
         }
 
         buffer[bytes_received] = '\0';  
-        response += buffer;  
+        data += buffer;  
         num_total_bytes += bytes_received;
 
     }
 
+    std::cout << data << std::endl;
+
+    response += data;
 
     freeaddrinfo(tcp_res);
     close(fd);

@@ -37,7 +37,6 @@ void createScoreFile(int plid, Game &game){
                     std::to_string(timeinfo->tm_sec) + 
                     ".txt";
 
-    std::cout << "FILE NAME:" << filename << std::endl;
 
     std::ofstream file(filename, std::ios::app);
 
@@ -91,8 +90,9 @@ void handleTry(int fd, struct sockaddr_in &client_addr, socklen_t client_len, st
             for (const auto& guess : guesses) {
                 std::cout << guess << " ";  
             }
+             std::cout << "for PLID: " << plid << std::endl;
         }
-        std::cout << "for PLID: " << plid << std::endl;
+       
 
     }catch(const std::invalid_argument& e){
         std::cout << e.what() << std::endl;
@@ -192,7 +192,6 @@ int calcScore(const Game& game) {
     int score_normalized = ((game.MAX_NUM_TRIALS - numTrials) * 50) / game.MAX_NUM_TRIALS  
     + ((600 - gameTime) * 50) / 600;
 
-    std::cout << "Score: " << score_normalized << std::endl;
     return score_normalized;
 }
 
@@ -201,11 +200,6 @@ std::pair<int, int> tryGuess(int plid, std::vector<std::string> guesses, int gam
     int numBlack = 0;
     int numWhite = 0;
     std::vector<int> trialState(4, 0);
-
-    std::cout << "PLID: " << plid << std::endl;
-    std::cout << "Game ID: " << gameId << std::endl;
-    std::cout << "Secret Key: " << games[gameId].secretKey[0] << games[gameId].secretKey[1] << games[gameId].secretKey[2] << games[gameId].secretKey[3] << std::endl;
-    
     
     for (size_t i = 0; i < 4; i++) {
         if (guesses[i] == games[gameId].secretKey[i]) {
@@ -228,8 +222,6 @@ std::pair<int, int> tryGuess(int plid, std::vector<std::string> guesses, int gam
     
 
     Trial newTrial = {guesses, numBlack, numWhite};
-
-    std::cout << "Trial Guess:" << newTrial.guesses[0] << newTrial.guesses[1] << newTrial.guesses[2] << newTrial.guesses[3] <<newTrial.numBlack <<newTrial.numWhite << std::endl;
 
 
     games[gameId].trials.push_back(newTrial);

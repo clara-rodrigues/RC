@@ -69,13 +69,11 @@ void handleScoreBoard(int client_fd, std::istringstream &commandStream, std::str
         return;
     }
 
-    // Sort games by score in descending order
     std::vector<Game> sortedGames = getGameScores();
     std::sort(sortedGames.begin(), sortedGames.end(), [](const Game &a, const Game &b) {
         return a.score > b.score;
     });
 
-    // Use a stringstream to store the scoreboard information in memory
     std::ostringstream scoreboard_info;
 
     int topCount = std::min(10, static_cast<int>(sortedGames.size()));
@@ -89,16 +87,12 @@ void handleScoreBoard(int client_fd, std::istringstream &commandStream, std::str
         scoreboard_info << std::setw(3) << std::setfill('0') << game.score << "\n";
     }
 
-    std::cerr << "[DEBUG] Scoreboard information built successfully in memory.\n";
-
-    // Check if the scoreboard is empty
     if (scoreboard_info.str().empty()) {
         std::cerr << "[ERROR] Scoreboard is empty!" << std::endl;
         const std::string error_response = "RSS NOK\n";
         write(client_fd, error_response.c_str(), error_response.size());
         return;
     }
-
 
     std::string scoreboardStr = scoreboard_info.str();
     std::size_t dataSize = scoreboardStr.size();
@@ -107,9 +101,5 @@ void handleScoreBoard(int client_fd, std::istringstream &commandStream, std::str
     header << "RSS OK scoreboard.txt " << dataSize << " ";
     std::string header_str = header.str();
 
-
-    std::cerr << "[DEBUG] Scoreboard data prepared successfully in buffer.\n";
-
-    // Send the buffer to the client
     sendToPlayer(client_fd, header_str, scoreboardStr);
 }

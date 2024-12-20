@@ -14,13 +14,12 @@
 
 
 void handle_client(int fd, struct sockaddr_in &client_addr, socklen_t client_len, char *buffer, ssize_t n) {
-    // Print client info
     char client_ip[INET_ADDRSTRLEN];
     inet_ntop(AF_INET, &client_addr.sin_addr, client_ip, INET_ADDRSTRLEN);
     std::cout << "Received message from IP: " << client_ip
               << ", port: " << ntohs(client_addr.sin_port) << std::endl;
 
-    // Echo the message back to the client
+
     ssize_t sent_n = sendto(fd, buffer, n, 0, (struct sockaddr *)&client_addr, client_len);
     if (sent_n == -1) {
         perror("Error sending response to client");
@@ -93,22 +92,22 @@ void handleUserMessage(int fd, struct sockaddr_in &client_addr, socklen_t client
     switch (commandID) {
         case 1: { // "start"
             handleStartGame(fd, client_addr, client_len, commandStream, client_ip, client_port);
-            std::cout << "Received 'start' command." << std::endl;
+            
             break;
         }
         case 2: { // "try"
             handleTry(fd, client_addr, client_len, commandStream, client_ip, client_port);
-            std::cout << "Received 'try' command." << std::endl;
+            
             break;
         }
         case 3: { // "quit"
             handleQuit(fd, client_addr, client_len, commandStream, client_ip, client_port);
-            std::cout << "Received 'quit' command." << std::endl;
+            
             break;
         }
         case 4: { // "debug"
             handleDebug(fd, client_addr, client_len, commandStream, client_ip, client_port);
-            std::cout << "Received 'debug' command." << std::endl;
+           
             break;
         }
         default: {

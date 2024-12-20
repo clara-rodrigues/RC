@@ -19,7 +19,7 @@ int getCommandID_TCP(const std::string& command) {
 
     };
     auto it = commandMap.find(command);
-    return (it != commandMap.end()) ? it->second : -1; // Return -1 for unknown commands
+    return (it != commandMap.end()) ? it->second : -1; 
 }
 
 
@@ -35,11 +35,9 @@ void sendToPlayer(int client_fd, const std::string& header_str, const std::strin
     buffer[header_size + trials_size] = '\n';
     buffer[header_size + trials_size + 1] = '\0';
 
-    size_t total_num_bytes = header_size + trials_size + 1;  // +1 for '\n'
+    size_t total_num_bytes = header_size + trials_size + 1;  
     size_t num_bytes_sent = 0;
     ssize_t sent_bytes = 0;
-
-    std::cout << "[DEBUG] Full message: " << buffer << std::endl;
 
     while (num_bytes_sent < total_num_bytes) {
         sent_bytes = write(client_fd, buffer + num_bytes_sent, total_num_bytes - num_bytes_sent);
@@ -50,8 +48,6 @@ void sendToPlayer(int client_fd, const std::string& header_str, const std::strin
         }
         num_bytes_sent += sent_bytes;
     }
-
-    std::cout << "[DEBUG] Sent " << num_bytes_sent << " bytes (header + trials info)." << std::endl;
 }
 
 void handlePlayerRequest(int client_fd, struct sockaddr_in client_addr) {
@@ -88,32 +84,6 @@ void handlePlayerRequest(int client_fd, struct sockaddr_in client_addr) {
             break;
         }
     }
-
-
-
-    //commandStream >> commandType >> plid;
-    //
-    //std::cerr << "[DEBUG] handlePlayerRequest: Comando identificado: '" << commandType 
-    //          << "', PLID identificado: '" << plid << "'" << std::endl;
-//
-    //if (plid.size() != 6 || !std::all_of(plid.begin(), plid.end(), ::isdigit)) {
-    //    std::cerr << "[ERROR] PLID inválido: '" << plid << "'" << std::endl;
-    //    const std::string error_response = "RST NOK\n";
-    //    send(client_fd, error_response.c_str(), error_response.size(), 0);
-    //    close(client_fd);
-    //    return;
-    //}
-//
-    //if (commandType == "STR") {
-    //    handleShowTrials(client_fd, plid);
-    //}else if (commandType == "SB") {
-    //    handleScoreBoard(client_fd);
-    //} else {
-    //    std::cerr << "[ERROR] Comando inválido: '" << commandType << "'" << std::endl;
-    //    const std::string invalid_response = "RST NOK\n";
-    //    send(client_fd, invalid_response.c_str(), invalid_response.size(), 0);
-    //}
-
     close(client_fd);
 }
 
@@ -160,7 +130,6 @@ int startTCPServer(std::string port) {
         exit(1);
     }
 
-    std::cout << "Servidor TCP iniciado na porta " << port << std::endl;
     tcp_fd = server_fd;
     return tcp_fd;
 }

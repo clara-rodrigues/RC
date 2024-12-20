@@ -1,12 +1,8 @@
 #include <iostream>
 #include <string>
 #include <sys/socket.h> 
-
 #include "../../GS.hpp"
-
 #include "../TCP.hpp"
-
-
 #include <dirent.h>
 #include <iostream>
 #include <filesystem>
@@ -43,33 +39,27 @@ std::string readFile(int client_fd, const std::string &filename) {
 
 bool FindLastGame(const std::string &PLID, std::string &fname) {
     std::string dirname = "server/GAMES/" + PLID + "/";
-    std::cout << "DIRNAME: " << dirname << std::endl;
 
     struct dirent **filelist;
     int n_entries = scandir(dirname.c_str(), &filelist, nullptr, alphasort);
     bool found = false;
 
     if (n_entries <= 0) {
-        std::cout << "N_ENTRIES: " << n_entries << std::endl;
         return false;
     }
 
     while (n_entries--) {
         std::string filename = filelist[n_entries]->d_name;
-        std::cout << "N_ENTRIES: " << filename << std::endl;
-
+        
         if (filename[0] != '.' && !found) {
             fname = dirname + filename;
             found = true;
-            std::cout << "FNAME: " << fname << std::endl;
         }
 
         free(filelist[n_entries]);
     }
 
     free(filelist);
-
-    std::cout << "FOUND: " << found << std::endl;
     return found;
 }
 
@@ -122,9 +112,6 @@ void handleShowTrials(int client_fd, std::istringstream &commandStream, std::str
 
         header << "RST ACT show_trials.txt" << " " << trials_info.length() << " ";
 
-        std::cout << "Trials Info: " << trials_info << std::endl;
-        std::cout << "File size: " << trials_info << std::endl;
-
         std::string header_str = header.str();
         
         sendToPlayer(client_fd, header_str, trials_info);
@@ -137,12 +124,7 @@ void handleShowTrials(int client_fd, std::istringstream &commandStream, std::str
             std::string trials_info = readFile(client_fd, filename);
             std::ostringstream header;
 
-            std::cout << "FILENAME: " << filename << std::endl;
-
             header << "RST FIN show_trials.txt " << trials_info.length() << " ";
-
-            std::cout << "Trials Info: " << trials_info << std::endl;
-            std::cout << "File size: " << trials_info << std::endl;
 
             std::string header_str = header.str();
         

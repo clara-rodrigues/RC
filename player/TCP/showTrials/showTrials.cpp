@@ -25,8 +25,6 @@ void show_trials(const std::string& ip, const std::string& port, const std::stri
         return;
     }
 
-    std::cout << "Server Response:" << response << std::endl;
-
     std::istringstream iss(response);
     std::string status, fname;
 

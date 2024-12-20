@@ -49,9 +49,6 @@ void createPlayerFile(int plid,int gameId){
         std::filesystem::create_directories(folder);
     }
 
-    std::cout << "Creating player file: " << filename << std::endl;
-
-
     timeinfo = gmtime(&games[gameId].startTime);
 
     std::ofstream file(filename);
@@ -99,7 +96,6 @@ int startNewGame(int plid, int maxPlaytime) {
         newPlayer.gameId = newIndex;
         players.push_back(newPlayer);
 
-        // Criar arquivo do jogador
         createPlayerFile(plid, newIndex);
 
         return 1;

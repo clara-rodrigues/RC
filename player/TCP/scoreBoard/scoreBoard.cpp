@@ -16,6 +16,7 @@ void score_board(const std::string& ip, const std::string& port) {
         std::cerr << "Failed to send 'scoreboard' command." << std::endl;
         return;
     }
+    
 
     std::istringstream iss(response);
     std::string status, fname;

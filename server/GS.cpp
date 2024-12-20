@@ -28,14 +28,12 @@ void createPlayerDir(int plid, Game &game) {
     const std::string oldFile = "server/GAMES/GAME_" + std::to_string(plid) + ".txt";
     const std::string folder = "server/GAMES/" + std::to_string(plid);
 
-    // Create the folder if it doesn't exist
     if (!fs::exists(folder)) {
         fs::create_directories(folder);
     }
 
     std::string newFileName;
 
-    // If the old file exists, rename it
     if (fs::exists(oldFile)) {
         timeinfo = gmtime(&game.startTime);
         newFileName = folder + "/" + 
@@ -55,7 +53,7 @@ void createPlayerDir(int plid, Game &game) {
         // Rename the old file to the new file
         fs::rename(oldFile, newFileName);
     } else {
-        std::cerr << "Old file does not exist: " << oldFile << std::endl;
+        std::cerr << "File does not exist: " << oldFile << std::endl;
         return;
     }
 
@@ -86,7 +84,6 @@ void clearGamesDir(std::string directory) {
         if (fs::exists(directory) && fs::is_directory(directory)) {
             for (const auto& entry : fs::directory_iterator(directory)) {
                 fs::remove_all(entry.path());
-                std::cout << "Removed: " << entry.path() << std::endl;
             }
             std::cout << "All files and folders in " << directory << " have been removed.\n";
         } else {
@@ -99,7 +96,6 @@ void clearGamesDir(std::string directory) {
 
 
 void signalHandler(int signum) {
-    std::cout << "\nSinal (" << signum << ") recebido. Limpando a diretoria GAMES...\n";
     clearGamesDir("server/GAMES");
     clearGamesDir("server/SCORES");
     close(udp_fd);
