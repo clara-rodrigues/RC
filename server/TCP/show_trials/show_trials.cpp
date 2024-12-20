@@ -12,9 +12,9 @@
 #include <ctime>
 #include <limits>
 
-namespace fs = std::filesystem;
+namespace fs = std::filesystem; // Alias for std::filesystem namespace
 
-
+// Function to read the contents of a file and return it as a string
 std::string readFile(int client_fd, const std::string &filename) {
     std::ifstream file(filename, std::ios::binary);
     std::vector<char> buffer;
@@ -36,7 +36,7 @@ std::string readFile(int client_fd, const std::string &filename) {
     return std::string(buffer.begin(), buffer.end());
 }
 
-
+// Function to find the most recent game file for a player (PLID)
 bool FindLastGame(const std::string &PLID, std::string &fname) {
     std::string dirname = "server/GAMES/" + PLID + "/";
 
@@ -63,7 +63,7 @@ bool FindLastGame(const std::string &PLID, std::string &fname) {
     return found;
 }
 
-
+// Function to handle the "show trials" request from a client
 void handleShowTrials(int client_fd, std::istringstream &commandStream, std::string client_ip, int client_port) {
     int plid;
         
@@ -87,7 +87,6 @@ void handleShowTrials(int client_fd, std::istringstream &commandStream, std::str
     std::strncpy(plid_char, plid_str.c_str(), sizeof(plid_char) - 1);
     plid_char[sizeof(plid_char) - 1] = '\0';
     std::string filename;
-
 
     Player *player = findPlayerById(plid);
     if (!player) {
@@ -116,7 +115,6 @@ void handleShowTrials(int client_fd, std::istringstream &commandStream, std::str
         
         sendToPlayer(client_fd, header_str, trials_info);
         
-
     } else {
 
         if(FindLastGame(plid_char, filename)){

@@ -11,7 +11,7 @@
 #include <netinet/in.h>
 #include <netdb.h>
 
-
+// Function to map a command string to a command ID.
 int getCommandID_TCP(const std::string& command) {
     static std::unordered_map<std::string, int> commandMap = {
         {"STR", 1},
@@ -22,7 +22,7 @@ int getCommandID_TCP(const std::string& command) {
     return (it != commandMap.end()) ? it->second : -1; 
 }
 
-
+// Function to send data to a player using the given client socket.
 void sendToPlayer(int client_fd, const std::string& header_str, const std::string& trials_info) {
     char buffer[BUFFER_SIZE];
     
@@ -50,6 +50,7 @@ void sendToPlayer(int client_fd, const std::string& header_str, const std::strin
     }
 }
 
+// Function to handle player requests.
 void handlePlayerRequest(int client_fd, struct sockaddr_in client_addr) {
     char buffer[BUFFER_SIZE];
     std::string client_ip = inet_ntoa(client_addr.sin_addr);
@@ -87,7 +88,7 @@ void handlePlayerRequest(int client_fd, struct sockaddr_in client_addr) {
     close(client_fd);
 }
 
-
+// Function to start the TCP server and bind it to the given port.
 int startTCPServer(std::string port) {
     int server_fd, client_fd;
     struct addrinfo hints{}, *res;
@@ -96,7 +97,6 @@ int startTCPServer(std::string port) {
     int tcp_fd;
 
     int option_tcp = 1;
-    
 
     server_fd = socket(AF_INET, SOCK_STREAM, 0);
     if (server_fd == -1) {

@@ -10,7 +10,7 @@
 #include <unistd.h>
 #include <filesystem>
 
-
+// Function to retrieve the scores of all games from the "server/SCORES" folder
 std::vector<Game> getGameScores(){
     std::string folderName = "server/SCORES";
     std::vector<Game> games;
@@ -55,7 +55,7 @@ std::vector<Game> getGameScores(){
 
 }
 
-
+// Function to handle the "ScoreBoard" request from the client
 void handleScoreBoard(int client_fd, std::istringstream &commandStream, std::string client_ip, int client_port) {
     try {
         checkExtraInput(commandStream);
