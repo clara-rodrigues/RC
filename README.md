@@ -6,25 +6,25 @@ This project is a **Mastermind game client** that communicates with a backend **
 
 ## Project Structure
 
-The project is divided into two main components: **player** (the client-side application) and **server** (the backend game logic).
+The project is divided into two main components: **client** (the player-side application) and **server** (the backend game logic).
 
-### **player**
-The client-side application that communicates with the server via UDP and TCP protocols.
+### **client**
+The player-side application that communicates with the server via UDP and TCP protocols.
 
-- **udp**: Contains files responsible for handling **UDP** communication, used for real-time commands like `START`, `TRY`, `QUIT`, `EXIT`, and `DEBUG`.
+- **UDP**: Contains files responsible for handling **UDP** communication, used for real-time commands like `START`, `TRY`, `QUIT`, `EXIT`, and `DEBUG`.
     - `start/`: Implements the 'START' command to initiate a new game session.
     - `try/`: Implements the 'TRY' command, sending the player's guess to the server.
     - `quit/`: Implements the 'QUIT' command to quit the current game session.
     - `exit/`: Implements the 'EXIT' command to exit the game entirely.
     - `debug/`: Implements the 'DEBUG' command to create a game in debug mode.
-    - `udp.cpp`: Implements general **UDP** communication functions used by the client.
-    - `udp.hpp`: Header file for **UDP** communication functions.
+    - `UDP.cpp`: Implements general **UDP** communication functions used by the client.
+    - `UDP.hpp`: Header file for **UDP** communication functions.
 
-- **tcp**: Contains files responsible for handling **TCP** communication, used for receiving files, scoreboard data, and trial guesses.
+- **TCP**: Contains files responsible for handling **TCP** communication, used for receiving files, scoreboard data, and trial guesses.
     - `scoreboard/`: Handles the 'SCOREBOARD' command to fetch the current scoreboard from the server.
     - `showTrials/`: Handles the 'SHOW_TRIALS' command to display trial guesses made by the player.
-    - `tcp.cpp`: Implements general **TCP** communication functions for the client.
-    - `tcp.hpp`: Header file for **TCP** communication functions.
+    - `TCP.cpp`: Implements general **TCP** communication functions for the client.
+    - `TCP.hpp`: Header file for **TCP** communication functions.
 
 - `player.cpp`: Main logic for the player, including game state management and interactions with the server.
 - `player.hpp`: Header file for the **player** class and related functions.
@@ -34,20 +34,20 @@ The client-side application that communicates with the server via UDP and TCP pr
 ### **server**
 Contains the backend **Game Server** that handles game logic and communication with the client application.
 
-- **udp**: Contains files for handling **UDP** communication on the server side.
+- **UDP**: Contains files for handling **UDP** communication on the server side.
     - `start/`: Implements the 'START' command on the server, starting a new game session.
     - `try/`: Handles the 'TRY' command, processing guesses and determining correctness.
     - `quit/`: Implements the 'QUIT' command, handling player quit requests.
     - `exit/`: Implements the 'EXIT' command to close the game session.
     - `debug/`: Implements the 'DEBUG' command to create and manage a game in debug mode.
-    - `udp.cpp`: Implements general **UDP** communication functions used by the server.
-    - `udp.hpp`: Header file for **UDP** communication functions on the server.
+    - `UDP.cpp`: Implements general **UDP** communication functions used by the server.
+    - `UDP.hpp`: Header file for **UDP** communication functions on the server.
 
-- **tcp**: Contains files for handling **TCP** communication on the server side.
+- **TCP**: Contains files for handling **TCP** communication on the server side.
     - `scoreboard/`: Implements the 'SCOREBOARD' functionality, sending the scoreboard data to the client.
     - `showTrials/`: Handles the server-side logic for displaying trial guesses made by the player.
-    - `tcp.cpp`: Implements general **TCP** communication functions for the server.
-    - `tcp.hpp`: Header file for **TCP** communication functions on the server.
+    - `TCP.cpp`: Implements general **TCP** communication functions for the server.
+    - `TCP.hpp`: Header file for **TCP** communication functions on the server.
 
 - `GS.cpp`: Main server logic, responsible for managing the game state and processing client commands.
 - `GS.hpp`: Header file for `GS.cpp`, declaring server-side game logic.
@@ -76,7 +76,7 @@ To run the project, follow these steps:
 3. **Run the Player Application**:
     - Open another terminal window and run the **Player application** by executing:
       ```bash
-      ./player1
+      ./player
       ```
 
 ---
