@@ -20,7 +20,8 @@ Player player;
 
 std::vector<std::string> colors = {"R", "G", "B", "Y", "O", "P"};
 
-
+// Validates a PLID (Player ID) received as input.
+// The PLID must contain exactly 6 numeric digits.
 std::string validPLID(std::istream& input){
     std::string plid;
 
@@ -35,7 +36,8 @@ std::string validPLID(std::istream& input){
     return plid;
 }
 
-
+// Validates the maximum playtime provided by the user.
+// It must be a value between 1 and 600 seconds.
 int validMaxPlayTime(std::istream& input){
     int maxPlaytime;
 
@@ -45,6 +47,8 @@ int validMaxPlayTime(std::istream& input){
     return maxPlaytime;
 }
 
+// Validates a guess attempt for a sequence of colors.
+// The sequence must contain exactly 4 valid colors.
 std::vector<std::string> validGuess(std::istream& input) {
     std::vector<std::string> rawGuesses;
     std::string guess;
@@ -69,6 +73,7 @@ std::vector<std::string> validGuess(std::istream& input) {
     return rawGuesses;
 }
 
+// Checks for extra input that should not be present after the expected arguments.
 void checkExtraInput(std::istream& input){
     std::string extra;
     if (input >> extra) {
@@ -76,7 +81,8 @@ void checkExtraInput(std::istream& input){
     }
 }
 
-
+// Processes the "start" command to initialize the game.
+// Validates the PLID, maximum playtime, and sets up the player.
 Player parseStartGame(const std::string& input, Player& player) {
     std::istringstream iss(input);
     std::string command;
@@ -95,7 +101,8 @@ Player parseStartGame(const std::string& input, Player& player) {
     return player;
 }
 
-
+// Processes the "try" command to record a guess attempt.
+// Validates the provided colors and ensures the maximum number of attempts is not exceeded.
 void parseTryGuess(const std::string& input, Player& player, std::vector<std::string>& guesses) {
     std::istringstream iss(input);
     std::string command;
@@ -113,7 +120,8 @@ void parseTryGuess(const std::string& input, Player& player, std::vector<std::st
     }
 }
 
-
+// Processes the "debug" command to configure a test game.
+// Validates the PLID, maximum playtime, and color sequence.
 void parseDebug(const std::string& input, Player& player, std::vector<std::string>& guesses){
     std::istringstream iss(input);
     std::string command;
@@ -130,12 +138,13 @@ void parseDebug(const std::string& input, Player& player, std::vector<std::strin
     }
 }
 
+// Ends the current game, resetting the player's state.
 void closeGame(Player &player){
     player.isPlaying = false;
     player.numTrials = 1;
 }
 
-
+// Maps text commands to numeric IDs for easier processing.
 int getCommandID(const std::string& command) {
     static std::unordered_map<std::string, int> commandMap = {
         {"start", 1},
@@ -153,7 +162,7 @@ int getCommandID(const std::string& command) {
     return (it != commandMap.end()) ? it->second : -1; 
 }
 
-
+// Handles signals (such as SIGINT) to perform cleanup actions before exiting the program.
 void signalHandler(int signum) {
     if (player.isPlaying){
         execute_exit(player, ip, port);
@@ -163,7 +172,8 @@ void signalHandler(int signum) {
     
 }
 
-
+// The main function of the program.
+// Sets up initial parameters, processes user commands, and controls the game flow.
 int main(int argc, char* argv[]) {
     
 

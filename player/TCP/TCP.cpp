@@ -1,5 +1,8 @@
 #include "TCP.hpp"
 
+// Writes the received file to the specified directory.
+// Parameters:
+// - response: A stream containing the response data from the server.
 void writeFile(std::istringstream& response){
     std::string fname, fsize_str, line;
     
@@ -34,6 +37,13 @@ void writeFile(std::istringstream& response){
     }
 }
 
+
+// Sends a TCP message and processes the server's response.
+// Parameters:
+// - msg: The message to send.
+// - response: A reference to a string to store the server's response.
+// - ip, port: The server's IP address and port number.
+// Returns: 1 on success, -1 on error.
 int send_TCP(const std::string& msg, std::string& response, const std::string& ip, const std::string& port) {
     char buffer[1024];
     std::string data;

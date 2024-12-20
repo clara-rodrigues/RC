@@ -3,7 +3,9 @@
 
 #include "../UDP.hpp"
 
-
+// Converts string representations of numbers (numTrials, numBlacks, numWhites) to integers.
+// Returns a vector containing the converted integers.
+// If conversion fails, an error message is displayed.
 std::vector<int> checkNums(std::string numTrials,std::string numBlacks, std::string numWhites){
     int numTrialsInt, numBlacksInt, numWhitesInt; 
 
@@ -22,7 +24,7 @@ std::vector<int> checkNums(std::string numTrials,std::string numBlacks, std::str
 }
 
 
-
+// Maps server response status strings to numeric IDs for easier processing.
 int getResponseId(const std::string& command) {
     static std::unordered_map<std::string, int> commandMap = {
         {"OK", 1},
@@ -39,7 +41,12 @@ int getResponseId(const std::string& command) {
 }
 
 
-
+// Executes the "try" command by sending the player's guesses to the server and handling the response.
+// Parameters:
+// - player: The Player object containing game state information.
+// - guesses: A vector of guesses (color codes) to send to the server.
+// - ip, port: The server's IP address and port number.
+// - numTrials: The current trial number, which may be incremented based on the server's response.
 void execute_try(Player &player, const std::vector<std::string>& guesses, const std::string& ip, const std::string& port, int& numTrials) {
     std::string plid = player.plid;
     std::string msg = "TRY " + plid ;

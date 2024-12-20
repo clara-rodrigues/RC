@@ -1,7 +1,9 @@
-
 #include "quit.hpp"
 
-
+// Executes the "quit" command, which signals the end of the game session for the player.
+// Parameters:
+// - player: The Player object containing the player's ID (plid) and game settings.
+// - ip, port: The server's IP address and port number.
 void execute_quit(Player &player ,const std::string& ip, const std::string& port) {
     std::string plid = player.plid;
     std::string msg = "QUT "+ plid + "\n";

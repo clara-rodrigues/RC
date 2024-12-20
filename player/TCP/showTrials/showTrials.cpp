@@ -11,11 +11,17 @@
 #include "../TCP.hpp"
 #include <algorithm>
 
-
+// Function to check if a string consists solely of numeric characters.
 bool is_numeric(const std::string& str) {
     return !str.empty() && std::all_of(str.begin(), str.end(), ::isdigit);
 }
 
+// Function to execute the "show trials" command. This requests and processes the 
+// trial data for a specific player from the server.
+// Parameters:
+// - ip: The server's IP address.
+// - port: The server's port number.
+// - plid: The player's ID.
 void show_trials(const std::string& ip, const std::string& port, const std::string& plid) {
     const std::string msg = "STR " + plid + "\n"; 
     std::string response;

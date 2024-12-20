@@ -1,7 +1,9 @@
-
-
 #include "start.hpp"
 
+// Executes the "start" command, which begins a new game session for the player.
+// Parameters:
+// - player: The Player object containing the player's ID (plid) and game settings.
+// - ip, port: The server's IP address and port number.
 void execute_start(Player &player, const std::string& ip, const std::string& port) {
     std::string plid = player.plid;
     int maxPlaytime = player.maxPlaytime;
